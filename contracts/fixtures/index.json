@@ -17,6 +17,21 @@
       "envelope": false
     },
     {
+      "fixture": "events/person_close_right_near.json",
+      "schema": "event.schema.json",
+      "envelope": false
+    },
+    {
+      "fixture": "events/nav_instruction_turn_right.json",
+      "schema": "event.schema.json",
+      "envelope": false
+    },
+    {
+      "fixture": "events/text_result_sign.json",
+      "schema": "event.schema.json",
+      "envelope": false
+    },
+    {
       "fixture": "api/health.ok.json",
       "schema": "api.schema.json#/$defs/HealthResponse",
       "envelope": true
