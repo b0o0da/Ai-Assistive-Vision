@@ -103,10 +103,7 @@ const val ENVELOPE_VERSION = "1.0"
 
 /** contracts/schemas/envelope.schema.json error object. */
 @Serializable
-data class ErrorInfo(
-    val code: ErrorCode,
-    val retryable: Boolean
-)
+data class ErrorInfo(val code: ErrorCode, val retryable: Boolean)
 
 /**
  * contracts/schemas/envelope.schema.json. Every backend response uses this shape.

@@ -86,7 +86,11 @@ class FixtureTest {
 
     @Test
     fun wrongVersionIsDetected() {
-        val raw = """{"version":"9.9","ok":true,"fallback":false,"message":"","data":{},"request_id":"r1","error":null}"""
+        val raw =
+            """
+            {"version":"9.9","ok":true,"fallback":false,"message":"",
+             "data":{},"request_id":"r1","error":null}
+            """.trimIndent()
         val env = Json.decodeFromString(ApiEnvelope.serializer(), raw)
         assertFalse(env.isSupportedVersion)
     }
