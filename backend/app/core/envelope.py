@@ -1,8 +1,6 @@
 """Response envelope: docs/api-contract.md section 4, contracts/schemas/envelope.schema.json."""
 
-from enum import Enum
-from typing import Any
-
+from enum import StrEnum
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 ENVELOPE_VERSION = "1.0"
@@ -11,7 +9,7 @@ GENERIC_ERROR = "Something went wrong with that request. Please try again."
 INVALID_REQUEST = "Sorry, I could not understand that request."
 
 
-class ErrorCode(str, Enum):
+class ErrorCode(StrEnum):
     timeout = "timeout"
     rate_limited = "rate_limited"
     unauthorized = "unauthorized"
