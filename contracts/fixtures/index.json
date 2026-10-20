@@ -32,6 +32,11 @@
       "envelope": true
     },
     {
+      "fixture": "api/describe.provider_error.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
       "fixture": "api/ask.ok.json",
       "schema": "api.schema.json#/$defs/AskResponse",
       "envelope": true
@@ -78,6 +83,16 @@
     },
     {
       "fixture": "api/error.invalid_request.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "api/error.rate_limited.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "api/error.unauthorized.json",
       "schema": "envelope-only",
       "envelope": true
     },

@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "ok": true,
+  "fallback": true,
+  "message": "The service had a problem. Please try again shortly.",
+  "data": null,
+  "request_id": "req_desc_3",
+  "error": {
+    "code": "provider_error",
+    "retryable": true
+  }
+}

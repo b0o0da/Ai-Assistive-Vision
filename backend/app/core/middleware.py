@@ -9,7 +9,13 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.core.envelope import GENERIC_ERROR, INVALID_REQUEST, rejected
+from app.core.envelope import (
+    FALLBACK_MESSAGES,
+    GENERIC_ERROR,
+    INVALID_REQUEST,
+    ErrorCode,
+    rejected,
+)
 
 logger = logging.getLogger("avn")
 _VALID_ID = re.compile(r"^[A-Za-z0-9_.:-]{1,64}$")
@@ -45,9 +51,22 @@ async def request_context(request: Request, call_next):
     return response
 
 
+def _code_for(status: int) -> ErrorCode:
+    if status in (401, 403):
+        return ErrorCode.unauthorized
+    if status == 429:
+        return ErrorCode.rate_limited
+    if status in (408, 504):
+        return ErrorCode.timeout
+    if status >= 500:
+        return ErrorCode.provider_error
+    return ErrorCode.bad_request
+
+
 def _reply(request: Request, status: int, message: str) -> JSONResponse:
     return JSONResponse(
-        status_code=status, content=rejected(message, request_id_of(request)).model_dump()
+        status_code=status,
+        content=rejected(message, request_id_of(request), _code_for(status)).model_dump(),
     )
 
 
@@ -56,8 +75,8 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
 
 
 async def http_error_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
-    message = INVALID_REQUEST if exc.status_code < 500 else GENERIC_ERROR
-    return _reply(request, exc.status_code, message)
+    code = _code_for(exc.status_code)
+    return _reply(request, exc.status_code, FALLBACK_MESSAGES[code])
 
 
 async def unhandled_error_handler(request: Request, exc: Exception) -> JSONResponse:

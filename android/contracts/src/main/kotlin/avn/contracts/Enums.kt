@@ -155,3 +155,22 @@ enum class PlanStep {
     @SerialName("ask")
     ASK
 }
+
+/** Mirrors envelope.schema.json error.code. Same five values as backend ErrorCode. */
+@Serializable
+enum class ErrorCode {
+    @SerialName("timeout")
+    TIMEOUT,
+
+    @SerialName("rate_limited")
+    RATE_LIMITED,
+
+    @SerialName("unauthorized")
+    UNAUTHORIZED,
+
+    @SerialName("bad_request")
+    BAD_REQUEST,
+
+    @SerialName("provider_error")
+    PROVIDER_ERROR
+}

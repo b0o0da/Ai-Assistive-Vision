@@ -2,15 +2,46 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://avn.local/contracts/envelope.schema.json",
   "title": "ApiEnvelope",
-  "description": "Every backend response. ok:false = request rejected (message is spoken-safe). fallback:true = provider failed or timed out; speak message. data holds the endpoint's response object or null.",
+  "description": "Every backend response. ok:false = request rejected (message is spoken-safe). fallback:true = provider failed or timed out; speak message. data holds the endpoint's response object or null. PRIVACY: data may carry personal content (scene descriptions, screen summaries, face match names) and requests may carry images, screen text and embeddings; none of it is persisted or logged by default. message and error must never contain personal content.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["ok", "fallback", "message", "data", "request_id"],
+  "required": ["version", "ok", "fallback", "message", "data", "request_id", "error"],
   "properties": {
+    "version": { "const": "1.0" },
     "ok": { "type": "boolean" },
     "fallback": { "type": "boolean" },
-    "message": { "type": "string", "maxLength": 300 },
+    "message": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Sentence the app speaks as is (the spec's fallback_message). Non-empty when ok is false or fallback is true."
+    },
     "data": { "type": ["object", "null"] },
-    "request_id": { "type": "string", "minLength": 1, "maxLength": 64 }
-  }
+    "request_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "error": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "retryable"],
+          "properties": {
+            "code": {
+              "enum": ["timeout", "rate_limited", "unauthorized", "bad_request", "provider_error"]
+            },
+            "retryable": { "type": "boolean" }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "ok": { "const": false } }, "required": ["ok"] },
+      "then": { "properties": { "error": { "type": "object" }, "message": { "minLength": 1 } } }
+    },
+    {
+      "if": { "properties": { "fallback": { "const": true } }, "required": ["fallback"] },
+      "then": { "properties": { "data": { "type": "null" }, "message": { "minLength": 1 } } }
+    }
+  ]
 }

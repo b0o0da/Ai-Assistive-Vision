@@ -1,9 +1,11 @@
 {
+  "version": "1.0",
   "ok": true,
   "fallback": false,
   "message": "",
   "data": {
     "summary": "You have three unread chats. Ahmed sent two messages about tomorrow's lecture, and the family group has five new messages."
   },
-  "request_id": "req_scr_1"
+  "request_id": "req_scr_1",
+  "error": null
 }
