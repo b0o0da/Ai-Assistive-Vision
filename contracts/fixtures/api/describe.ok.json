@@ -1,9 +1,11 @@
 {
+  "version": "1.0",
   "ok": true,
   "fallback": false,
   "message": "",
   "data": {
     "description": "A narrow corridor with a door ahead and a chair on your right. I may be wrong about small objects."
   },
-  "request_id": "req_desc_1"
+  "request_id": "req_desc_1",
+  "error": null
 }

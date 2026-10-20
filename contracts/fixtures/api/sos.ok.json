@@ -1,9 +1,11 @@
 {
+  "version": "1.0",
   "ok": true,
   "fallback": false,
   "message": "",
   "data": {
     "accepted": true
   },
-  "request_id": "req_sos_1"
+  "request_id": "req_sos_1",
+  "error": null
 }

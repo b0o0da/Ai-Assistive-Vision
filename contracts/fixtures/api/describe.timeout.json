@@ -1,7 +1,12 @@
 {
+  "version": "1.0",
   "ok": true,
   "fallback": true,
   "message": "I can't describe the scene right now.",
   "data": null,
-  "request_id": "req_desc_2"
+  "request_id": "req_desc_2",
+  "error": {
+    "code": "timeout",
+    "retryable": true
+  }
 }
