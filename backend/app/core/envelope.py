@@ -1,6 +1,8 @@
 """Response envelope: docs/api-contract.md section 4, contracts/schemas/envelope.schema.json."""
 
 from enum import StrEnum
+from typing import Any
+
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 ENVELOPE_VERSION = "1.0"
