@@ -46,6 +46,14 @@ data class SpeechCandidate(
 @Serializable
 data class PlanStepItem(val step: PlanStep, val arg: String? = null)
 
+/**
+ * Contract between intent routing and handlers (POST /intent `data`, IntentRouter.route output).
+ *
+ * - [steps]: ordered, whitelisted steps. Unknown steps never reach a handler (see ActionPlanValidator).
+ * - [requiresConfirmation]: true if any step could send, delete, buy or pay. Handlers must ask first.
+ * - [spokenAck]: short sentence spoken immediately, or null.
+ * - [clarification]: question to speak when there is no valid step, or null.
+ */
 @Serializable
 data class ActionPlan(
     val steps: List<PlanStepItem>,

@@ -1,0 +1,1 @@
+{"steps":[{"step":"launch_app","arg":"WhatsApp"},{"step":"wait","arg":null},{"step":"read_screen","arg":null},{"step":"summarize","arg":null}],"requires_confirmation":false,"spoken_ack":"Opening WhatsApp.","clarification":null}
