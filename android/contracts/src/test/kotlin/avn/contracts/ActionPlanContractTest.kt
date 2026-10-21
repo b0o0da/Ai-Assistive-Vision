@@ -14,7 +14,9 @@ class ActionPlanContractTest {
     private fun files(dir: String): List<File> =
         File(fixtures, dir).listFiles { f -> f.extension == "json" }.orEmpty().sortedBy { it.name }
 
-    private fun untrusted(name: String) = ActionPlanValidator.parse(File(fixtures, "plans/untrusted/$name").readText())
+    private val untrustedDir = File(System.getProperty("avn.repoRoot"), "tests/fixtures/plans/untrusted")
+
+    private fun untrusted(name: String) = ActionPlanValidator.parse(File(untrustedDir, name).readText())
 
     @Test
     fun whitelistHasTheElevenSpecSteps() {
