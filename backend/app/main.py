@@ -1,8 +1,9 @@
 """AVN backend app factory.
 
-Foundation only: envelope, request ids, fail-soft error handlers and GET /health.
-The other 8 endpoints, auth, mock scenarios and input caps arrive in phase B1
-(docs/claude-code/backend-prompts.md).
+The 9 contract endpoints with envelope, request ids and fail-soft error handlers.
+MOCK_MODE=true answers from contracts/fixtures/api (X-Mock-Scenario picks ok, timeout, error
+or empty). Auth (WS22-04), real providers (B2 to B4) and deploy (B5) come later:
+docs/claude-code/backend-prompts.md.
 """
 
 import logging
@@ -19,7 +20,7 @@ from app.core.middleware import (
     unhandled_error_handler,
     validation_error_handler,
 )
-from app.routers import health
+from app.routers import faces, health, intent, route, screen, sos, vision
 
 
 def create_app() -> FastAPI:
@@ -31,7 +32,8 @@ def create_app() -> FastAPI:
     app.add_exception_handler(RequestValidationError, validation_error_handler)
     app.add_exception_handler(StarletteHTTPException, http_error_handler)
     app.add_exception_handler(Exception, unhandled_error_handler)
-    app.include_router(health.router)
+    for module in (health, vision, screen, intent, route, faces, sos):
+        app.include_router(module.router)
     return app
 
 

@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic import Field
@@ -20,6 +21,9 @@ class Settings(BaseSettings):
     app_api_keys: str = "dev-install-key"
     provider_timeout_s: float = Field(default=4.0, gt=0, le=30)
     log_level: str = "info"
+    # Canned responses for MOCK_MODE. Defaults to the repo's contracts/fixtures/api; the Docker
+    # image gets them through a read-only volume (see docker-compose.yml).
+    mock_fixtures_dir: Path = Path(__file__).resolve().parents[3] / "contracts" / "fixtures" / "api"
 
     @property
     def api_keys(self) -> frozenset[str]:
