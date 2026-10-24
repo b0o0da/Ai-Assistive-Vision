@@ -1,0 +1,170 @@
+{
+  "scenario_version": 1,
+  "name": "Walking: chair, repeat, noise, pole, vehicle interrupt",
+  "description": "User walks. A chair is announced once (repeats are muted by cooldown), noise and a scene description stay silent, a vehicle cuts the pole warning, and the chair is announced again after the cooldown.",
+  "tts": {
+    "ms_per_char": 60
+  },
+  "steps": [
+    {
+      "t_ms": 0,
+      "event": {
+        "id": "e1",
+        "source": "object_detection",
+        "type": "obstacle_ahead",
+        "label": "Chair ahead",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 0.91,
+        "risk": "warning"
+      },
+      "expect_decision": {
+        "outcome": "SPOKEN_NOW",
+        "reason": "OK"
+      }
+    },
+    {
+      "t_ms": 300,
+      "event": {
+        "id": "e2",
+        "source": "object_detection",
+        "type": "obstacle_ahead",
+        "label": "Chair ahead",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 0.9
+      },
+      "expect_decision": {
+        "outcome": "SUPPRESSED",
+        "reason": "COOLDOWN"
+      }
+    },
+    {
+      "t_ms": 350,
+      "event": {
+        "id": "e3",
+        "source": "object_detection",
+        "type": "obstacle_ahead",
+        "label": "Bag on the left",
+        "side": "left",
+        "distance_band": "medium",
+        "confidence": 0.33
+      },
+      "expect_decision": {
+        "outcome": "SUPPRESSED",
+        "reason": "LOW_CONFIDENCE"
+      }
+    },
+    {
+      "t_ms": 400,
+      "event": {
+        "id": "e4",
+        "source": "object_detection",
+        "type": "obstacle_ahead",
+        "label": "Pole on the right",
+        "side": "right",
+        "distance_band": "medium",
+        "confidence": 0.8
+      },
+      "expect_decision": {
+        "outcome": "QUEUED",
+        "reason": "WAITING_FOR_GAP"
+      }
+    },
+    {
+      "t_ms": 500,
+      "event": {
+        "id": "e5",
+        "source": "scene_understanding",
+        "type": "scene_description",
+        "label": "A shop is ahead",
+        "side": "center",
+        "distance_band": "far",
+        "confidence": 0.83,
+        "risk": "info"
+      },
+      "expect_decision": {
+        "outcome": "SUPPRESSED",
+        "reason": "INFO_NOT_REQUESTED"
+      }
+    },
+    {
+      "t_ms": 900,
+      "event": {
+        "id": "e6",
+        "source": "vehicle_detection",
+        "type": "vehicle_approaching",
+        "label": "Vehicle approaching",
+        "side": "left",
+        "distance_band": "near",
+        "confidence": 0.95,
+        "risk": "critical"
+      },
+      "expect_decision": {
+        "outcome": "SPOKEN_INTERRUPT",
+        "reason": "OK"
+      }
+    },
+    {
+      "t_ms": 1200,
+      "event": {
+        "id": "e7",
+        "source": "vehicle_detection",
+        "type": "vehicle_approaching",
+        "label": "Vehicle approaching",
+        "side": "left",
+        "distance_band": "near",
+        "confidence": 0.96,
+        "risk": "critical"
+      },
+      "expect_decision": {
+        "outcome": "SUPPRESSED",
+        "reason": "COOLDOWN"
+      }
+    },
+    {
+      "t_ms": 3000,
+      "event": {
+        "id": "e8",
+        "source": "object_detection",
+        "type": "obstacle_ahead",
+        "label": "Chair ahead",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 0.92
+      },
+      "expect_decision": {
+        "outcome": "SUPPRESSED",
+        "reason": "COOLDOWN"
+      }
+    },
+    {
+      "t_ms": 6000,
+      "event": {
+        "id": "e9",
+        "source": "object_detection",
+        "type": "obstacle_ahead",
+        "label": "Chair ahead",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 0.92
+      },
+      "expect_decision": {
+        "outcome": "SPOKEN_NOW",
+        "reason": "OK"
+      }
+    }
+  ],
+  "expect": {
+    "spoken": [
+      "Chair ahead",
+      "Pole on the right",
+      "Vehicle approaching",
+      "Chair ahead"
+    ],
+    "not_spoken": [
+      "A shop is ahead",
+      "Bag on the left"
+    ]
+  }
+}

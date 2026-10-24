@@ -1,0 +1,19 @@
+{
+  "scenario_version": 1,
+  "name": "Context: moving, stopped, microphone listening",
+  "description": "A scene description is silent while walking and spoken once the user stops. While the microphone listens a warning is held, but a vehicle alert still speaks; the held warning is released when listening ends.",
+  "tts": { "ms_per_char": 60 },
+  "steps": [
+    { "t_ms": 0,    "event": { "id": "s1", "source": "scene_understanding", "type": "scene_description", "label": "A shop is ahead", "side": "center", "distance_band": "far", "confidence": 0.83 } },
+    { "t_ms": 1000, "context": { "moving": false } },
+    { "t_ms": 1100, "event": { "id": "s2", "source": "scene_understanding", "type": "scene_description", "label": "A shop is ahead", "side": "center", "distance_band": "far", "confidence": 0.83 } },
+    { "t_ms": 3000, "context": { "moving": false, "listening": true } },
+    { "t_ms": 3100, "event": { "id": "o1", "source": "object_detection", "type": "obstacle_ahead", "label": "Chair ahead", "side": "center", "distance_band": "near", "confidence": 0.90 } },
+    { "t_ms": 3500, "event": { "id": "v1", "source": "vehicle_detection", "type": "vehicle_approaching", "label": "Vehicle approaching", "side": "left", "distance_band": "near", "confidence": 0.95 } },
+    { "t_ms": 5000, "context": { "moving": false, "listening": false } }
+  ],
+  "expect": {
+    "spoken": ["A shop is ahead", "Vehicle approaching", "Chair ahead"],
+    "not_spoken": []
+  }
+}

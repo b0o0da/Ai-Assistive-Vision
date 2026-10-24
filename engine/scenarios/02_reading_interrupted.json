@@ -1,0 +1,16 @@
+{
+  "scenario_version": 1,
+  "name": "Reading a medicine box, a vehicle interrupts, reading resumes",
+  "description": "The user asked to read a box (3 chunks). A vehicle alert cuts the second chunk; it is repeated afterwards and nothing is lost. OCR text is redacted in the log.",
+  "tts": { "ms_per_char": 60 },
+  "steps": [
+    { "t_ms": 0,    "speech": { "id": "c1", "source": "ocr", "text": "Panadol 500 mg.", "level": "info", "user_requested": true, "sensitive": true, "dedupe_key": "ocr:1:0", "ttl_ms": 60000 } },
+    { "t_ms": 0,    "speech": { "id": "c2", "source": "ocr", "text": "Take two tablets daily.", "level": "info", "user_requested": true, "sensitive": true, "dedupe_key": "ocr:1:1", "ttl_ms": 60000 } },
+    { "t_ms": 0,    "speech": { "id": "c3", "source": "ocr", "text": "Keep out of reach of children.", "level": "info", "user_requested": true, "sensitive": true, "dedupe_key": "ocr:1:2", "ttl_ms": 60000 } },
+    { "t_ms": 1200, "event": { "id": "v1", "source": "vehicle_detection", "type": "vehicle_approaching", "label": "Vehicle approaching", "side": "right", "distance_band": "near", "confidence": 0.94 } }
+  ],
+  "expect": {
+    "spoken": ["Panadol 500 mg.", "Take two tablets daily.", "Vehicle approaching", "Take two tablets daily.", "Keep out of reach of children."],
+    "not_spoken": []
+  }
+}

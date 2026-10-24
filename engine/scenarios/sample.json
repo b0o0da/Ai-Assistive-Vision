@@ -1,0 +1,99 @@
+{
+  "scenario_version": 1,
+  "name": "Sample: repeat, noise, queue and interruption",
+  "description": "The smallest scenario that shows every kind of decision: speak, mute a repeat, drop noise, queue a warning, and let a critical alert cut it.",
+  "tts": {
+    "ms_per_char": 60
+  },
+  "steps": [
+    {
+      "t_ms": 0,
+      "event": {
+        "id": "e1",
+        "source": "object_detection",
+        "type": "obstacle_ahead",
+        "label": "Chair ahead",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 0.91
+      },
+      "expect_decision": {
+        "outcome": "SPOKEN_NOW",
+        "reason": "OK"
+      }
+    },
+    {
+      "t_ms": 300,
+      "event": {
+        "id": "e2",
+        "source": "object_detection",
+        "type": "obstacle_ahead",
+        "label": "Chair ahead",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 0.9
+      },
+      "expect_decision": {
+        "outcome": "SUPPRESSED",
+        "reason": "COOLDOWN"
+      }
+    },
+    {
+      "t_ms": 350,
+      "event": {
+        "id": "e3",
+        "source": "object_detection",
+        "type": "obstacle_ahead",
+        "label": "Bag on the left",
+        "side": "left",
+        "distance_band": "medium",
+        "confidence": 0.3
+      },
+      "expect_decision": {
+        "outcome": "SUPPRESSED",
+        "reason": "LOW_CONFIDENCE"
+      }
+    },
+    {
+      "t_ms": 400,
+      "event": {
+        "id": "e4",
+        "source": "object_detection",
+        "type": "obstacle_ahead",
+        "label": "Pole on the right",
+        "side": "right",
+        "distance_band": "medium",
+        "confidence": 0.8
+      },
+      "expect_decision": {
+        "outcome": "QUEUED"
+      }
+    },
+    {
+      "t_ms": 700,
+      "event": {
+        "id": "e5",
+        "source": "vehicle_detection",
+        "type": "vehicle_approaching",
+        "label": "Vehicle approaching",
+        "side": "left",
+        "distance_band": "near",
+        "confidence": 0.95,
+        "risk": "critical"
+      },
+      "expect_decision": {
+        "outcome": "SPOKEN_INTERRUPT"
+      }
+    }
+  ],
+  "expect": {
+    "spoken": [
+      "Chair ahead",
+      "Pole on the right",
+      "Vehicle approaching"
+    ],
+    "not_spoken": [
+      "Bag on the left"
+    ]
+  }
+}
