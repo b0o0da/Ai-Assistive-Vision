@@ -1,0 +1,20 @@
+{
+  "default": {
+    "near": { "heightRatio": 0.35, "bottomRatio": 0.75 },
+    "medium": { "heightRatio": 0.15, "bottomRatio": 0.45 }
+  },
+  "classes": {
+    "person": {
+      "near": { "heightRatio": 0.45, "bottomRatio": 0.80 },
+      "medium": { "heightRatio": 0.20, "bottomRatio": 0.50 }
+    },
+    "vehicle": {
+      "near": { "heightRatio": 0.30, "bottomRatio": 0.70 },
+      "medium": { "heightRatio": 0.12, "bottomRatio": 0.40 }
+    },
+    "chair": {
+      "near": { "heightRatio": 0.30, "bottomRatio": 0.70 },
+      "medium": { "heightRatio": 0.12, "bottomRatio": 0.40 }
+    }
+  }
+}
