@@ -1,7 +1,9 @@
 package avn.app.core.di
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
+import avn.app.BuildConfig
 import avn.app.camera.FakeFrameSource
 import avn.app.camera.FrameSource
 import avn.app.core.FakeEngineInput
@@ -10,6 +12,10 @@ import avn.app.data.AlertLogDao
 import avn.app.data.AvnDatabase
 import avn.app.data.KnownPeopleDao
 import avn.app.data.SettingsDao
+import avn.app.data.api.ApiClient
+import avn.app.data.api.BackendClient
+import avn.app.data.api.BackendConfig
+import avn.app.data.api.ConsentGate
 import avn.app.navigation.FakeLocationSource
 import avn.app.navigation.FakeNavigation
 import avn.app.navigation.LocationSource
@@ -142,4 +148,12 @@ object DataModule {
     @Singleton
     fun consentManager(@ApplicationContext context: Context): ConsentManager =
         ConsentManager(context.getSharedPreferences("consent", Context.MODE_PRIVATE))
+
+    @Provides
+    @Singleton
+    fun apiClient(consent: ConsentManager): ApiClient = BackendClient(
+        config = BackendConfig(BuildConfig.BACKEND_URL, BuildConfig.API_KEY),
+        consent = ConsentGate(consent::isGranted),
+        log = { line -> Log.d("avn.api", line) }
+    )
 }
