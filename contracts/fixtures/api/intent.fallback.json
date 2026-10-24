@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "ok": true,
+  "fallback": true,
+  "message": "I didn't understand that. Please say it another way.",
+  "data": null,
+  "request_id": "req_int_3",
+  "error": {
+    "code": "provider_error",
+    "retryable": true
+  }
+}

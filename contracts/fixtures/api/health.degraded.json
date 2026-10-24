@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "ok": true,
+  "fallback": false,
+  "message": "",
+  "data": {
+    "status": "degraded",
+    "version": "1.0.0",
+    "mock_mode": false
+  },
+  "request_id": "req_health_2",
+  "error": null
+}

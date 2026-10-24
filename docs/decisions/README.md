@@ -14,6 +14,7 @@ Template for a decision file `TD-xxx-short-name.md`:
 ```
 # TD-xxx: <question>
 Date · Owner · Status: Decided
+Contract impact: [ ] none  [ ] yes, contract version X.Y.Z → X.Y.Z (see docs/api-contract.md §7)
 ## Context
 ## Options considered
 ## Decision

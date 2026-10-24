@@ -15,11 +15,11 @@ import org.junit.Test
 class FixtureTest {
     private val fixtures = File(System.getProperty("avn.repoRoot"), "contracts/fixtures")
 
-    /** Files in contracts/fixtures/api that are requests, not envelopes. */
-    private val requestFiles = setOf("describe.request.json", "intent.request.json")
+    /** Files in contracts/fixtures/api named `*.request.json` are request bodies, not envelopes. */
+    private fun isRequest(f: File) = f.name.endsWith(".request.json")
 
     private fun envelopeFiles(): List<File> =
-        File(fixtures, "api").listFiles { f -> f.extension == "json" && f.name !in requestFiles }
+        File(fixtures, "api").listFiles { f -> f.extension == "json" && !isRequest(f) }
             .orEmpty()
             .sortedBy { it.name }
 
@@ -67,6 +67,29 @@ class FixtureTest {
         val bands = DistanceBand.entries.map { Json.encodeToString(DistanceBand.serializer(), it).trim('"') }
         assertEquals(listOf("left", "center", "right"), sides)
         assertEquals(listOf("near", "medium", "far"), bands)
+    }
+
+    @Test
+    fun everyEndpointHasRequestOkAndFailureFixtures() {
+        val names = File(fixtures, "api").listFiles().orEmpty().map { it.name }.toSet()
+        val endpoints = listOf(
+            "health",
+            "describe",
+            "ask",
+            "screen_summarize",
+            "intent",
+            "route",
+            "faces_enroll",
+            "faces_match",
+            "sos"
+        )
+        for (ep in endpoints) {
+            val mine = names.filter { it.startsWith("$ep.") }
+            if (ep != "health") assertTrue("$ep: missing request fixture", "$ep.request.json" in mine)
+            assertTrue("$ep: missing ok fixture", mine.any { it == "$ep.ok.json" })
+            val failures = mine.filter { !it.endsWith(".request.json") && it != "$ep.ok.json" }
+            assertTrue("$ep: missing failure fixture", failures.isNotEmpty())
+        }
     }
 
     @Test

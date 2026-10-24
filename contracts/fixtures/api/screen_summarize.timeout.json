@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "ok": true,
+  "fallback": true,
+  "message": "I can't summarize this screen right now.",
+  "data": null,
+  "request_id": "req_scr_3",
+  "error": {
+    "code": "timeout",
+    "retryable": true
+  }
+}

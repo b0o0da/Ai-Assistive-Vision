@@ -1,6 +1,6 @@
-# Contracts — version 0.1.0-draft
+# Contracts — version 1.0.0
 
-The shared language between the Android app and the backend. Status: **DRAFT until Gate 1** (end of week 2). All six team members review, then it is frozen.
+The shared language between the Android app and the backend. Status: **FROZEN at Gate 1** (tag `contract-v1`). Changes follow the process below and §7 of `docs/api-contract.md`.
 
 - `schemas/` — JSON Schema (draft 2020-12): `common` (enums), `event`, `envelope`, `api` (the 9 endpoints), `android` (on-phone seam types: SpeechRequest, ActionPlan, ScreenSnapshot).
 - `fixtures/` — example documents for every response and failure. `fixtures/index.json` maps each fixture to its schema.
@@ -9,7 +9,7 @@ The shared language between the Android app and the backend. Status: **DRAFT unt
 Check everything: `python scripts/validate_contracts.py` (CI runs it on every PR).
 
 ## Change process after the freeze
-1. Open a Technical Decision in Notion (and `docs/decisions/`).
-2. Bump the version here and in `docs/api-contract.md`.
+1. Write a Technical Decision in `docs/decisions/` (and Notion) with **Contract impact** ticked.
+2. Bump the version here, in `fixtures/index.json` and in `docs/api-contract.md` (major for breaking, minor for additive, patch for wording).
 3. Update schemas, fixtures, Kotlin and Pydantic models in the same PR.
-4. Reviewed by at least one Android and one backend owner.
+4. Reviewed by at least one Android and one backend owner; tag `contract-vX.Y.Z` after merge.

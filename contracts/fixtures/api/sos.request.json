@@ -1,0 +1,11 @@
+{
+  "lat": 30.0444,
+  "lon": 31.2357,
+  "accuracy_m": 12,
+  "fix_age_s": 4,
+  "ts": 1760000000000,
+  "contact_ids": [
+    "contact_1",
+    "contact_2"
+  ]
+}
