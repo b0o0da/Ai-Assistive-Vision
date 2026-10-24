@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0-draft",
+  "version": "1.0.0",
   "fixtures": [
     {
       "fixture": "events/vehicle_approaching_left.json",
@@ -17,9 +17,34 @@
       "envelope": false
     },
     {
+      "fixture": "events/person_close_right_near.json",
+      "schema": "event.schema.json",
+      "envelope": false
+    },
+    {
+      "fixture": "events/nav_instruction_turn_right.json",
+      "schema": "event.schema.json",
+      "envelope": false
+    },
+    {
+      "fixture": "events/text_result_sign.json",
+      "schema": "event.schema.json",
+      "envelope": false
+    },
+    {
       "fixture": "api/health.ok.json",
       "schema": "api.schema.json#/$defs/HealthResponse",
       "envelope": true
+    },
+    {
+      "fixture": "api/health.degraded.json",
+      "schema": "api.schema.json#/$defs/HealthResponse",
+      "envelope": true
+    },
+    {
+      "fixture": "api/describe.request.json",
+      "schema": "api.schema.json#/$defs/DescribeRequest",
+      "envelope": false
     },
     {
       "fixture": "api/describe.ok.json",
@@ -32,9 +57,29 @@
       "envelope": true
     },
     {
+      "fixture": "api/describe.provider_error.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "api/ask.request.json",
+      "schema": "api.schema.json#/$defs/AskRequest",
+      "envelope": false
+    },
+    {
       "fixture": "api/ask.ok.json",
       "schema": "api.schema.json#/$defs/AskResponse",
       "envelope": true
+    },
+    {
+      "fixture": "api/ask.timeout.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "api/screen_summarize.request.json",
+      "schema": "api.schema.json#/$defs/ScreenSummarizeRequest",
+      "envelope": false
     },
     {
       "fixture": "api/screen_summarize.ok.json",
@@ -42,9 +87,19 @@
       "envelope": true
     },
     {
+      "fixture": "api/screen_summarize.timeout.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
       "fixture": "api/screen_summarize.blocked.json",
       "schema": "envelope-only",
       "envelope": true
+    },
+    {
+      "fixture": "api/intent.request.json",
+      "schema": "api.schema.json#/$defs/IntentRequest",
+      "envelope": false
     },
     {
       "fixture": "api/intent.ok.json",
@@ -57,8 +112,48 @@
       "envelope": true
     },
     {
+      "fixture": "api/intent.fallback.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "api/route.request.json",
+      "schema": "api.schema.json#/$defs/RouteRequestQuery",
+      "envelope": false
+    },
+    {
+      "fixture": "api/route.ok.json",
+      "schema": "api.schema.json#/$defs/RouteResponse",
+      "envelope": true
+    },
+    {
+      "fixture": "api/route.fallback.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "api/faces_enroll.request.json",
+      "schema": "api.schema.json#/$defs/FacesEnrollRequest",
+      "envelope": false
+    },
+    {
       "fixture": "api/faces_enroll.ok.json",
       "schema": "api.schema.json#/$defs/FacesEnrollResponse",
+      "envelope": true
+    },
+    {
+      "fixture": "api/faces_enroll.no_consent.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "api/faces_match.request.json",
+      "schema": "api.schema.json#/$defs/FacesMatchRequest",
+      "envelope": false
+    },
+    {
+      "fixture": "api/faces_match.ok.json",
+      "schema": "api.schema.json#/$defs/FacesMatchResponse",
       "envelope": true
     },
     {
@@ -67,13 +162,18 @@
       "envelope": true
     },
     {
-      "fixture": "api/route.ok.json",
-      "schema": "api.schema.json#/$defs/RouteResponse",
-      "envelope": true
+      "fixture": "api/sos.request.json",
+      "schema": "api.schema.json#/$defs/SosRequest",
+      "envelope": false
     },
     {
       "fixture": "api/sos.ok.json",
       "schema": "api.schema.json#/$defs/SosResponse",
+      "envelope": true
+    },
+    {
+      "fixture": "api/sos.provider_error.json",
+      "schema": "envelope-only",
       "envelope": true
     },
     {
@@ -82,14 +182,14 @@
       "envelope": true
     },
     {
-      "fixture": "api/describe.request.json",
-      "schema": "api.schema.json#/$defs/DescribeRequest",
-      "envelope": false
+      "fixture": "api/error.rate_limited.json",
+      "schema": "envelope-only",
+      "envelope": true
     },
     {
-      "fixture": "api/intent.request.json",
-      "schema": "api.schema.json#/$defs/IntentRequest",
-      "envelope": false
+      "fixture": "api/error.unauthorized.json",
+      "schema": "envelope-only",
+      "envelope": true
     },
     {
       "fixture": "screens/whatsapp_chat_list.json",
@@ -99,6 +199,51 @@
     {
       "fixture": "screens/banking_blocked.json",
       "schema": "android.schema.json#/$defs/ScreenSnapshot",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/describe.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/ask.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/read_whatsapp.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/scroll_down.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/back.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/navigate_pharmacy.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/sos.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/tap_send_confirmed.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/clarification.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
       "envelope": false
     }
   ]

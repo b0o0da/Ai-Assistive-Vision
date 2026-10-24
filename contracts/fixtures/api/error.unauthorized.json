@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "ok": false,
+  "fallback": false,
+  "message": "I can't connect to the service. The app needs to be set up again.",
+  "data": null,
+  "request_id": "req_err_3",
+  "error": {
+    "code": "unauthorized",
+    "retryable": false
+  }
+}

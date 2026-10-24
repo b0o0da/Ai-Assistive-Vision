@@ -1,0 +1,1 @@
+{"steps":[{"step":"launch_app","arg":"WhatsApp"},{"step":"delete_all_chats","arg":null},{"step":"read_screen","arg":null}],"requires_confirmation":false,"spoken_ack":"Opening WhatsApp.","clarification":null}

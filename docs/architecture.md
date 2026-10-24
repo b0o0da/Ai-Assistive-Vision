@@ -214,7 +214,7 @@ Each workstream is described with the same 15 fields so the task generator can l
 - **Purpose / Why:** Freeze the interfaces by end of week 2 so six people can build against fakes (spec Sec. 8: freeze event schema and backend API in `docs/api-contract.md`).
 - **Inputs:** Spec Sec. 10 event schema, Sec. 11 endpoint list.
 - **Processing:** Write request/response JSON for the 9 endpoints; define the event schema and enumerations; write fixtures for every response and failure; version the contract.
-- **Outputs:** `docs/api-contract.md`, `contracts/` JSON schemas and fixtures *(proposed folder)*, Kotlin and Pydantic models generated or hand-synced from them.
+- **Outputs:** `docs/api-contract.md`, `contracts/` JSON schemas and fixtures *(proposed folder)*, Kotlin and Pydantic models generated or hand-synced from them. Valid `ActionPlan` fixtures live in `contracts/fixtures/plans/valid/` and are listed in `contracts/fixtures/index.json`. Untrusted (deliberately invalid) plans live in `tests/fixtures/plans/untrusted/`, outside `contracts/fixtures/`, because `scripts/validate_contracts.py` requires every file there to pass its schema (AVN-220).
 - **Internal components:** Event schema; envelope schema; enum registry (`source`, `type`, `side`, `distance_band`, `risk`); fixture library (ok, fallback, timeout, invalid).
 - **APIs / interfaces:** Event: `id, source, type, label, side, distance_band, confidence, risk, timestamp` (exactly the spec). Envelope *(proposed)*: `{ok: bool, fallback: bool, message: string, data: object|null, request_id}`. `distance_band` is `near|medium|far`, never meters.
 - **Data structures:** `Event`, `ApiEnvelope`, `SpeechRequest` (text, level, source, interruptible, event\_id), `ActionPlan` (list of steps: launch\_app, wait, read\_screen, summarize, scroll, back, tap\_label, navigate, sos, describe, ask), `ScreenSnapshot` (package, nodes, text, optional screenshot ref, flags).
@@ -414,16 +414,54 @@ Each workstream is described with the same 15 fields so the task generator can l
 - **Inputs:** `Transcript`, current context (offline, navigation active, screen app in front).
 - **Processing:** Rules first (open app, read screen, scroll, back, "what's around me", "read this", ask about the scene, navigate to X, SOS, cancel, stop, repeat, enroll person, volume/speed); no match and online: `/intent` returns an `ActionPlan`; offline with no rule match: speak "I can't do that offline". Plans with risky steps get a spoken confirmation step. Follow-ups ("scroll down") reuse the last screen context.
 - **Outputs:** `ActionPlan` to the action router, which calls the camera, screen, navigation, SOS or AI modules.
-- **Internal components:** `RuleIntentParser`, `IntentApiClient`, `ActionRouter`, `ConfirmationManager`, `ConversationState` (timeouts, last topic).
+- **Internal components:** `RuleIntentParser`, `IntentApiClient`, `ActionRouter`, `ConfirmationManager`, `ConversationState` (timeouts, last topic), `ActionPlanValidator` (AVN-220).
 - **APIs / interfaces:** `IntentRouter.route(transcript): ActionPlan`; `POST /intent`.
-- **Data structures:** `ActionPlan{steps[], requires_confirmation, spoken_ack}`.
+- **Data structures:** `ActionPlan{steps[], requires_confirmation, spoken_ack, clarification}`, `PlanStepItem{step, arg?}`, `ValidationResult{plan, droppedSteps, forcedConfirmation}` (all in `avn.contracts`, module `:contracts`).
 - **Dependencies:** WS-02; text-only tests need no audio; `/intent` mock returns canned plans.
 - **Consumers:** WS-17, 18, 20, 21, 07, 15.
 - **Error cases:** Misrecognized command, ambiguous command (ask one short question), LLM returns an invalid plan (validate against the step enum and reject unknown steps), wrong app name.
-- **Testing:** Table-driven unit tests on a command corpus including near-misses; plan-validator tests; emergency phrases always route to SOS.
+- **Testing:** Table-driven unit tests on a command corpus including near-misses; plan-validator tests; emergency phrases always route to SOS. `ActionPlanContractTest` (JUnit 4, `:contracts`) round-trips every fixture in `contracts/fixtures/plans/valid/`, checks that each of the 11 whitelisted steps appears in at least one fixture, and runs the validator on `tests/fixtures/plans/untrusted/` and on garbage input(never throws). Run: `./gradlew :contracts:test`.
 - **Performance:** Rules resolve in milliseconds; `/intent` budget follows the 1.5-4 s cloud target.
 - **Security / Privacy:** The LLM can propose steps only from a whitelist; send/delete/buy/pay steps always demand confirmation; emergency never depends on the cloud.
 - **Definition of Done:** Every demo command has a rule or a tested `/intent` path; validator blocks unknown steps; confirmation flow works; offline behavior spoken.
+
+#### WS-14 · ActionPlan contract (AVN-220)
+
+`ActionPlan` is the contract between intent routing and handlers: the `data` of `POST /intent` and the return type of `IntentRouter.route`.
+
+**Files added**
+
+| Path | Purpose |
+| --- | --- |
+| `android/contracts/src/main/kotlin/avn/contracts/Models.kt` | `ActionPlan`, `PlanStepItem` documented, fields unchanged |
+| `android/contracts/src/main/kotlin/avn/contracts/ActionPlanValidator.kt` | `ActionPlanValidator`, `ValidationResult` |
+| `android/contracts/src/test/kotlin/avn/contracts/ActionPlanContractTest.kt` | Contract test (JUnit 4) |
+| `contracts/fixtures/plans/valid/` | 9 raw `ActionPlan` JSON files; every step appears at least once |
+| `tests/fixtures/plans/untrusted/` | 3 LLM-style bad plans: unknown step, all unknown, unconfirmed risky tap. Outside `contracts/fixtures/` on purpose: they are invalid by design |
+
+Wire names are `step`, `arg`, `requires_confirmation`, `spoken_ack`, `clarification`. The `/intent` envelope example stays `contracts/fixtures/api/intent.ok.json`.
+
+**Step whitelist (11):** `launch_app, wait, read_screen, summarize, scroll, back, tap_label, navigate, sos, describe, ask`. Single source: the `PlanStep` enum.
+
+**Validator rules**
+
+1. `parse(raw: String)` works on raw JSON and never throws. An unknown enum value would make kotlinx.serialization throw, so unknown or malformed steps are dropped before decoding and listed in `droppedSteps`.
+2. More than `MAX_STEPS` (8, starting value): extra steps are dropped.
+3. No valid step left: `clarification` is set (the plan's own, else "I didn't understand that. Please say it another way.") and `requires_confirmation` is false.
+4. A `tap_label` whose `arg` contains a risky word (send, delete, buy, pay, post, confirm and Arabic equivalents) forces `requires_confirmation = true` even if the LLM said false. `forcedConfirmation` reports it. The word list is a starting list, to be unified with `RiskyLabelGuard` (WS-17).
+5. `sos` never asks confirmation: its spoken countdown is the cancel window. Emergency never depends on the cloud.
+6. `validate(plan)` applies the same rules to an already typed plan (rule parser, fakes).
+
+**Who uses what**
+
+| Who | What to do |
+| --- | --- |
+| Backend (`/intent`, WS-22) | Return `ActionPlan` JSON in the envelope `data`; drop unknown steps with the same whitelist and the same risky-tap rule. Reuse `contracts/fixtures/plans/valid/` and `tests/fixtures/plans/untrusted/` in pytest.The Python mirror is not part of AVN-220 |
+| Android `IntentApiClient` | Pass the envelope `data` string to `ActionPlanValidator.parse(...)`. Never decode an LLM plan with `Json.decodeFromString` |
+| Android `RuleIntentParser` | Build an `ActionPlan`, pass it through `ActionPlanValidator.validate(...)` |
+| Android `ActionRouter` and handlers | Run only the validated `plan`. If `requiresConfirmation` is true, ask first. Speak `spokenAck` first. If `steps` is empty, speak `clarification` |
+
+**Not done in AVN-220:** wiring the validator into `FakeIntentRouter` and the real router (WS14-05, WS14-06), passing conversation context, and a "read this" (OCR) step, which is not in the whitelist.
 
 ### WS-15 VLM/LLM prompts and providers
 
@@ -703,7 +741,7 @@ Request and response field names below are *(proposed)*; the spec fixes only the
 | `POST /describe` | Action router on "what's around me" | `image`, optional `context`, `language` | `DescribeService` builds the `describe` prompt, VLM provider, optional cache, stores a text-only history row | `{description}` of one or two short sentences, uncertainty phrasing | Timeout gives "I can't describe the scene right now"; empty provider output also falls back | `DescribeClient`, then `SpeechRequest` at Info, user-requested |
 | `POST /ask` | Action router on look-and-ask | `image`, `question`, `context` | `AskService`, `ask` prompt, VLM provider, hallucination-safe wording | `{answer}` | Same as `/describe`; over-long question rejected | `AskClient` |
 | `POST /screen/summarize` | `ScreenAi` ladder rung 3 | `package`, `screen_type`, `text` (tree text), optional `image`, `question` | `ScreenService` re-checks the deny-list, assembles the `screen_summarize` prompt, VLM provider | `{summary}` | Timeout: the app speaks the raw tree text if it has it, else a fallback message; blocked package: refuses with a spoken reason | `ScreenSummaryClient` |
-| `POST /intent` | Intent router when no local rule matches and the phone is online | `text`, `context` | `IntentService`, `intent` prompt on a small LLM call, strict whitelist validation of returned steps | `{steps[], requires_confirmation, clarification?}` | Invalid or unknown steps are dropped; no valid step gives a clarification question | `IntentApiClient`; offline never reaches it |
+| `POST /intent` | Intent router when no local rule matches and the phone is online | `text`, `context` | `IntentService`, `intent` prompt on a small LLM call, strict whitelist validation of returned steps (same rules as `ActionPlanValidator`; pytest reuses `contracts/fixtures/plans/valid/` and `tests/fixtures/plans/untrusted/`)| `{steps[], requires_confirmation, clarification?}` | Invalid or unknown steps are dropped; no valid step gives a clarification question | `IntentApiClient`; offline never reaches it |
 | `POST /faces/enroll` | Enrollment flow after spoken consent | `display_name`, `embedding`, `model_version`, `consent:true`; any image field is rejected | `FaceService`, repository write to pgvector, no VLM | `{person_id}` | Dimension mismatch or missing consent rejected; DB failure gives a clear fallback and nothing partial is stored | `EnrollmentFlow` then local cache refresh |
 | `POST /faces/match` | Phone for verification or when the local cache is cold | `embedding` | pgvector cosine search, server-side threshold, default result is unknown | `{match: name or null, similarity}` | Fallback is "unknown"; never guesses | `FaceMatcher` (local first, backend second) |
 | `GET /route` | `Navigation.start` | `origin`, `destination` (coordinates or text), `mode=walking` | `RouteService` checks the cache (key: rounded origin plus destination), calls the Maps provider, may resolve text destinations | `{steps[], polyline, distance, duration}` | On provider failure return a cached route if present, else a fallback message; quota guard | `RouteClient` |
@@ -722,9 +760,7 @@ Request and response field names below are *(proposed)*; the spec fixes only the
 | Voice, Screen, Navigation, Notifications, AI answers | Engine | `EngineInput.submit(SpeechCandidate)` | Nobody speaks directly |
 | Engine | `SpeechOutput` (TTS) | `SpeechRequest` and utterance callbacks | The single place speech happens |
 | Wake word, STT | `IntentRouter` | `Transcript` flow | Emergency keywords bypass to SOS |
-| `IntentRouter` | Modules | `ActionPlan` executed by `ActionRouter` | Whitelisted steps only |
-| Any module | `ApiClient` | suspend functions, envelope result type | Every call has a timeout and a fallback value |
-| Any module | Logger | JSON lines with trace ID | Decision log includes suppressed events |
+| `IntentRouter` | Modules | `ActionPlan` executed by `ActionRouter` | Whitelisted steps only; every plan passes `ActionPlanValidator` first |
 
 **Camera lifecycle.** CameraX is bound to the service (not an activity) with the `camera` foreground-service type so it keeps running with the screen off; it starts after permission and consent, pauses on thermal or low battery, and releases on service stop or headset-less idle timeout.
 
