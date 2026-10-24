@@ -9,3 +9,6 @@ Data is stored privately (team drive), never in Git. This folder holds only scri
 - Street-noise and spoken-command audio (wake word and STT tests)
 
 To add: `labeling-guidelines.md`, `collection-protocol.md` (consent, bystander rule), `split-policy.md`, and a `download.py` that pulls the private data to `datasets/data/` (ignored by Git).
+
+   See `LICENSES.md` for the source, licence, use and consent of every dataset and model.
+   
