@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Validate every fixture in contracts/fixtures/index.json against contracts/schemas.
+"""Validate every fixture in contracts/fixtures/index.json against contracts/schemas, and check
+that every payload in tests/fixtures/contract_invalid/ is REJECTED by its schema.
 
 Usage:  python scripts/validate_contracts.py
 Needs:  pip install "jsonschema>=4.18"
@@ -20,6 +21,7 @@ except ImportError:  # pragma: no cover
 ROOT = Path(__file__).resolve().parent.parent
 SCHEMAS = ROOT / "contracts" / "schemas"
 FIXTURES = ROOT / "contracts" / "fixtures"
+INVALID = ROOT / "tests" / "fixtures" / "contract_invalid"
 BASE = "https://avn.local/contracts/"
 
 
@@ -78,7 +80,24 @@ def main() -> int:
             print(f"FAIL {rel}\n      not listed in contracts/fixtures/index.json")
             failures += 1
 
-    print(f"\n{len(index['fixtures'])} fixtures checked, {failures} failure(s)")
+    negatives = json.loads((INVALID / "index.json").read_text(encoding="utf-8"))["fixtures"]
+    listed_neg = set()
+    for entry in negatives:
+        rel = entry["fixture"]
+        listed_neg.add(rel)
+        doc = json.loads((INVALID / rel).read_text(encoding="utf-8"))
+        rejected = any(True for _ in validator_for(entry["schema"], registry).iter_errors(doc))
+        print(f"{'ok  ' if rejected else 'FAIL'} invalid/{rel}")
+        if not rejected:
+            print(f"      should be rejected ({entry['why']}) but the schema accepts it")
+        failures += not rejected
+    for path in sorted(INVALID.glob("*.json")):
+        if path.name != "index.json" and path.name not in listed_neg:
+            print(f"FAIL invalid/{path.name}\n      not listed in {INVALID.name}/index.json")
+            failures += 1
+
+    total = len(index["fixtures"]) + len(negatives)
+    print(f"\n{total} fixtures checked ({len(negatives)} must-reject), {failures} failure(s)")
     return 1 if failures else 0
 
 

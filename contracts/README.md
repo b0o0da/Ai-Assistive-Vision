@@ -6,7 +6,7 @@ The shared language between the Android app and the backend. Status: **FROZEN at
 - `fixtures/` — example documents for every response and failure. `fixtures/index.json` maps each fixture to its schema.
 - Kotlin models (`android/contracts`) and Pydantic models (`backend/app/schemas`) are written to match these files, and both test suites parse every fixture.
 
-Check everything: `python scripts/validate_contracts.py` (CI runs it on every PR).
+Check everything: `python scripts/validate_contracts.py` (CI runs it on every PR). It also checks that every payload in `tests/fixtures/contract_invalid/` (missing id, metres in the band, a `distance_m` field, unknown source, bad side, envelope rule breaks) is **rejected**; the Pydantic tests and the Kotlin `FixtureTest` reject the same files.
 
 ## Change process after the freeze
 1. Write a Technical Decision in `docs/decisions/` (and Notion) with **Contract impact** ticked.
