@@ -1,6 +1,7 @@
 # Tests (WS-26)
 
 - `fixtures/detections/` — FakeDetector JSON (per-frame boxes)
+- `fixtures/contract_invalid/` — payloads every contract layer must reject (JSON Schema, Pydantic, Kotlin); see `index.json`
 - `fixtures/scenarios/` — priority-engine timelines with expected decisions
 - `fixtures/commands/` — spoken-command corpus for the intent parser (Boda)
 - `fixtures/routes/` — GPX files for navigation replay

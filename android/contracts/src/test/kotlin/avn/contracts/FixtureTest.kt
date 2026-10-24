@@ -3,6 +3,7 @@ package avn.contracts
 import java.io.File
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -89,6 +90,41 @@ class FixtureTest {
             assertTrue("$ep: missing ok fixture", mine.any { it == "$ep.ok.json" })
             val failures = mine.filter { !it.endsWith(".request.json") && it != "$ep.ok.json" }
             assertTrue("$ep: missing failure fixture", failures.isNotEmpty())
+        }
+    }
+
+    /** WS02-05: shared must-reject payloads, also checked by the JSON Schemas and Pydantic. */
+    private val invalid = File(System.getProperty("avn.repoRoot"), "tests/fixtures/contract_invalid")
+
+    private fun invalidFiles(prefix: String): List<File> =
+        invalid.listFiles { f -> f.name.startsWith(prefix) && f.extension == "json" }
+            .orEmpty()
+            .sortedBy { it.name }
+
+    @Test
+    fun invalidEventsAreRejected() {
+        val files = invalidFiles("event.")
+        assertTrue("expected at least 5 invalid events in $invalid", files.size >= 5)
+        for (file in files) {
+            assertThrows(file.name, SerializationException::class.java) {
+                Json.decodeFromString(Event.serializer(), file.readText())
+            }
+        }
+    }
+
+    @Test
+    fun invalidEnvelopesAreRejectedOrBreakTheRules() {
+        val files = invalidFiles("envelope.")
+        assertTrue("expected at least 3 invalid envelopes in $invalid", files.size >= 3)
+        for (file in files) {
+            val env = runCatching { Json.decodeFromString(ApiEnvelope.serializer(), file.readText()) }
+                .getOrNull() ?: continue
+            val hasData = env.data != null && env.data !is JsonNull
+            val breaksRules =
+                (!env.ok && env.error == null) ||
+                    (env.fallback && hasData) ||
+                    ((!env.ok || env.fallback) && env.message.isBlank())
+            assertTrue("${file.name}: decoded and follows every envelope rule", breaksRules)
         }
     }
 
