@@ -17,6 +17,12 @@ android {
         versionName = "0.1.0"
         val realSeams = providers.gradleProperty("avn.realSeams").getOrElse("")
         buildConfigField("String", "REAL_SEAMS", "\"$realSeams\"")
+        // Backend address and per-install key (WS03-08). Set in ~/.gradle/gradle.properties or with -P,
+        // never in Git. Defaults reach the mock backend from the Android emulator.
+        val backendUrl = providers.gradleProperty("avn.backendUrl").getOrElse("http://10.0.2.2:8000")
+        val apiKey = providers.gradleProperty("avn.apiKey").getOrElse("dev-install-key")
+        buildConfigField("String", "BACKEND_URL", "\"$backendUrl\"")
+        buildConfigField("String", "API_KEY", "\"$apiKey\"")
         manifestPlaceholders["cleartext"] = "false"
     }
     buildTypes {
@@ -35,6 +41,8 @@ android {
     }
     testOptions {
         unitTests.isIncludeAndroidResources = true
+        // Contract fixtures live at the repo root; tests read them in place.
+        unitTests.all { it.systemProperty("avn.repoRoot", rootDir.parentFile.absolutePath) }
     }
 }
 
@@ -57,10 +65,12 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.room.runtime)
+    implementation(libs.okhttp)
     ksp(libs.room.compiler)
 
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
+    testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.hilt.testing)
     kspTest(libs.hilt.compiler)
 }
