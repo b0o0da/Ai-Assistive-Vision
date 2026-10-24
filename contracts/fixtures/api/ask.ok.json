@@ -1,9 +1,11 @@
 {
+  "version": "1.0",
   "ok": true,
   "fallback": false,
   "message": "",
   "data": {
     "answer": "The sign says Pharmacy, open 24 hours."
   },
-  "request_id": "req_ask_1"
+  "request_id": "req_ask_1",
+  "error": null
 }

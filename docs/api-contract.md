@@ -1,6 +1,6 @@
 # AVN API and event contract
 
-**Version 0.1.0-draft · status: DRAFT, frozen at Gate 1 (end of week 2) after review by all six members.**
+**Version 0.2.0-draft · status: DRAFT, frozen at Gate 1 (end of week 2) after review by all six members.**
 Machine-readable source: `contracts/schemas/` and `contracts/fixtures/`. If this page and the schemas disagree, the schemas win and this page is fixed.
 
 ## 1. Conventions
@@ -35,17 +35,56 @@ Example: `contracts/fixtures/events/vehicle_approaching_left.json`.
 
 ## 4. Envelope (every response)
 
+Schema: `contracts/schemas/envelope.schema.json`. Backend: `backend/app/core/envelope.py`. Android: `ApiEnvelope` in `Models.kt`.
+
 ```json
-{ "ok": true, "fallback": false, "message": "", "data": { }, "request_id": "req_123" }
+{
+  "version": "1.0",
+  "ok": true,
+  "fallback": false,
+  "message": "",
+  "data": { },
+  "request_id": "req_123",
+  "error": null
+}
 ```
 
-| Case | ok | fallback | message | data |
-| --- | --- | --- | --- | --- |
-| Success | true | false | "" | response object |
-| Provider timeout, error or empty output | true | true | speakable sentence | null |
-| Invalid, oversize, unauthorized or refused request | false | false | speakable sentence | null |
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `version` | string | Envelope version, currently `"1.0"`. The client rejects other values. |
+| `ok` | boolean | `false` when the request itself was rejected. |
+| `fallback` | boolean | `true` when the provider timed out, failed or returned nothing. |
+| `message` | string, max 300 | Sentence the phone speaks as is (the `fallback_message`). Never empty when `ok` is false or `fallback` is true. |
+| `data` | object or null | The endpoint's response. Always null when `fallback` is true or `ok` is false. |
+| `request_id` | string, 1-64 | Echo of `X-Request-Id`, or generated. |
+| `error` | object or null | `{code, retryable}`. Required when `ok` is false; set on fallbacks that have a cause. |
+
+| Case | ok | fallback | message | data | error |
+| --- | --- | --- | --- | --- | --- |
+| Success | true | false | "" | response object | null |
+| Provider timeout, error or empty output | true | true | speakable sentence | null | `timeout` or `provider_error` |
+| Invalid, oversize, unauthorized, rate-limited or refused request | false | false | speakable sentence | null | required |
 
 The phone speaks `message` whenever `data` is null. A stack trace is never returned.
+
+### Error codes
+
+| Code | retryable | Default spoken message | Typical HTTP status |
+| --- | --- | --- | --- |
+| `timeout` | true | "I can't do that right now. It's taking too long." | 408, 504 |
+| `rate_limited` | true | "Too many requests. Please try again in a moment." | 429 |
+| `unauthorized` | false | "I can't connect to the service. The app needs to be set up again." | 401, 403 |
+| `bad_request` | false | "Sorry, I could not understand that request." | 400, 404, 405, 422 |
+| `provider_error` | true | "The service had a problem. Please try again shortly." | 5xx |
+
+The `code` is fixed. An endpoint may replace the default `message` with a more specific sentence (see "Fallback messages" below). Messages never contain personal content.
+
+### Privacy
+
+- `data` may carry personal content: scene descriptions, screen summaries, face match names.
+- Requests may carry images, screen text and embeddings.
+- None of these are persisted or logged by default. Logs hold only request id, endpoint, status and latency.
+- `message` and `error` must never contain personal content.
 
 ## 5. Endpoints
 
@@ -81,3 +120,4 @@ The phone speaks `message` whenever `data` is null. A stack trace is never retur
 | Version | Date | Change |
 | --- | --- | --- |
 | 0.1.0-draft | Week 1 | First draft from the architecture blueprint (field names marked "proposed" there). |
+| 0.2.0-draft | Week 2 | Envelope gains `version` and `error {code, retryable}`; five error codes with default spoken messages; privacy note. AVN-33. |

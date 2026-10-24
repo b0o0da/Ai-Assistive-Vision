@@ -1,0 +1,1 @@
+{"steps":[{"step":"scroll","arg":"down"},{"step":"wait","arg":null},{"step":"read_screen","arg":null}],"requires_confirmation":false,"spoken_ack":"Scrolling down.","clarification":null}

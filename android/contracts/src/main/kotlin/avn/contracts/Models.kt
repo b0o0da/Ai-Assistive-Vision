@@ -2,6 +2,7 @@ package avn.contracts
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 /** contracts/schemas/event.schema.json. `side` and `distanceBand` are required but may be null. */
 @Serializable
@@ -45,6 +46,14 @@ data class SpeechCandidate(
 @Serializable
 data class PlanStepItem(val step: PlanStep, val arg: String? = null)
 
+/**
+ * Contract between intent routing and handlers (POST /intent `data`, IntentRouter.route output).
+ *
+ * - [steps]: ordered, whitelisted steps. Unknown steps never reach a handler (see ActionPlanValidator).
+ * - [requiresConfirmation]: true if any step could send, delete, buy or pay. Handlers must ask first.
+ * - [spokenAck]: short sentence spoken immediately, or null.
+ * - [clarification]: question to speak when there is no valid step, or null.
+ */
 @Serializable
 data class ActionPlan(
     val steps: List<PlanStepItem>,
@@ -97,3 +106,30 @@ data class NavState(
     @SerialName("step_index") val stepIndex: Int = 0,
     @SerialName("off_route") val offRoute: Boolean = false
 )
+
+const val ENVELOPE_VERSION = "1.0"
+
+/** contracts/schemas/envelope.schema.json error object. */
+@Serializable
+data class ErrorInfo(val code: ErrorCode, val retryable: Boolean)
+
+/**
+ * contracts/schemas/envelope.schema.json. Every backend response uses this shape.
+ * `data` may carry personal content (scene text, screen summaries, face names); it is never persisted
+ * or logged by default. `message` and `error` never carry personal content.
+ */
+@Serializable
+data class ApiEnvelope(
+    val version: String,
+    val ok: Boolean,
+    val fallback: Boolean,
+    val message: String,
+    val data: JsonElement? = null,
+    @SerialName("request_id") val requestId: String,
+    val error: ErrorInfo? = null
+) {
+    val isSupportedVersion: Boolean get() = version == ENVELOPE_VERSION
+
+    /** Sentence to speak when there is no usable data, else null. */
+    val speakable: String? get() = if (!ok || fallback) message.ifBlank { null } else null
+}

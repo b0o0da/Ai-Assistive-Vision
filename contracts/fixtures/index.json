@@ -47,6 +47,11 @@
       "envelope": true
     },
     {
+      "fixture": "api/describe.provider_error.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
       "fixture": "api/ask.ok.json",
       "schema": "api.schema.json#/$defs/AskResponse",
       "envelope": true
@@ -97,6 +102,16 @@
       "envelope": true
     },
     {
+      "fixture": "api/error.rate_limited.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "api/error.unauthorized.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
       "fixture": "api/describe.request.json",
       "schema": "api.schema.json#/$defs/DescribeRequest",
       "envelope": false
@@ -114,6 +129,51 @@
     {
       "fixture": "screens/banking_blocked.json",
       "schema": "android.schema.json#/$defs/ScreenSnapshot",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/describe.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/ask.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/read_whatsapp.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/scroll_down.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/back.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/navigate_pharmacy.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/sos.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/tap_send_confirmed.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "plans/valid/clarification.json",
+      "schema": "android.schema.json#/$defs/ActionPlan",
       "envelope": false
     }
   ]

@@ -1,4 +1,5 @@
 {
+  "version": "1.0",
   "ok": true,
   "fallback": false,
   "message": "",
@@ -8,5 +9,6 @@
     "spoken_ack": null,
     "clarification": "Which app do you want to open?"
   },
-  "request_id": "req_int_2"
+  "request_id": "req_int_2",
+  "error": null
 }
