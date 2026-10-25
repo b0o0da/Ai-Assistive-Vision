@@ -1,0 +1,11 @@
+{
+  "id": "evt_7_1760000002000",
+  "source": "camera",
+  "type": "vehicle_approaching",
+  "label": "vehicle",
+  "side": "right",
+  "distance_band": "near",
+  "confidence": 0.79,
+  "risk": 0,
+  "timestamp": 1760000002000
+}

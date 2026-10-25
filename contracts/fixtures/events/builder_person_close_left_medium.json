@@ -1,0 +1,11 @@
+{
+  "id": "evt_42_1760000001000",
+  "source": "camera",
+  "type": "person_close",
+  "label": "person",
+  "side": "left",
+  "distance_band": "medium",
+  "confidence": 0.88,
+  "risk": 0,
+  "timestamp": 1760000001000
+}
