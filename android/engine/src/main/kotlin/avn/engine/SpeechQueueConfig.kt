@@ -21,11 +21,7 @@ import kotlinx.serialization.json.long
  * never dropped" is a safety invariant, not a tunable number, so [SpeechQueue] never looks one up
  * for it (see [expiryMsFor]).
  */
-data class SpeechQueueConfig(
-    val maxDepth: Int,
-    val warningExpiryMs: Long,
-    val infoExpiryMs: Long
-) {
+data class SpeechQueueConfig(val maxDepth: Int, val warningExpiryMs: Long, val infoExpiryMs: Long) {
     /** Milliseconds after which a queued request of [level] goes stale, or null if it never does
      * (Critical only). */
     fun expiryMsFor(level: Level): Long? = when (level) {
