@@ -110,11 +110,11 @@ class ByteTrackTrackerTest {
         val lastFrame = outputs.last().associateBy { it.id }
         assertTrue(
             "id that started on the left should end on the right",
-            lastFrame[idThatStartedLeft]!!.lastBox.x > 600f,
+            lastFrame[idThatStartedLeft]!!.lastBox.x > 600f
         )
         assertTrue(
             "id that started on the right should end on the left",
-            lastFrame[idThatStartedRight]!!.lastBox.x < 300f,
+            lastFrame[idThatStartedRight]!!.lastBox.x < 300f
         )
     }
 
@@ -129,7 +129,7 @@ class ByteTrackTrackerTest {
         assertEquals(
             "occlusion should not create a new id once the person reappears",
             idBeforeOcclusion,
-            idAfterOcclusion,
+            idAfterOcclusion
         )
     }
 
