@@ -30,13 +30,13 @@ class InterruptRulesTest {
         level: Level,
         text: String = id,
         source: Source = Source.CAMERA,
-        interruptible: Boolean = true,
+        interruptible: Boolean = true
     ) = avn.contracts.SpeechRequest(
         utteranceId = id,
         text = text,
         level = level,
         source = source,
-        interruptible = interruptible,
+        interruptible = interruptible
     )
 
     private fun goIdleAndStationary() {
