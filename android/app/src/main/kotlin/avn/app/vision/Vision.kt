@@ -2,6 +2,7 @@ package avn.app.vision
 
 import avn.app.camera.Frame
 import avn.app.core.logging.JsonLinesLogger
+import avn.contracts.Event
 import avn.contracts.OcrResult
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -31,6 +32,21 @@ interface OcrEngine {
     suspend fun read(frame: Frame): OcrResult
 }
 
+/**
+ * architecture.md WS-06 / AVN-45: "APIs / interfaces: ... EventBuilder.build(track): Event?".
+ * The real signature also takes the analysed frame's pixel size -- [Detection] boxes are in that
+ * frame's pixel coordinates (see [Detection]'s own doc comment) and [Frame] wraps a [Bitmap] whose
+ * size is not a fixed constant (CameraX target resolution, letterboxing), so [SideEstimator] and
+ * [DistanceBander] (both already take frame size per call, not as configuration) need it passed in
+ * here too, the same deviation from architecture.md's one-line summary already taken by [Tracker]
+ * (whose real implementation also carries constructor config architecture.md's one-liner elides).
+ *
+ * Returns null when there is nothing new worth telling the engine about -- see [TrackEventBuilder].
+ */
+interface EventBuilder {
+    fun build(track: Track, frameWidthPx: Float, frameHeightPx: Float): Event?
+}
+
 @Singleton
 class FakeDetector @Inject constructor(private val log: JsonLinesLogger) : Detector {
     override suspend fun detect(frame: Frame): List<Detection> {
@@ -52,5 +68,13 @@ class FakeOcrEngine @Inject constructor(private val log: JsonLinesLogger) : OcrE
     override suspend fun read(frame: Frame): OcrResult {
         log.log("ocr", "fake_read")
         return OcrResult(text = "", confidence = 0.0, language = "en", source = "fake")
+    }
+}
+
+@Singleton
+class FakeEventBuilder @Inject constructor(private val log: JsonLinesLogger) : EventBuilder {
+    override fun build(track: Track, frameWidthPx: Float, frameHeightPx: Float): Event? {
+        log.log("event_builder", "fake_build", fields = mapOf("track" to track.id))
+        return null
     }
 }
