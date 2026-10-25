@@ -1,0 +1,7 @@
+{
+  "maxDepth": 3,
+  "expiryMs": {
+    "warning": 3000,
+    "info": 10000
+  }
+}
