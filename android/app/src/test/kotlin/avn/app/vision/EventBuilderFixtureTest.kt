@@ -30,14 +30,19 @@ class EventBuilderFixtureTest {
 
     private fun decode(name: String): Event = Json.decodeFromString(Event.serializer(), File(fixtures, name).readText())
 
-    private fun track(id: Int, label: String, x: Float, y: Float, w: Float, h: Float, confidence: Float, ts: Long) =
-        Track(
-            id = id,
-            label = label,
-            lastBox = Detection(label = label, confidence = confidence, x = x, y = y, w = w, h = h, timestampMs = ts),
-            age = 1,
-            lostFrames = 0
-        )
+    private fun track(
+        id: Int,
+        label: String,
+        x: Float,
+        y: Float,
+        w: Float,
+        h: Float,
+        confidence: Float,
+        ts: Long
+    ): Track {
+        val box = Detection(label = label, confidence = confidence, x = x, y = y, w = w, h = h, timestampMs = ts)
+        return Track(id = id, label = label, history = listOf(box), lastBox = box, age = 1, lostFrames = 0)
+    }
 
     @Test
     fun personCloseFixtureMatchesTheRealBuilderOutput() {
