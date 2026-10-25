@@ -24,7 +24,7 @@ interface EngineInput {
         moving: Boolean = false,
         navigationActive: Boolean = false,
         offline: Boolean = false,
-        sosActive: Boolean = false,
+        sosActive: Boolean = false
     ) {
     }
 }
