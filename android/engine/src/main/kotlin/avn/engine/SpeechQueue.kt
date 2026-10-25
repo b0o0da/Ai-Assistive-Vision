@@ -37,7 +37,7 @@ import avn.contracts.SpeechRequest
  * engine's other per-session components.
  */
 class SpeechQueue(
-    private val clock: Clock = SystemClock(),
+    private val clock: Clock = SystemClock,
     private val config: SpeechQueueConfig = SpeechQueueConfig.load(),
     private val onDecision: (QueueDecision) -> Unit = {}
 ) {
@@ -60,7 +60,7 @@ class SpeechQueue(
      * entry would otherwise be Critical. */
     fun enqueue(request: SpeechRequest, risk: Int = 0) {
         purgeExpired()
-        val entry = Entry(request, risk, clock.nowMs())
+        val entry = Entry(request, risk, clock.nowMillis())
         entries += entry
         if (entries.size <= config.maxDepth) return
 
@@ -87,7 +87,7 @@ class SpeechQueue(
 
     private fun purgeExpired() {
         if (entries.isEmpty()) return
-        val now = clock.nowMs()
+        val now = clock.nowMillis()
         val stale = entries.filter { entry ->
             val expiryMs = config.expiryMsFor(entry.request.level) ?: return@filter false
             now - entry.enqueuedAtMs >= expiryMs
