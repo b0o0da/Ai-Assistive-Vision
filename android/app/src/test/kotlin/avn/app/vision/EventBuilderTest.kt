@@ -22,13 +22,10 @@ class EventBuilderTest {
     private val frameWidthPx = 900f
     private val frameHeightPx = 1000f
 
-    private fun track(id: Int, label: String, x: Float, y: Float, w: Float, h: Float, ts: Long = 0) = Track(
-        id = id,
-        label = label,
-        lastBox = Detection(label = label, confidence = 0.8f, x = x, y = y, w = w, h = h, timestampMs = ts),
-        age = 1,
-        lostFrames = 0
-    )
+    private fun track(id: Int, label: String, x: Float, y: Float, w: Float, h: Float, ts: Long = 0): Track {
+        val box = Detection(label = label, confidence = 0.8f, x = x, y = y, w = w, h = h, timestampMs = ts)
+        return Track(id = id, label = label, history = listOf(box), lastBox = box, age = 1, lostFrames = 0)
+    }
 
     // Centre-third x (CENTER side): x=400, w=100 -> centre 450 of 900.
     private val centerX = 400f
