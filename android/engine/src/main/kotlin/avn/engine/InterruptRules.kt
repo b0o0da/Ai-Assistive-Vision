@@ -35,7 +35,7 @@ class InterruptRules(
     /** How long the context must be continuously idle and stationary before Info is allowed to
      * speak, so a momentary blip (e.g. one step taken while otherwise standing still) does not
      * flap Info in and out of eligibility. This is the reason this component needs a [Clock]. */
-    private val idleDebounceMillis: Long = 1_500,
+    private val idleDebounceMillis: Long = 1_500
 ) {
     private var context = EngineContext()
     private var idleSinceMillis: Long? = null
@@ -67,7 +67,7 @@ class InterruptRules(
         moving: Boolean = context.moving,
         navigationActive: Boolean = context.navigationActive,
         offline: Boolean = context.offline,
-        sosActive: Boolean = context.sosActive,
+        sosActive: Boolean = context.sosActive
     ) {
         context = EngineContext(listening, speaking, moving, navigationActive, offline, sosActive)
         idleSinceMillis = if (isInstantIdle(context)) (idleSinceMillis ?: clock.nowMillis()) else null
@@ -222,7 +222,7 @@ enum class Decision {
     HELD,
 
     /** Overflowed the max queue depth and was discarded outright. */
-    DROPPED,
+    DROPPED
 }
 
 /**
@@ -236,7 +236,7 @@ data class EngineContext(
     val moving: Boolean = false,
     val navigationActive: Boolean = false,
     val offline: Boolean = false,
-    val sosActive: Boolean = false,
+    val sosActive: Boolean = false
 )
 
 /**
@@ -250,8 +250,4 @@ data class EngineContext(
  * EngineInput/SpeechOutput contract boundary, so it does not touch the frozen contract layer in
  * `:contracts`.
  */
-data class SpeechItem(
-    val request: SpeechRequest,
-    val userRequested: Boolean = false,
-    val sosCountdown: Boolean = false,
-)
+data class SpeechItem(val request: SpeechRequest, val userRequested: Boolean = false, val sosCountdown: Boolean = false)
