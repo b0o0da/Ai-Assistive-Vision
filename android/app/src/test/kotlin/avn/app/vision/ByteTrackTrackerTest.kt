@@ -108,8 +108,14 @@ class ByteTrackTrackerTest {
         val idThatStartedLeft = firstFrame[0].id
         val idThatStartedRight = firstFrame[1].id
         val lastFrame = outputs.last().associateBy { it.id }
-        assertTrue("id that started on the left should end on the right", lastFrame[idThatStartedLeft]!!.lastBox.x > 600f)
-        assertTrue("id that started on the right should end on the left", lastFrame[idThatStartedRight]!!.lastBox.x < 300f)
+        assertTrue(
+            "id that started on the left should end on the right",
+            lastFrame[idThatStartedLeft]!!.lastBox.x > 600f,
+        )
+        assertTrue(
+            "id that started on the right should end on the left",
+            lastFrame[idThatStartedRight]!!.lastBox.x < 300f,
+        )
     }
 
     // ---- Occlusion: same id before and after the gap, not a new one ----
@@ -120,7 +126,11 @@ class ByteTrackTrackerTest {
         val outputs = runFixture(tracker, "occlusion.json")
         val idBeforeOcclusion = outputs[3].single().id // last frame before the 3-frame gap (indices 4,5,6 are empty)
         val idAfterOcclusion = outputs[7].single().id // first frame after the gap
-        assertEquals("occlusion should not create a new id once the person reappears", idBeforeOcclusion, idAfterOcclusion)
+        assertEquals(
+            "occlusion should not create a new id once the person reappears",
+            idBeforeOcclusion,
+            idAfterOcclusion,
+        )
     }
 
     // ---- Interrupted tracks are dropped, not requeued, once they exceed the lost-frame budget ----
