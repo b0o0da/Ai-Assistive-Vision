@@ -13,14 +13,6 @@ import org.junit.Test
  * returned -- plus the ordering rule (level, then risk, then age) those invariants depend on.
  */
 class SpeechQueueTest {
-    private class FakeClock(startMs: Long = 0) : Clock {
-        private var current = startMs
-        override fun nowMs(): Long = current
-        fun advanceBy(ms: Long) {
-            current += ms
-        }
-    }
-
     private fun request(id: String, level: Level) = SpeechRequest(
         utteranceId = id,
         text = id,
