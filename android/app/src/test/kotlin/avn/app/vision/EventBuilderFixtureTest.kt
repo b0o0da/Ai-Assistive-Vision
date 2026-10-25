@@ -28,23 +28,32 @@ import org.junit.Test
 class EventBuilderFixtureTest {
     private val fixtures = File(System.getProperty("avn.repoRoot"), "contracts/fixtures/events")
 
-    private fun decode(name: String): Event =
-        Json.decodeFromString(Event.serializer(), File(fixtures, name).readText())
+    private fun decode(name: String): Event = Json.decodeFromString(Event.serializer(), File(fixtures, name).readText())
 
-    private fun track(id: Int, label: String, x: Float, y: Float, w: Float, h: Float, confidence: Float, ts: Long) = Track(
-        id = id,
-        label = label,
-        lastBox = Detection(label = label, confidence = confidence, x = x, y = y, w = w, h = h, timestampMs = ts),
-        age = 1,
-        lostFrames = 0
-    )
+    private fun track(id: Int, label: String, x: Float, y: Float, w: Float, h: Float, confidence: Float, ts: Long) =
+        Track(
+            id = id,
+            label = label,
+            lastBox = Detection(label = label, confidence = confidence, x = x, y = y, w = w, h = h, timestampMs = ts),
+            age = 1,
+            lostFrames = 0
+        )
 
     @Test
     fun personCloseFixtureMatchesTheRealBuilderOutput() {
         val expected = decode("builder_person_close_left_medium.json")
         val builder = TrackEventBuilder()
         val actual = builder.build(
-            track(id = 42, label = "person", x = 100f, y = 550f, w = 120f, h = 650f, confidence = 0.875f, ts = 1760000001000L),
+            track(
+                id = 42,
+                label = "person",
+                x = 100f,
+                y = 550f,
+                w = 120f,
+                h = 650f,
+                confidence = 0.875f,
+                ts = 1760000001000L
+            ),
             frameWidthPx = 1080f,
             frameHeightPx = 1920f
         )
@@ -56,7 +65,16 @@ class EventBuilderFixtureTest {
         val expected = decode("builder_vehicle_approaching_right_near.json")
         val builder = TrackEventBuilder()
         val actual = builder.build(
-            track(id = 7, label = "vehicle", x = 600f, y = 1300f, w = 400f, h = 550f, confidence = 0.8125f, ts = 1760000002000L),
+            track(
+                id = 7,
+                label = "vehicle",
+                x = 600f,
+                y = 1300f,
+                w = 400f,
+                h = 550f,
+                confidence = 0.8125f,
+                ts = 1760000002000L
+            ),
             frameWidthPx = 1080f,
             frameHeightPx = 1920f
         )
@@ -68,7 +86,16 @@ class EventBuilderFixtureTest {
         val expected = decode("builder_obstacle_ahead_center_medium.json")
         val builder = TrackEventBuilder()
         val actual = builder.build(
-            track(id = 15, label = "chair", x = 450f, y = 800f, w = 250f, h = 300f, confidence = 0.75f, ts = 1760000003000L),
+            track(
+                id = 15,
+                label = "chair",
+                x = 450f,
+                y = 800f,
+                w = 250f,
+                h = 300f,
+                confidence = 0.75f,
+                ts = 1760000003000L
+            ),
             frameWidthPx = 1080f,
             frameHeightPx = 1920f
         )
