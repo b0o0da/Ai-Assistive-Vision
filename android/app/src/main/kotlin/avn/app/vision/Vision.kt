@@ -17,7 +17,19 @@ data class Detection(
     val timestampMs: Long
 )
 
-data class Track(val id: Int, val label: String, val lastBox: Detection, val age: Int, val lostFrames: Int)
+/**
+ * A stable identity across frames (architecture.md WS-06). `history` is every detection the
+ * track has been matched to so far (oldest first, capped by the tracker that builds it), kept so
+ * a future velocity/approach estimator does not need to re-derive motion from `lastBox` alone.
+ */
+data class Track(
+    val id: Int,
+    val label: String,
+    val history: List<Detection>,
+    val lastBox: Detection,
+    val age: Int,
+    val lostFrames: Int
+)
 
 interface Detector {
     suspend fun detect(frame: Frame): List<Detection>
