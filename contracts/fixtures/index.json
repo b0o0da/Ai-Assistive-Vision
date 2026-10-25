@@ -32,6 +32,21 @@
       "envelope": false
     },
     {
+      "fixture": "events/builder_person_close_left_medium.json",
+      "schema": "event.schema.json",
+      "envelope": false
+    },
+    {
+      "fixture": "events/builder_vehicle_approaching_right_near.json",
+      "schema": "event.schema.json",
+      "envelope": false
+    },
+    {
+      "fixture": "events/builder_obstacle_ahead_center_medium.json",
+      "schema": "event.schema.json",
+      "envelope": false
+    },
+    {
       "fixture": "api/health.ok.json",
       "schema": "api.schema.json#/$defs/HealthResponse",
       "envelope": true
