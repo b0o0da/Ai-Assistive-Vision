@@ -5,7 +5,7 @@
   "label": "vehicle",
   "side": "right",
   "distance_band": "near",
-  "confidence": 0.79,
+  "confidence": 0.8125,
   "risk": 0,
   "timestamp": 1760000002000
 }
