@@ -52,7 +52,8 @@ class EventBuilderTest {
     @Test
     fun theEmittedEventCarriesTheRequiredFieldsAndRiskZero() {
         val builder = TrackEventBuilder()
-        val event = builder.build(track(7, "person", centerX, nearY, centerW, nearH, ts = 12345L), frameWidthPx, frameHeightPx)!!
+        val input = track(7, "person", centerX, nearY, centerW, nearH, ts = 12345L)
+        val event = builder.build(input, frameWidthPx, frameHeightPx)!!
 
         assertTrue(event.id, event.id.matches(Regex("^evt_[A-Za-z0-9_-]{1,64}$")))
         assertEquals(Source.CAMERA, event.source)
@@ -91,7 +92,8 @@ class EventBuilderTest {
     fun aSecondCallWithNoChangeReturnsNull() {
         val builder = TrackEventBuilder()
         builder.build(track(1, "person", centerX, nearY, centerW, nearH, ts = 0), frameWidthPx, frameHeightPx)
-        val second = builder.build(track(1, "person", centerX, nearY, centerW, nearH, ts = 100), frameWidthPx, frameHeightPx)
+        val later = track(1, "person", centerX, nearY, centerW, nearH, ts = 100)
+        val second = builder.build(later, frameWidthPx, frameHeightPx)
         assertNull(second)
     }
 
@@ -99,7 +101,8 @@ class EventBuilderTest {
     fun bandEscalationReEmitsEvenWithTheSameSide() {
         val builder = TrackEventBuilder()
         builder.build(track(1, "person", centerX, farY, centerW, farH, ts = 0), frameWidthPx, frameHeightPx)
-        val second = builder.build(track(1, "person", centerX, nearY, centerW, nearH, ts = 100), frameWidthPx, frameHeightPx)
+        val later = track(1, "person", centerX, nearY, centerW, nearH, ts = 100)
+        val second = builder.build(later, frameWidthPx, frameHeightPx)
         assertNotNull(second)
         assertEquals(DistanceBand.NEAR, second!!.distanceBand)
     }
@@ -108,7 +111,8 @@ class EventBuilderTest {
     fun bandDeEscalationAloneDoesNotReEmit() {
         val builder = TrackEventBuilder()
         builder.build(track(1, "person", centerX, nearY, centerW, nearH, ts = 0), frameWidthPx, frameHeightPx)
-        val second = builder.build(track(1, "person", centerX, farY, centerW, farH, ts = 100), frameWidthPx, frameHeightPx)
+        val later = track(1, "person", centerX, farY, centerW, farH, ts = 100)
+        val second = builder.build(later, frameWidthPx, frameHeightPx)
         assertNull(second)
     }
 
@@ -118,7 +122,8 @@ class EventBuilderTest {
         // left third: x=100, w=100 -> centre 150 of 900
         builder.build(track(1, "person", 100f, nearY, 100f, nearH, ts = 0), frameWidthPx, frameHeightPx)
         // right third: x=700, w=100 -> centre 750 of 900, same band (near)
-        val second = builder.build(track(1, "person", 700f, nearY, 100f, nearH, ts = 100), frameWidthPx, frameHeightPx)
+        val later = track(1, "person", 700f, nearY, 100f, nearH, ts = 100)
+        val second = builder.build(later, frameWidthPx, frameHeightPx)
         assertNotNull(second)
         assertEquals(Side.RIGHT, second!!.side)
     }
