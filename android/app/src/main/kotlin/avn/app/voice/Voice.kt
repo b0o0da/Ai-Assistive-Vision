@@ -7,14 +7,12 @@ import avn.contracts.Transcript
 import avn.engine.SpeechOutput
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.withTimeoutOrNull
 
 data class WakeEvent(val timestampMs: Long, val confidence: Float)
 
@@ -73,20 +71,6 @@ class FakeEmergencyKeywordDetector @Inject constructor(private val log: JsonLine
     override fun start() = log.log("emergency_keyword", "fake_start")
 
     override fun stop() = log.log("emergency_keyword", "fake_stop")
-}
-
-@Singleton
-class FakeSttEngine @Inject constructor(private val log: JsonLinesLogger) : SttEngine {
-    private val injected = Channel<String>(Channel.CONFLATED)
-
-    /** Debug text box. */
-    fun inject(text: String) {
-        log.log("stt", "fake_inject", fields = mapOf("chars" to text.length))
-        injected.trySend(text)
-    }
-
-    override suspend fun listen(timeoutMs: Long): Transcript? =
-        withTimeoutOrNull(timeoutMs) { Transcript(injected.receive(), confidence = 1.0, language = "en") }
 }
 
 @Singleton

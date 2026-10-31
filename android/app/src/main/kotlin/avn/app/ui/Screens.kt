@@ -207,16 +207,16 @@ private fun DebugScreen(deps: UiDeps) {
     Column(Modifier.verticalScroll(rememberScrollState())) {
         if (BuildConfig.DEBUG) {
             Button(onClick = { deps.wakeWord.trigger() }) { Text("Fake wake word") }
-        }
 
-        OutlinedTextField(
-            value = transcript,
-            onValueChange = { transcript = it },
-            label = { Text("Transcript text") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Button(enabled = transcript.isNotBlank(), onClick = { deps.stt.inject(transcript) }) {
-            Text("Inject transcript")
+            OutlinedTextField(
+                value = transcript,
+                onValueChange = { transcript = it },
+                label = { Text("Transcript text") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Button(enabled = transcript.isNotBlank(), onClick = { deps.stt.inject(transcript) }) {
+                Text("Inject transcript")
+            }
         }
 
         OutlinedTextField(
