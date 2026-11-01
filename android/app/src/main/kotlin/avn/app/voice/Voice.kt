@@ -9,10 +9,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.update
@@ -66,22 +64,6 @@ class FakeSpeaker @Inject constructor(private val log: JsonLinesLogger) : Speech
     }
 
     override fun stop(utteranceId: String?) = log.log("speaker", "fake_stop")
-}
-
-@Singleton
-class FakeWakeWord @Inject constructor(private val log: JsonLinesLogger) : WakeWord {
-    private val mutable = MutableSharedFlow<WakeEvent>(extraBufferCapacity = 1)
-    override val wakes: Flow<WakeEvent> = mutable.asSharedFlow()
-
-    override fun start() = log.log("wakeword", "fake_start")
-
-    override fun stop() = log.log("wakeword", "fake_stop")
-
-    /** Debug button. */
-    fun trigger() {
-        log.log("wakeword", "fake_trigger")
-        mutable.tryEmit(WakeEvent(System.currentTimeMillis(), 1f))
-    }
 }
 
 @Singleton

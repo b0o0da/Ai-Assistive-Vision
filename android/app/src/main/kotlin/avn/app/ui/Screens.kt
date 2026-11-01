@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import avn.app.BuildConfig
 import avn.app.core.consent.ConsentScope
 import avn.app.core.permissions.Access
 import avn.app.core.service.AssistantService
@@ -204,7 +205,9 @@ private fun DebugScreen(deps: UiDeps) {
     var forcedOffline by remember { mutableStateOf(deps.connectivity.forcedOffline) }
 
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        Button(onClick = { deps.wakeWord.trigger() }) { Text("Fake wake word") }
+        if (BuildConfig.DEBUG) {
+            Button(onClick = { deps.wakeWord.trigger() }) { Text("Fake wake word") }
+        }
 
         OutlinedTextField(
             value = transcript,
