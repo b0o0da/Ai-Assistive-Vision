@@ -2,17 +2,11 @@ package avn.app.voice
 
 import avn.app.core.logging.JsonLinesLogger
 import avn.contracts.ActionPlan
-import avn.contracts.SpeechRequest
 import avn.contracts.Transcript
-import avn.engine.SpeechOutput
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.update
 
 data class WakeEvent(val timestampMs: Long, val confidence: Float)
 
@@ -45,23 +39,6 @@ interface IntentRouter {
 
 interface ActionRouter {
     suspend fun execute(plan: ActionPlan)
-}
-
-/** Logs instead of speaking, and keeps the last utterances in memory for the Debug screen and tests. */
-@Singleton
-class FakeSpeaker @Inject constructor(private val log: JsonLinesLogger) : SpeechOutput {
-    private val mutable = MutableStateFlow<List<SpeechRequest>>(emptyList())
-    val spoken: StateFlow<List<SpeechRequest>> = mutable.asStateFlow()
-
-    override val isSpeaking: Boolean = false
-
-    override fun speak(request: SpeechRequest) {
-        val fields = mapOf("utterance" to request.utteranceId, "level" to request.level, "chars" to request.text.length)
-        log.log("speaker", "fake_speak", fields = fields)
-        mutable.update { (it + request).takeLast(20) }
-    }
-
-    override fun stop(utteranceId: String?) = log.log("speaker", "fake_stop")
 }
 
 @Singleton
