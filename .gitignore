@@ -46,6 +46,7 @@ models/*
 # --- Datasets and field data (stored privately, outside Git) ---
 datasets/raw/
 datasets/data/
+datasets/prepared/
 datasets/**/*.mp4
 datasets/**/*.jpg
 datasets/**/*.png

@@ -15,7 +15,9 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "0.1.0"
-        val realSeams = providers.gradleProperty("avn.realSeams").getOrElse("")
+        // Make camera + on-device detection usable in the normal debug app. Add `fake` seams only
+        // when a test needs to force a fake; other modules retain their fake bindings.
+        val realSeams = providers.gradleProperty("avn.realSeams").getOrElse("detector,tracker,camera")
         buildConfigField("String", "REAL_SEAMS", "\"$realSeams\"")
         // Backend address and per-install key (WS03-08). Set in ~/.gradle/gradle.properties or with -P,
         // never in Git. Defaults reach the mock backend from the Android emulator.
@@ -65,6 +67,10 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.room.runtime)
+    implementation(libs.onnxruntime.android)
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
     implementation(libs.okhttp)
     ksp(libs.room.compiler)
 

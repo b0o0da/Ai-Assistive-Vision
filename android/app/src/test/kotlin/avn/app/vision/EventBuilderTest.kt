@@ -24,7 +24,10 @@ class EventBuilderTest {
 
     private fun track(id: Int, label: String, x: Float, y: Float, w: Float, h: Float, ts: Long = 0): Track {
         val box = Detection(label = label, confidence = 0.8f, x = x, y = y, w = w, h = h, timestampMs = ts)
-        return Track(id = id, label = label, history = listOf(box), lastBox = box, age = 1, lostFrames = 0)
+        return Track(
+            id = id, label = label, history = listOf(box), lastBox = box, age = 1, lostFrames = 0,
+            approaching = label == "vehicle"
+        )
     }
 
     // Centre-third x (CENTER side): x=400, w=100 -> centre 450 of 900.

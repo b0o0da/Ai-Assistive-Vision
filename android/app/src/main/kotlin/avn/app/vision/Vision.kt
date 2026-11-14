@@ -18,7 +18,16 @@ data class Detection(
     val timestampMs: Long
 )
 
-data class Track(val id: Int, val label: String, val lastBox: Detection, val age: Int, val lostFrames: Int)
+data class Track(
+    val id: Int,
+    val label: String,
+    val lastBox: Detection,
+    val age: Int,
+    val lostFrames: Int,
+    /** Recent boxes are kept in memory only for temporal decisions such as vehicle approach. */
+    val history: List<Detection> = listOf(lastBox),
+    val approaching: Boolean = false
+)
 
 interface Detector {
     suspend fun detect(frame: Frame): List<Detection>
@@ -30,6 +39,15 @@ interface Tracker {
 
 interface OcrEngine {
     suspend fun read(frame: Frame): OcrResult
+}
+
+/** Result of one explicit camera-to-text request; no frame or text is persisted by this workflow. */
+sealed interface OcrCapture {
+    data class Found(val result: OcrResult) : OcrCapture
+    data object Busy : OcrCapture
+    data object CameraUnavailable : OcrCapture
+    data object NoText : OcrCapture
+    data object Failed : OcrCapture
 }
 
 /**

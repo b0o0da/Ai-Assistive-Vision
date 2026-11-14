@@ -11,15 +11,9 @@ import avn.contracts.Source
  * if there is nothing new worth saying. Boxes only, no images (WS-06's "Watch out" -- this class
  * never sees a [Frame]/`Bitmap`, only [Track.lastBox] and plain pixel dimensions).
  *
- * **Type mapping.** `vehicle_approaching` here is a *class*-based mapping (any `vehicle`-labelled
- * track), not yet a growth-based approach signal: architecture.md's "Vehicle approach" behaviour
- * (box-area growth over a sliding window, a minimum track age, a higher threshold while walking)
- * is `ApproachDetector`'s job, a separate "Internal component" this ticket does not build --
- * AVN-45's own "Interfaces to use" lists only `Tracker.update`, `EventBuilder.build` and the
- * calibration JSON, not `ApproachDetector`. Until that ticket exists, every vehicle-labelled track
- * is reported as `vehicle_approaching` regardless of whether it is actually approaching; the real
- * approach/recede distinction is `ApproachDetector`'s to add later (it is in WS-06's "Internal
- * components" list and is one of the Backlog items this ticket unblocks).
+ * **Type mapping.** `vehicle_approaching` is emitted only when the tracker has observed sustained
+ * area growth and marked the track as approaching. A non-approaching vehicle can still produce a
+ * generic obstacle warning when it enters the medium/near band; distant vehicles stay quiet.
  *
  * **Side and band.** Delegated to [SideEstimator] and [DistanceBander] (AVN-43) -- the only two
  * "Internal components" from architecture.md's WS-06 list this ticket already has available
@@ -51,7 +45,7 @@ class TrackEventBuilder(
     private val distanceBander: DistanceBander = DistanceBander()
 ) : EventBuilder {
 
-    private data class Emitted(val side: Side, val band: DistanceBand)
+    private data class Emitted(val side: Side, val band: DistanceBand, val type: EventType)
 
     private val lastEmitted = mutableMapOf<Int, Emitted>()
 
@@ -59,18 +53,20 @@ class TrackEventBuilder(
         val box = track.lastBox
         val side = sideEstimator.estimate(box, frameWidthPx)
         val band = distanceBander.estimate(box, frameHeightPx)
+        val eventType = eventTypeFor(track, band) ?: return null
 
         val previous = lastEmitted[track.id]
         val isNewTrack = previous == null
         val bandEscalated = previous != null && band.ordinal < previous.band.ordinal
         val sideChanged = previous != null && side != previous.side
-        if (!isNewTrack && !bandEscalated && !sideChanged) return null
+        val typeChanged = previous != null && eventType != previous.type
+        if (!isNewTrack && !bandEscalated && !sideChanged && !typeChanged) return null
 
-        lastEmitted[track.id] = Emitted(side, band)
+        lastEmitted[track.id] = Emitted(side, band, eventType)
         return Event(
             id = "evt_${track.id}_${box.timestampMs}",
             source = Source.CAMERA,
-            type = eventTypeFor(track.label),
+            type = eventType,
             label = track.label,
             side = side,
             distanceBand = band,
@@ -80,9 +76,13 @@ class TrackEventBuilder(
         )
     }
 
-    private fun eventTypeFor(label: String): EventType = when (label) {
+    private fun eventTypeFor(track: Track, band: DistanceBand): EventType? = when (track.label.lowercase()) {
         "person" -> EventType.PERSON_CLOSE
-        "vehicle" -> EventType.VEHICLE_APPROACHING
+        "vehicle", "car", "truck", "bus", "motorcycle", "motorbike", "bicycle" -> when {
+            track.approaching -> EventType.VEHICLE_APPROACHING
+            band != DistanceBand.FAR -> EventType.OBSTACLE_AHEAD
+            else -> null
+        }
         else -> EventType.OBSTACLE_AHEAD
     }
 }

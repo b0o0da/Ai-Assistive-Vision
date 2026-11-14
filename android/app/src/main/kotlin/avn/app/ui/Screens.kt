@@ -1,6 +1,7 @@
 package avn.app.ui
 
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,11 +40,13 @@ import avn.app.core.permissions.Access
 import avn.app.core.service.AssistantService
 import avn.app.data.SettingEntity
 import avn.app.data.SettingKeys
+import avn.app.vision.OcrCapture
+import avn.contracts.OcrResult
 import avn.contracts.Event
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
-private val TABS = listOf("Onboarding", "Settings", "Alert log", "Debug")
+private val TABS = listOf("Onboarding", "Read text", "See objects", "Settings", "Alert log", "Debug")
 private val MOCK_SCENARIOS = listOf("ok", "timeout", "error", "empty")
 private val SETTING_FIELDS = listOf(
     SettingKeys.BACKEND_URL to "Backend URL",
@@ -63,9 +66,128 @@ fun AvnScreens(deps: UiDeps) {
         }
         when (tab) {
             0 -> OnboardingScreen(deps)
-            1 -> SettingsScreen(deps)
-            2 -> AlertLogScreen(deps)
+            1 -> ReadTextScreen(deps)
+            2 -> ObjectDetectionScreen(deps)
+            3 -> SettingsScreen(deps)
+            4 -> AlertLogScreen(deps)
             else -> DebugScreen(deps)
+        }
+    }
+}
+
+/** One-shot snapshot inference with the bundled YOLOv8n ONNX model. */
+@Composable
+private fun ObjectDetectionScreen(deps: UiDeps) {
+    val scope = rememberCoroutineScope()
+    var detections by remember { mutableStateOf<List<avn.app.vision.Detection>>(emptyList()) }
+    var status by remember { mutableStateOf("Point the camera at a scene, then check what the model sees.") }
+    var processing by remember { mutableStateOf(false) }
+
+    Column(Modifier.verticalScroll(rememberScrollState())) {
+        Text("See objects", style = MaterialTheme.typography.titleMedium)
+        Text("Runs the on-device YOLO model on one camera capture. Frames are not saved.")
+        Button(
+            enabled = !processing,
+            onClick = {
+                scope.launch {
+                    processing = true
+                    detections = emptyList()
+                    status = "Capturing and detecting…"
+                    try {
+                        when (val result = deps.detectObjects()) {
+                            is UiDeps.ObjectCapture.Found -> {
+                                detections = result.detections
+                                val names = result.detections.map { it.label }.distinct()
+                                status = "I see: ${names.joinToString()}."
+                                deps.say(status)
+                            }
+                            UiDeps.ObjectCapture.Busy -> status = "A detection is already running."
+                            UiDeps.ObjectCapture.CameraUnavailable -> {
+                                status = "Camera unavailable. Grant camera permission and retry."
+                                deps.say(status)
+                            }
+                            UiDeps.ObjectCapture.NothingFound -> {
+                                status = "No supported object detected. Try better light or move closer."
+                                deps.say(status)
+                            }
+                            UiDeps.ObjectCapture.Failed -> {
+                                status = "Object detection failed. Try again."
+                                deps.say(status)
+                            }
+                        }
+                    } finally {
+                        processing = false
+                    }
+                }
+            }
+        ) { Text(if (processing) "Detecting…" else "Check scene") }
+        Text(status)
+        detections.forEach { detection ->
+            Text("${detection.label} · ${"%.0f".format(detection.confidence * 100)}%")
+        }
+    }
+}
+
+/** OCR follows the reference repo's capture-then-read flow; it never runs on every camera frame. */
+@Composable
+private fun ReadTextScreen(deps: UiDeps) {
+    val scope = rememberCoroutineScope()
+    var result by remember { mutableStateOf<OcrResult?>(null) }
+    var status by remember { mutableStateOf("Capture a still image when text is in view.") }
+    var processing by remember { mutableStateOf(false) }
+
+    Column(Modifier.verticalScroll(rememberScrollState())) {
+        Text("Read text", style = MaterialTheme.typography.titleMedium)
+        Text("OCR runs only when you ask. The captured frame and recognized text are kept in memory only.")
+        Button(
+            enabled = !processing,
+            onClick = {
+                scope.launch {
+                    processing = true
+                    result = null
+                    status = "Capturing and reading…"
+                    try {
+                        when (val capture = deps.captureText()) {
+                            is OcrCapture.Found -> {
+                                result = capture.result
+                                status = "Text captured. Press Read aloud when ready."
+                                deps.say("Text captured. Press Read aloud to hear it.")
+                            }
+                            OcrCapture.Busy -> status = "A text reading is already in progress."
+                            OcrCapture.CameraUnavailable -> {
+                                status = "Camera is not connected yet."
+                                deps.say("The camera is not available yet.")
+                            }
+                            OcrCapture.NoText -> {
+                                status = "No readable text found. Try moving closer and holding still."
+                                deps.say(status)
+                            }
+                            OcrCapture.Failed -> {
+                                status = "Text reading failed. Please try again."
+                                deps.say(status)
+                            }
+                        }
+                    } finally {
+                        processing = false
+                    }
+                }
+            }
+        ) { Text(if (processing) "Reading…" else "Capture text") }
+
+        Text(status)
+        result?.let { captured ->
+            Text("Recognized text", style = MaterialTheme.typography.titleSmall)
+            Text(captured.text)
+            Text("Language: ${captured.language} · Confidence: ${"%.2f".format(captured.confidence)}")
+            Row {
+                Button(onClick = { deps.readText(captured.text) }) { Text("Read aloud") }
+                TextButton(
+                    onClick = {
+                        result = null
+                        status = "Captured text cleared from this screen."
+                    }
+                ) { Text("Clear") }
+            }
         }
     }
 }
@@ -78,6 +200,9 @@ private fun OnboardingScreen(deps: UiDeps) {
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         val access = pending
         if (!granted && access != null) deps.say(access.deniedSpeech)
+        if (granted && access == Access.CAMERA) {
+            (context as? ComponentActivity)?.let(deps::bindCamera)
+        }
         refresh++
     }
     // Special access is granted in system settings, so re-check every time the app comes back.
