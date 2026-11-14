@@ -35,29 +35,33 @@ data class DetectorConfig(
     companion object {
         /**
          * The general/everyday-object detector as of 2026-11-14: stock, un-fine-tuned Ultralytics
-         * YOLOv8m COCO weights (full 80-class accuracy, no small-sample fine-tuning degradation),
-         * dynamically INT8-quantized (`yolov8m_int8_coco_stock.onnx`, onnxruntime.quantization)
+         * YOLO11m COCO weights (full 80-class accuracy, no small-sample fine-tuning degradation),
+         * dynamically INT8-quantized (`yolo11m_int8_coco_stock.onnx`, onnxruntime.quantization)
          * to recover real-time speed, with vehicle body types merged into one "transportation"
          * display class via [classMap] -- this app's hazard logic only ever needs
          * `near|medium|far` + category, never vehicle body type.
          *
-         * Why this over the plain fp32 sizes (measured on this repo's dev machine, desktop CPU):
-         * yolov8n ~31ms/frame (COCO mAP50-95 37.3), yolov8s ~90ms (44.9), yolov8m fp32 ~230ms
-         * (50.2) -- rejected at that latency as a real-time-hazard-alert risk for a blind user --
-         * yolov8l fp32 ~478ms -- clearly unusable. INT8-quantizing yolov8m brought it to
-         * ~108ms/frame (same ballpark as plain yolov8s) while keeping m's higher base accuracy;
-         * spot-checked post-quantization on a real COCO image and every class's detection
-         * confidence matched or exceeded yolov8s's (e.g. chair 0.89 vs 0.84, dining table 0.76 vs
-         * 0.58). On-device (phone/NNAPI) latency AND whether onnxruntime-android's kernel set
-         * covers this quantization's ops have NOT been verified -- only desktop CPU with the
-         * desktop `onnxruntime` package -- see the final report for this caveat.
+         * Progression tried, measured on this repo's dev machine (desktop CPU, onnxruntime):
+         * yolov8n ~31ms (COCO mAP50-95 37.3) -> yolov8s ~90ms (44.9) -> yolov8m fp32 ~230ms (50.2,
+         * rejected: too slow for a real-time hazard alert) -> yolov8l fp32 ~478ms (52.9, clearly
+         * unusable) -> yolov8m INT8 ~108ms (kept m's accuracy at near-yolov8s speed) -> YOLO11m
+         * INT8 ~112ms (Ultralytics' newer architecture: published mAP50-95 51.5 vs yolov8m's 50.2,
+         * at a smaller file size -- 20.6 MB vs 26.3 MB quantized -- and the same speed, so it
+         * strictly supersedes the yolov8m INT8 choice). A single real-image spot check after
+         * quantization was mixed per-class (expected at n=1: e.g. this model's "dining table"
+         * confidence was lower, "person" higher) -- not proof of an overall win, only that nothing
+         * broke; the published benchmark is the actual basis for preferring it.
+         *
+         * On-device (phone/NNAPI) latency, and whether onnxruntime-android's kernel set covers
+         * this quantization's ops, have NOT been verified -- only desktop CPU with the desktop
+         * `onnxruntime` package -- see the final report for this caveat.
          *
          * Pothole detection is a SEPARATE model/config -- see [POTHOLE_DEFAULT] and
          * `detector_pothole.json` -- because COCO has no pothole class at all; this config's
          * `classes` intentionally excludes it.
          */
         val DEFAULT = DetectorConfig(
-            modelAsset = "yolov8m_int8_coco_stock.onnx",
+            modelAsset = "yolo11m_int8_coco_stock.onnx",
             inputSize = 640,
             confidenceThreshold = 0.35f,
             nmsIouThreshold = 0.50f,

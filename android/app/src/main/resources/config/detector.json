@@ -1,5 +1,5 @@
 {
-  "modelAsset": "yolov8m_int8_coco_stock.onnx",
+  "modelAsset": "yolo11m_int8_coco_stock.onnx",
   "inputSize": 640,
   "confidenceThreshold": 0.35,
   "nmsIouThreshold": 0.5,

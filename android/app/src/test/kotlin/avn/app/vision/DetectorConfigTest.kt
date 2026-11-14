@@ -19,7 +19,7 @@ class DetectorConfigTest {
         )
         assertEquals(expectedClasses, config.classes)
         assertEquals(CocoLabels.names, config.labels)
-        assertEquals("yolov8m_int8_coco_stock.onnx", config.modelAsset)
+        assertEquals("yolo11m_int8_coco_stock.onnx", config.modelAsset)
         assertEquals(
             setOf("bicycle", "car", "motorcycle", "bus", "truck"),
             config.classMap.filterValues { it == "transportation" }.keys
