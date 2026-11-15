@@ -4,7 +4,7 @@
 - `export/` — export to LiteRT (TFLite) or ONNX, plus a check that the exported model matches `models/manifest.json` input/output.
 - `eval/` — evaluation on frozen held-out sets: precision/recall per class, latency per device, reports committed as Markdown.
 
-Data never goes in Git (see `datasets/README.md`). Licence decision for the detector: TD-001.
+Data never goes in Git (see `datasets/README.md`). Licence decision for the detector: TD-001 (resolved, AGPL-3.0 accepted — see `docs/decisions/TD-001-yolov8n-reference-model.md` and `NOTICE.md`).
 
 Egyptian vehicle/hazard collection, Commons import, iPhone capture, annotation classes and
 session-level split policy are documented under `datasets/`. The Commons importer downloads only
@@ -37,4 +37,4 @@ python3 computer_vision/eval/evaluate_mot17_iou_tracker.py
 It writes `eval/mot17_iou_tracker_report.md`. The script needs NumPy and SciPy. This measures the
 association baseline separately from detector quality; MOT17 has pedestrian sequences only and
 does not validate vehicle approach or chest-mounted Egyptian street scenes. Detector training and
-on-device export remain gated on TD-001 and a model-training machine.
+on-device export remain gated on a model-training machine (TD-001's licence question is resolved).

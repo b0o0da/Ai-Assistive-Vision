@@ -2,34 +2,77 @@
 
 Weights are never committed. `manifest.json` lists every model the app or the evaluation uses; `scripts/fetch_models.py` checks their SHA-256 and copies verified files into Android assets.
 
-## General object detector
+## Architecture: two separate ONNX detectors, not one
 
-The current Android app uses a fine-tuned Ultralytics YOLOv8s ONNX model. Its input is `[1,3,640,640]`; its output is `[1,12,8400]` (four box values and eight class scores). The output classes, in order, are `person`, `transportation`, `pothole`, `bench`, `chair`, `fire hydrant`, `stop sign`, and `parking meter`.
+The current Android app runs two independent ONNX models concurrently (`CompositeDetector`), not
+one fine-tuned general model as earlier revisions of this doc described:
 
-The Colab training/export workflow is in `computer_vision/training/train_yolo_colab.ipynb`. The verified export is `computer_vision/training/exported/yolov8s_general_colab.onnx`; the Android asset is `android/app/src/main/assets/yolov8s_general.onnx`. Model binaries are ignored by Git, so they must be retained or regenerated separately. To stage this export for the model fetch script:
+- **General detector** — stock, un-fine-tuned Ultralytics YOLO11m COCO weights, dynamically
+  INT8-quantized (`yolo11m_int8_coco_stock.onnx`). Input `[1,3,640,640]` float32; output
+  `[1,84,8400]` (4 box values + 80 COCO class scores). Vehicle body types (bicycle, car,
+  motorcycle, bus, truck) are merged into one `transportation` display class entirely in software
+  via `DetectorConfig.classMap` / `YoloDecoder.kt` — no retraining, no fine-tuning accuracy loss.
+  Config: `android/app/src/main/resources/config/detector.json`.
+- **Pothole detector** — a dedicated single-class pretrained model from Hugging Face
+  (`keremberke/yolov8n-pothole-segmentation`, `pothole_keremberke_n.onnx`). Output
+  `[1,37,8400]` (4 box + 1 class score + 32 segmentation mask-coefficient rows the decoder never
+  reads). Config: `android/app/src/main/resources/config/detector_pothole.json`.
+
+Both are loaded via `YoloV8OnnxDetector` with per-model `DetectorConfig` instances, constructed
+manually in `android/app/src/main/kotlin/avn/app/core/di/ModulesModule.kt` (Hilt cannot
+disambiguate two un-annotated instances of the same class without qualifiers, so these two are
+built directly rather than through `@Inject`).
+
+The full decision trail for this architecture (why stock + classMap beats fine-tuning on COCO-
+native classes, the yolov8n -> ... -> YOLO11m INT8 latency/accuracy progression, and why the
+pothole model is separate) lives in `manifest.json`'s `source` fields for each entry below, and
+in `docs/decisions/`.
+
+## Accuracy: published vs. self-measured
+
+Every number historically cited here was a *published* benchmark (Ultralytics' own COCO numbers,
+or a model card's reported metric), never independently reproduced against this app's real
+decode path and real thresholds. That gap is now closed:
+`computer_vision/eval/compute_map.py` runs real inference with the exact production
+letterbox/decode/NMS/classMap logic against real local data, and
+`computer_vision/eval/map_eval_report.md` has the full methodology and results — in short, the
+general detector's own 7-class, production-threshold mAP50-95 is 0.6196 (5000 real COCO val2017
+images), and the pothole detector's is 0.4175 (only 10 held-out images exist in total for this
+dataset, so that number is directional, not statistically solid). Both reports flag `bench`/
+`chair` as the weakest classes, consistent with their known status as structurally hard
+categories for every public object detector, not a defect of this app's choices.
+
+## Licensing
+
+Both detectors are Ultralytics YOLO derivatives and declare AGPL-3.0. See
+`docs/decisions/TD-001-yolov8n-reference-model.md` for the full resolution and `NOTICE.md` for
+the required third-party notice text.
+
+## Fetching and verifying
 
 ```sh
-cp computer_vision/training/exported/yolov8s_general_colab.onnx models/yolov8s_general.onnx
 python scripts/fetch_models.py --android
 ```
 
-The script checks the SHA-256 in `manifest.json` before copying. The reported held-out test mAP50-95 is 0.387; `bench` and `chair` recall are weak, and the training data does not establish Egyptian-scene accuracy. The model metadata declares AGPL-3.0; the app uses ONNX Runtime Mobile for inference.
+The script checks the SHA-256 of each entry in `manifest.json` before copying it into
+`android/app/src/main/assets/`. Keep `detector.json` / `detector_pothole.json` (the app's class
+order, classMap, and thresholds) synchronized with whatever ONNX asset `manifest.json` actually
+points at whenever replacing a model — a mismatch here is exactly the silent-misdecode failure
+`DetectorConfig.DEFAULT`'s doc comment warns about.
 
-Manifest entry:
+Manifest entry shape:
 
 ```json
 {
   "name": "detector",
-  "version": "coco-baseline-0.1",
-  "file": "detector.tflite",
-  "url": "https://.../detector.tflite",
+  "version": "yolo11m-int8-coco-onnx-8.4.172",
+  "file": "yolo11m_int8_coco_stock.onnx",
+  "url": null,
   "sha256": "<64 hex chars>",
-  "license": "AGPL-3.0 | Apache-2.0 | ...",
-  "source": "where it came from and how it was trained",
-  "input": "e.g. 320x320x3 float32, letterboxed",
-  "output": "e.g. [1, N, 6] boxes xyxy + score + class",
-  "labels": "detector_labels.txt"
+  "license": "AGPL-3.0",
+  "source": "where it came from, how it was trained/quantized, and now also self-measured mAP",
+  "input": "[1,3,640,640] float32 RGB, letterboxed and normalized to [0,1]",
+  "output": "[1,84,8400] float32: xywh plus 80 COCO class scores",
+  "labels": "COCO 80 labels; app filters + remaps using detector.json"
 }
 ```
-
-`android/app/src/main/resources/config/detector.json` contains the app's class order and thresholds. Keep it, the Kotlin fallback config, and the ONNX output order synchronized whenever replacing the model.

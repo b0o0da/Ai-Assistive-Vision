@@ -65,7 +65,7 @@ def decode(output: np.ndarray, frame_w: int, frame_h: int, scale: float, pad_x: 
     boxes_xywh, scores, class_ids = boxes_xywh[:, keep], scores[keep], class_ids[keep]
 
     labels = [class_map.get(model_labels[c], model_labels[c]) for c in class_ids]
-    class_keep = np.array([label in classes for label in labels])
+    class_keep = np.array([label in classes for label in labels], dtype=bool)
     boxes_xywh, scores, class_ids, labels = (
         boxes_xywh[:, class_keep], scores[class_keep], class_ids[class_keep],
         [l for l, k in zip(labels, class_keep) if k],
