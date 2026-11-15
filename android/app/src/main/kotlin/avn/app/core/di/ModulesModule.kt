@@ -7,6 +7,7 @@ import avn.app.BuildConfig
 import avn.app.camera.FakeFrameSource
 import avn.app.camera.FrameSource
 import avn.app.core.FakeEngineInput
+import avn.app.core.consent.ConsentGuard
 import avn.app.core.consent.ConsentManager
 import avn.app.data.AlertLogDao
 import avn.app.data.AvnDatabase
@@ -156,4 +157,8 @@ object DataModule {
         consent = ConsentGate(consent::isGranted),
         log = { line -> Log.d("avn.api", line) }
     )
+
+    @Provides
+    @Singleton
+    fun consentGuard(consent: ConsentManager): ConsentGuard = ConsentGuard(consent)
 }
