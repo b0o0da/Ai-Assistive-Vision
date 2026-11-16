@@ -1,6 +1,6 @@
 # AVN API and event contract
 
-**Version 1.0.0 · status: FROZEN at Gate 1 (end of week 2, tag `contract-v1`). Any change follows §7 below.**
+**Version 1.1.0 · status: FROZEN at Gate 1 (end of week 2, tag `contract-v1`). Any change follows §7 below.**
 Machine-readable source: `contracts/schemas/` and `contracts/fixtures/`. If this page and the schemas disagree, the schemas win and this page is fixed.
 
 ## 1. Conventions
@@ -163,6 +163,7 @@ Fallback example, same endpoint after a provider timeout:
 | 0.2.0-draft | Week 2 | Envelope gains `version` and `error {code, retryable}`; five error codes with default spoken messages; privacy note. AVN-33. |
 | 0.2.0-draft | Week 2 | Envelope, error codes and privacy rules settled; Event v0 with Kotlin and Pydantic models (WS02-01). |
 | 1.0.0 | Week 2 (Gate 1) | Frozen. Request, success and failure fixtures for all 9 endpoints; change rule added (§7). |
+| 1.1.0 | Week 2 | Additive (TD-008, AVN-35): `Transcript {text, confidence, language}` schema in `android.schema.json`, same shape as the existing Kotlin model; 8 fixtures incl. the empty transcript. No existing field changed. |
 
 ## 7. Changing the contract after the freeze
 
