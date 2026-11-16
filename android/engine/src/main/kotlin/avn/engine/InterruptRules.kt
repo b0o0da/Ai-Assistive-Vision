@@ -222,7 +222,19 @@ enum class Decision {
     HELD,
 
     /** Overflowed the max queue depth and was discarded outright. */
-    DROPPED
+    DROPPED,
+
+    /** Not spoken because of a cooldown or a duplicate (WS16-05). Logging value from architecture.md section 5. */
+    SUPPRESSED,
+
+    /** Cut off by a higher-priority item while speaking. Logging value from architecture.md section 5. */
+    INTERRUPTED,
+
+    /** Folded into another item (WS16-06). Logging value from architecture.md section 5. */
+    MERGED,
+
+    /** Went stale in the queue before it could be spoken (see [SpeechQueue]). Logging value from architecture.md section 5. */
+    EXPIRED
 }
 
 /**
@@ -246,8 +258,18 @@ data class EngineContext(
  * through while SOS is active). Everything else the table needs -- level and "was this
  * navigation" -- is already on [SpeechRequest] itself via `level` and `source == Source.NAVIGATION`.
  *
+ * [dedupKey] (WS16-01) is the cooldown/duplicate key from architecture.md section 5. Its time to
+ * live is not stored per item: it is the per-level expiry in `config/queue.json`
+ * ([SpeechQueueConfig.expiryMsFor]), so no number is hard-coded here.
+ *
  * This type is engine-internal only: it is never serialized and never crosses the
  * EngineInput/SpeechOutput contract boundary, so it does not touch the frozen contract layer in
  * `:contracts`.
  */
-data class SpeechItem(val request: SpeechRequest, val userRequested: Boolean = false, val sosCountdown: Boolean = false)
+data class SpeechItem(
+    val request: SpeechRequest,
+    val userRequested: Boolean = false,
+    val sosCountdown: Boolean = false,
+    /** Cooldown and duplicate key (WS16-01), built with [DedupKey.of]; null for speech not tied to an event. */
+    val dedupKey: String? = null
+)

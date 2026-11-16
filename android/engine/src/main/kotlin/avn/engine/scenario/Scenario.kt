@@ -4,8 +4,17 @@ import avn.contracts.Event
 import avn.contracts.SpeechCandidate
 import avn.engine.Decision
 import avn.engine.Reason
+import avn.engine.decisionFromWire
+import avn.engine.wire
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 /**
  * A replayable engine test (WS16-01): a timeline of inputs plus the decisions we expect.
@@ -46,6 +55,30 @@ data class ContextChange(
 @Serializable
 data class ExpectedDecision(
     @SerialName("event_id") val eventId: String,
-    val decision: Decision,
-    val reason: Reason? = null
+    @Serializable(with = DecisionWireSerializer::class) val decision: Decision,
+    @Serializable(with = ReasonWireSerializer::class) val reason: Reason? = null
 )
+
+/** Reads and writes [Decision] by its log name (`spoken`, `queued`, ...). */
+object DecisionWireSerializer : KSerializer<Decision> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("avn.engine.Decision", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: Decision) = encoder.encodeString(value.wire)
+
+    override fun deserialize(decoder: Decoder): Decision {
+        val value = decoder.decodeString()
+        return decisionFromWire(value) ?: throw SerializationException("unknown decision '$value'")
+    }
+}
+
+/** Reads and writes [Reason] by its log name (`cooldown`, `queue_overflow`, ...). */
+object ReasonWireSerializer : KSerializer<Reason> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("avn.engine.Reason", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: Reason) = encoder.encodeString(value.wire)
+
+    override fun deserialize(decoder: Decoder): Reason {
+        val value = decoder.decodeString()
+        return Reason.fromWire(value) ?: throw SerializationException("unknown reason '$value'")
+    }
+}

@@ -1,60 +1,30 @@
 package avn.engine
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+/*
+ * Wire names for the decision log and scenario files (WS16-01). The values come from
+ * docs/architecture.md section 5 "Logging". [Decision] itself is declared next to
+ * [InterruptRules], which returns it.
+ */
 
-// Values come from docs/architecture.md §5 "Logging". Used by scenario files and the alert log.
+/** Lower-case name used in logs and scenario JSON, for example `spoken` or `queue_overflow`. */
+val Decision.wire: String get() = name.lowercase()
 
-@Serializable
-enum class Decision {
-    @SerialName("spoken")
-    SPOKEN,
+fun decisionFromWire(value: String): Decision? = Decision.entries.firstOrNull { it.wire == value }
 
-    @SerialName("queued")
-    QUEUED,
-
-    @SerialName("held")
-    HELD,
-
-    @SerialName("suppressed")
-    SUPPRESSED,
-
-    @SerialName("dropped")
-    DROPPED,
-
-    @SerialName("interrupted")
-    INTERRUPTED,
-
-    @SerialName("merged")
-    MERGED,
-
-    @SerialName("expired")
-    EXPIRED
-}
-
-@Serializable
+/** Why the engine made a [Decision]. Same names as the `reason` column in architecture.md section 5. */
 enum class Reason {
-    @SerialName("low_confidence")
     LOW_CONFIDENCE,
-
-    @SerialName("below_threshold")
     BELOW_THRESHOLD,
-
-    @SerialName("cooldown")
     COOLDOWN,
-
-    @SerialName("duplicate")
     DUPLICATE,
-
-    @SerialName("merged")
     MERGED,
-
-    @SerialName("expired")
     EXPIRED,
-
-    @SerialName("preempted")
     PREEMPTED,
+    QUEUE_OVERFLOW;
 
-    @SerialName("queue_overflow")
-    QUEUE_OVERFLOW
+    val wire: String get() = name.lowercase()
+
+    companion object {
+        fun fromWire(value: String): Reason? = entries.firstOrNull { it.wire == value }
+    }
 }

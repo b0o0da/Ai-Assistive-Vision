@@ -13,9 +13,8 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertThrows
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -65,18 +64,28 @@ class SpeechRequestSchemaTest {
     }
 
     @Test
-    fun speechItemExpiresAfterTtl() {
-        val item = SpeechItem(request, dedupKey = "k", createdAtMs = 1_000, ttlMs = 3_000)
-        assertEquals(4_000L, item.expiresAtMs)
-        assertFalse(item.isExpired(3_999))
-        assertTrue(item.isExpired(4_000))
+    fun speechItemCarriesTheDedupKeyOfItsEvent() {
+        val key = DedupKey.of(event(Side.LEFT, DistanceBand.NEAR))
+        val item = SpeechItem(request, dedupKey = key)
+        assertEquals("vehicle_approaching|car|left|near", item.dedupKey)
+        assertNull("speech not tied to an event has no key", SpeechItem(request).dedupKey)
     }
 
     @Test
-    fun speechItemRejectsBadValues() {
-        assertThrows(IllegalArgumentException::class.java) { SpeechItem(request, " ", 0, 1) }
-        assertThrows(IllegalArgumentException::class.java) { SpeechItem(request, "k", 0, 0) }
-        assertThrows(IllegalArgumentException::class.java) { SpeechItem(request, "k", -1, 1) }
+    fun ttlComesFromQueueConfigPerLevel() {
+        val config = SpeechQueueConfig.load()
+        assertNull("Critical never expires", config.expiryMsFor(Level.CRITICAL))
+        assertTrue(config.expiryMsFor(Level.WARNING)!! > 0)
+        assertTrue(config.expiryMsFor(Level.INFO)!! > config.expiryMsFor(Level.WARNING)!!)
+    }
+
+    @Test
+    fun decisionAndReasonUseLogNames() {
+        assertEquals("spoken", Decision.SPOKEN.wire)
+        assertEquals(Decision.EXPIRED, decisionFromWire("expired"))
+        assertNull(decisionFromWire("shouted"))
+        assertEquals("queue_overflow", Reason.QUEUE_OVERFLOW.wire)
+        assertEquals(Reason.COOLDOWN, Reason.fromWire("cooldown"))
     }
 
     @Test
