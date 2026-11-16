@@ -68,7 +68,7 @@ class UiDeps @Inject constructor(
             val capturedFrame = frameSource.captureStill() ?: return OcrCapture.CameraUnavailable
             frame = capturedFrame
             val result = ocrEngine.read(capturedFrame)
-            if (result.text.isBlank()) OcrCapture.NoText else OcrCapture.Found(result)
+            if (result.text.isBlank()) OcrCapture.NoText else OcrCapture.Found(result.toResult())
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {

@@ -1,0 +1,35 @@
+{
+  "name": "sample",
+  "description": "User is walking. A very low-confidence far person is dropped; a requested sign reading is spoken.",
+  "steps": [
+    { "at_ms": 0, "context": { "moving": true } },
+    {
+      "at_ms": 100,
+      "event": {
+        "id": "evt_s1",
+        "source": "camera",
+        "type": "person_close",
+        "label": "person",
+        "side": "right",
+        "distance_band": "far",
+        "confidence": 0.15,
+        "risk": 0,
+        "timestamp": 100
+      }
+    },
+    {
+      "at_ms": 500,
+      "candidate": {
+        "text": "The sign says: Pharmacy, open until 10 PM.",
+        "source": "camera",
+        "type": "text_result",
+        "user_requested": true,
+        "event_id": "cand_s1"
+      }
+    }
+  ],
+  "expect": [
+    { "event_id": "evt_s1", "decision": "dropped", "reason": "low_confidence" },
+    { "event_id": "cand_s1", "decision": "spoken" }
+  ]
+}

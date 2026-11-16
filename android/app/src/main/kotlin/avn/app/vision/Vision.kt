@@ -43,10 +43,6 @@ interface Tracker {
     fun update(detections: List<Detection>, timestampMs: Long): List<Track>
 }
 
-interface OcrEngine {
-    suspend fun read(frame: Frame): OcrResult
-}
-
 /** Result of one explicit camera-to-text request; no frame or text is persisted by this workflow. */
 sealed interface OcrCapture {
     data class Found(val result: OcrResult) : OcrCapture
@@ -73,9 +69,21 @@ interface EventBuilder {
 
 @Singleton
 class FakeDetector @Inject constructor(private val log: JsonLinesLogger) : Detector {
+    private val pending = ArrayDeque<List<Detection>>()
+
+    /**
+     * WS05-03: queues every frame of [sequence]; each [detect] call returns the next one, then
+     * empty lists once the sequence is used up. With nothing loaded it always returns empty, as before.
+     */
+    @Synchronized
+    fun load(sequence: DetectionSequence) {
+        sequence.frames.forEach { pending.addLast(it.detections) }
+    }
+
     override suspend fun detect(frame: Frame): List<Detection> {
-        log.log("detector", "fake_detect")
-        return emptyList()
+        val next = synchronized(this) { pending.removeFirstOrNull() }.orEmpty()
+        log.log("detector", "fake_detect", fields = mapOf("detections" to next.size))
+        return next
     }
 }
 
@@ -84,14 +92,6 @@ class FakeTracker @Inject constructor(private val log: JsonLinesLogger) : Tracke
     override fun update(detections: List<Detection>, timestampMs: Long): List<Track> {
         log.log("tracker", "fake_update", fields = mapOf("detections" to detections.size))
         return emptyList()
-    }
-}
-
-@Singleton
-class FakeOcrEngine @Inject constructor(private val log: JsonLinesLogger) : OcrEngine {
-    override suspend fun read(frame: Frame): OcrResult {
-        log.log("ocr", "fake_read")
-        return OcrResult(text = "", confidence = 0.0, language = "en", source = "fake")
     }
 }
 
