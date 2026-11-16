@@ -160,4 +160,47 @@ class IouTrackerTest {
         }
         assertTrue(!last!!.approaching)
     }
+
+    @Test
+    fun predictedBoxExtrapolationRecoversATrackThatDirectIouAgainstTheLastBoxWouldMiss() {
+        val tracker = IouTracker()
+        // Frame0: track created at x=0. Frame1: moves by +40 (direct IoU vs frame0 still clears
+        // matchIou=0.30), establishing a velocity of +40/frame in history.
+        val firstId = tracker.update(listOf(box("person", 0f, 0f, 100f, 100f, 0.9f, 0L)), 0L).single().id
+        val afterOneStep = tracker.update(listOf(box("person", 40f, 0f, 100f, 100f, 0.9f, 100L)), 100L).single()
+        assertEquals(firstId, afterOneStep.id)
+        // Frame2: no detection -- lostFrames becomes 1.
+        tracker.update(emptyList(), 200L)
+        // Frame3: detection at x=118. Direct IoU against the last *observed* box (x=40) is only
+        // ~0.12 (below matchIou), but IoU against the velocity-extrapolated predicted box
+        // (x = 40 + (40-0)*2 = 120, since lostFrames is pre-incremented to 2 before matching runs)
+        // is ~0.96 -- so this only matches if predictedBox() extrapolation is actually used.
+        val recovered = tracker.update(listOf(box("person", 118f, 0f, 100f, 100f, 0.9f, 300L)), 300L).single()
+        assertEquals(
+            "velocity extrapolation across a lost frame should have recovered the same track id",
+            firstId,
+            recovered.id
+        )
+    }
+
+    @Test
+    fun whenTwoHighConfidenceDetectionsBothOverlapOneTrackTheBetterIouWinsAndTheLoserStartsAFreshTrack() {
+        val tracker = IouTracker()
+        val firstId = tracker.update(listOf(box("person", 0f, 0f, 100f, 100f, 0.9f, 0L)), 0L).single().id
+        // detA (x=10) has IoU ~0.818 with the track; detB (x=50) has IoU ~0.333 -- both clear
+        // matchIou (0.30), so this exercises the greedy "best IoU wins, not first-seen" association.
+        val result = tracker.update(
+            listOf(
+                box("person", 50f, 0f, 100f, 100f, 0.9f, 100L),
+                box("person", 10f, 0f, 100f, 100f, 0.9f, 100L)
+            ),
+            100L
+        )
+        assertEquals(2, result.size)
+        val continued = result.single { it.id == firstId }
+        val fresh = result.single { it.id != firstId }
+        assertEquals("the closer-overlapping detection should continue the existing track", 10f, continued.lastBox.x)
+        assertEquals("the weaker-overlap detection should start its own track", 50f, fresh.lastBox.x)
+        assertEquals(1, fresh.age)
+    }
 }

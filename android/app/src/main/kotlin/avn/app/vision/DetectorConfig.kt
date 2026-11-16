@@ -52,9 +52,10 @@ data class DetectorConfig(
          * confidence was lower, "person" higher) -- not proof of an overall win, only that nothing
          * broke; the published benchmark is the actual basis for preferring it.
          *
-         * On-device (phone/NNAPI) latency, and whether onnxruntime-android's kernel set covers
-         * this quantization's ops, have NOT been verified -- only desktop CPU with the desktop
-         * `onnxruntime` package -- see the final report for this caveat.
+         * On-device CPU latency (real ARM64-v8a emulator, 2026-11-15, ~333ms mean combined with
+         * the pothole model) confirms onnxruntime-android's kernel set covers this quantization's
+         * ops end-to-end -- see computer_vision/eval/map_eval_report.md. Real NPU/NNAPI delegate
+         * acceleration on physical silicon is still unverified (no physical device available).
          *
          * Pothole detection is a SEPARATE model/config -- see [POTHOLE_DEFAULT] and
          * `detector_pothole.json` -- because COCO has no pothole class at all; this config's

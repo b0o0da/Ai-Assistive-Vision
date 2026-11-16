@@ -129,6 +129,27 @@ class EventBuilderTest {
     }
 
     @Test
+    fun aTypeChangeAloneReEmitsEvenWithAnUnchangedSideAndBand() {
+        val builder = TrackEventBuilder()
+        val approachingBox = Detection(
+            label = "vehicle", confidence = 0.8f, x = centerX, y = nearY, w = centerW, h = nearH, timestampMs = 0
+        )
+        val approaching = Track(id = 1, label = "vehicle", history = listOf(approachingBox), lastBox = approachingBox, age = 1, lostFrames = 0, approaching = true)
+        val first = builder.build(approaching, frameWidthPx, frameHeightPx)!!
+        assertEquals(EventType.VEHICLE_APPROACHING, first.type)
+
+        // Same side and band, but the tracker no longer reports it as approaching: type flips to
+        // OBSTACLE_AHEAD even though neither side nor band changed -- the `typeChanged` trigger.
+        val sameSpotBox = approachingBox.copy(timestampMs = 100)
+        val noLongerApproaching = approaching.copy(lastBox = sameSpotBox, history = listOf(sameSpotBox), approaching = false)
+        val second = builder.build(noLongerApproaching, frameWidthPx, frameHeightPx)
+        assertNotNull("a type change alone must still re-emit", second)
+        assertEquals(EventType.OBSTACLE_AHEAD, second!!.type)
+        assertEquals(Side.CENTER, second.side)
+        assertEquals(DistanceBand.NEAR, second.distanceBand)
+    }
+
+    @Test
     fun differentTrackIdsAreTrackedIndependently() {
         val builder = TrackEventBuilder()
         val first = builder.build(track(1, "person", centerX, nearY, centerW, nearH), frameWidthPx, frameHeightPx)

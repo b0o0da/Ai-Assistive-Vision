@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.graphics.RectF
 import avn.app.camera.Frame
 import avn.app.core.logging.JsonLinesLogger
+import avn.app.perf.PerfLogger
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
@@ -31,7 +32,8 @@ import kotlin.math.roundToInt
 class YoloV8OnnxDetector(
     private val context: Context,
     private val log: JsonLinesLogger,
-    private val config: DetectorConfig
+    private val config: DetectorConfig,
+    private val perf: PerfLogger
 ) : Detector {
     private val env: OrtEnvironment by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         OrtEnvironment.getEnvironment()
@@ -50,27 +52,29 @@ class YoloV8OnnxDetector(
         val source = frame.bitmap ?: return@withContext emptyList()
         try {
             val activeSession = getOrCreateSession()
-            val upright = rotateIfNeeded(source, frame.rotationDegrees)
-            val prepared = letterbox(upright, config.inputSize)
-            try {
-                val input = bitmapToChw(prepared.bitmap, config.inputSize)
-                OnnxTensor.createTensor(
-                    env,
-                    input,
-                    longArrayOf(1, 3, config.inputSize.toLong(), config.inputSize.toLong())
-                ).use { tensor ->
-                    activeSession.run(mapOf(inputName!! to tensor)).use { result ->
-                        @Suppress("UNCHECKED_CAST")
-                        val output = result[0].value as Array<Array<FloatArray>>
-                        YoloDecoder.decode(
-                            output[0], upright.width, upright.height, frame.timestampMs,
-                            prepared.scale, prepared.padX, prepared.padY, config
-                        )
+            perf.measure("detector", "inference_ms") {
+                val upright = rotateIfNeeded(source, frame.rotationDegrees)
+                val prepared = letterbox(upright, config.inputSize)
+                try {
+                    val input = bitmapToChw(prepared.bitmap, config.inputSize)
+                    OnnxTensor.createTensor(
+                        env,
+                        input,
+                        longArrayOf(1, 3, config.inputSize.toLong(), config.inputSize.toLong())
+                    ).use { tensor ->
+                        activeSession.run(mapOf(inputName!! to tensor)).use { result ->
+                            @Suppress("UNCHECKED_CAST")
+                            val output = result[0].value as Array<Array<FloatArray>>
+                            YoloDecoder.decode(
+                                output[0], upright.width, upright.height, frame.timestampMs,
+                                prepared.scale, prepared.padX, prepared.padY, config
+                            )
+                        }
                     }
+                } finally {
+                    prepared.bitmap.recycle()
+                    if (upright !== source) upright.recycle()
                 }
-            } finally {
-                prepared.bitmap.recycle()
-                if (upright !== source) upright.recycle()
             }
         } catch (error: Exception) {
             log.log("detector", "inference_failed", fields = mapOf("error" to error.javaClass.simpleName))
