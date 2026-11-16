@@ -1,0 +1,68 @@
+{
+  "name": "tracker_builder_events",
+  "description": "The three EventBuilder output fixtures (AVN-45) replayed in one walk: the near car speaks at once, the two warnings wait for a gap.",
+  "steps": [
+    {
+      "at_ms": 0,
+      "context": {
+        "moving": true
+      }
+    },
+    {
+      "at_ms": 100,
+      "event": {
+        "id": "evt_7_1760000002000",
+        "source": "camera",
+        "type": "vehicle_approaching",
+        "label": "vehicle",
+        "side": "right",
+        "distance_band": "near",
+        "confidence": 0.8125,
+        "risk": 0,
+        "timestamp": 1760000002000
+      }
+    },
+    {
+      "at_ms": 200,
+      "event": {
+        "id": "evt_42_1760000001000",
+        "source": "camera",
+        "type": "person_close",
+        "label": "person",
+        "side": "left",
+        "distance_band": "medium",
+        "confidence": 0.875,
+        "risk": 0,
+        "timestamp": 1760000001000
+      }
+    },
+    {
+      "at_ms": 300,
+      "event": {
+        "id": "evt_15_1760000003000",
+        "source": "camera",
+        "type": "obstacle_ahead",
+        "label": "chair",
+        "side": "center",
+        "distance_band": "medium",
+        "confidence": 0.75,
+        "risk": 0,
+        "timestamp": 1760000003000
+      }
+    }
+  ],
+  "expect": [
+    {
+      "event_id": "evt_7_1760000002000",
+      "decision": "spoken"
+    },
+    {
+      "event_id": "evt_42_1760000001000",
+      "decision": "queued"
+    },
+    {
+      "event_id": "evt_15_1760000003000",
+      "decision": "queued"
+    }
+  ]
+}
