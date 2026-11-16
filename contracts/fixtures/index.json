@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.1.0",
   "fixtures": [
     {
       "fixture": "events/vehicle_approaching_left.json",
@@ -259,6 +259,46 @@
     {
       "fixture": "plans/valid/clarification.json",
       "schema": "android.schema.json#/$defs/ActionPlan",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/describe_scene.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/read_sign.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/navigate_pharmacy.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/read_whatsapp.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/sos.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/arabic_read_this.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/low_confidence.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/empty.json",
+      "schema": "android.schema.json#/$defs/Transcript",
       "envelope": false
     }
   ]
