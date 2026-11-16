@@ -1,0 +1,171 @@
+{
+  "name": "night",
+  "description": "Night street: one person on the right at low confidence (0.30-0.40), missing in frames 3, 4 and 8.",
+  "source": "authored",
+  "frameWidth": 1080,
+  "frameHeight": 1920,
+  "expected": [
+    {
+      "label": "person",
+      "band": "medium",
+      "side": "right"
+    }
+  ],
+  "frames": [
+    {
+      "timestampMs": 0,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.35,
+          "x": 828.0,
+          "y": 645.4,
+          "w": 110.0,
+          "h": 300.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 100,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.385,
+          "x": 822.9,
+          "y": 646.8,
+          "w": 116.9,
+          "h": 316.9
+        }
+      ]
+    },
+    {
+      "timestampMs": 200,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.316,
+          "x": 816.3,
+          "y": 634.7,
+          "w": 123.8,
+          "h": 333.8
+        }
+      ]
+    },
+    {
+      "timestampMs": 300,
+      "detections": []
+    },
+    {
+      "timestampMs": 400,
+      "detections": []
+    },
+    {
+      "timestampMs": 500,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.319,
+          "x": 795.0,
+          "y": 647.8,
+          "w": 144.6,
+          "h": 384.6
+        }
+      ]
+    },
+    {
+      "timestampMs": 600,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.36,
+          "x": 788.6,
+          "y": 644.5,
+          "w": 151.5,
+          "h": 401.5
+        }
+      ]
+    },
+    {
+      "timestampMs": 700,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.368,
+          "x": 787.0,
+          "y": 638.8,
+          "w": 158.5,
+          "h": 418.5
+        }
+      ]
+    },
+    {
+      "timestampMs": 800,
+      "detections": []
+    },
+    {
+      "timestampMs": 900,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.312,
+          "x": 779.4,
+          "y": 643.5,
+          "w": 172.3,
+          "h": 452.3
+        }
+      ]
+    },
+    {
+      "timestampMs": 1000,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.389,
+          "x": 768.3,
+          "y": 636.7,
+          "w": 179.2,
+          "h": 469.2
+        }
+      ]
+    },
+    {
+      "timestampMs": 1100,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.325,
+          "x": 776.7,
+          "y": 641.3,
+          "w": 186.2,
+          "h": 486.2
+        }
+      ]
+    },
+    {
+      "timestampMs": 1200,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.359,
+          "x": 765.3,
+          "y": 644.0,
+          "w": 193.1,
+          "h": 503.1
+        }
+      ]
+    },
+    {
+      "timestampMs": 1300,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.362,
+          "x": 752.9,
+          "y": 641.3,
+          "w": 200.0,
+          "h": 520.0
+        }
+      ]
+    }
+  ]
+}
