@@ -22,14 +22,12 @@ class OcrEngineContractTest {
     private val frame = Frame(bitmap = null, rotationDegrees = 0, timestampMs = 0)
 
     /** Finds a file under the repo root, whatever folder Gradle runs the tests from. */
-    private fun repoFile(path: String): File =
-        generateSequence(File("").absoluteFile) { it.parentFile }
-            .map { File(it, path) }
-            .firstOrNull { it.exists() }
-            ?: error("could not find $path above ${File("").absolutePath}")
+    private fun repoFile(path: String): File = generateSequence(File("").absoluteFile) { it.parentFile }
+        .map { File(it, path) }
+        .firstOrNull { it.exists() }
+        ?: error("could not find $path above ${File("").absolutePath}")
 
-    private fun fixture(name: String): OcrReading =
-        OcrFixtures.parse(repoFile("tests/fixtures/ocr/$name").readText())
+    private fun fixture(name: String): OcrReading = OcrFixtures.parse(repoFile("tests/fixtures/ocr/$name").readText())
 
     /** Rules every OcrEngine (fake now, ML Kit later) must follow. */
     private fun assertObeysContract(reading: OcrReading) {

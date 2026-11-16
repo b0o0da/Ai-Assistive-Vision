@@ -78,7 +78,7 @@ class FakeOcrEngine @Inject constructor(private val log: JsonLinesLogger) : OcrE
     }
 }
 
-/** Reads OCR fixture files (tests/fixtures/ocr/*.json). Format: see tests/fixtures/ocr/README.md. */
+/** Reads OCR fixture files (one JSON file per case in tests/fixtures/ocr/). Format: see tests/fixtures/ocr/README.md. */
 object OcrFixtures {
     fun parse(json: String): OcrReading {
         val root = Json.parseToJsonElement(json).jsonObject
