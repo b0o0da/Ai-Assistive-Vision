@@ -1,6 +1,7 @@
 package avn.app.core.service
 
 import avn.app.camera.FrameSource
+import avn.app.navigation.HapticCues
 import avn.app.navigation.LocationSource
 import avn.app.navigation.Navigation
 import avn.app.screen.NotificationSource
@@ -43,6 +44,7 @@ class ModuleRegistry @Inject constructor(
     val notificationSource: NotificationSource,
     val locationSource: LocationSource,
     val navigation: Navigation,
+    val hapticCues: HapticCues,
     val sos: Sos
 ) {
     val modules: Map<String, Any> = mapOf(
@@ -64,6 +66,7 @@ class ModuleRegistry @Inject constructor(
         "notifications" to notificationSource,
         "location" to locationSource,
         "navigation" to navigation,
+        "haptics" to hapticCues,
         "sos" to sos
     )
 }

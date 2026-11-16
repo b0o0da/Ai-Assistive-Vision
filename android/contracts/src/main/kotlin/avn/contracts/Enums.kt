@@ -156,6 +156,37 @@ enum class PlanStep {
     ASK
 }
 
+/** Mirrors backend `RouteStep.maneuver` (app/schemas/api.py), GET /route `data.steps[].maneuver`. */
+@Serializable
+enum class Maneuver {
+    @SerialName("start")
+    START,
+
+    @SerialName("straight")
+    STRAIGHT,
+
+    @SerialName("turn_left")
+    TURN_LEFT,
+
+    @SerialName("turn_right")
+    TURN_RIGHT,
+
+    @SerialName("slight_left")
+    SLIGHT_LEFT,
+
+    @SerialName("slight_right")
+    SLIGHT_RIGHT,
+
+    @SerialName("u_turn")
+    U_TURN,
+
+    @SerialName("arrive")
+    ARRIVE,
+
+    @SerialName("other")
+    OTHER
+}
+
 /** Mirrors envelope.schema.json error.code. Same five values as backend ErrorCode. */
 @Serializable
 enum class ErrorCode {

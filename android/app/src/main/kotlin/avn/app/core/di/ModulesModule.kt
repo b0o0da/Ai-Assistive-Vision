@@ -18,10 +18,15 @@ import avn.app.data.api.ApiClient
 import avn.app.data.api.BackendClient
 import avn.app.data.api.BackendConfig
 import avn.app.data.api.ConsentGate
+import avn.app.navigation.BackendNavigation
+import avn.app.navigation.FakeHapticCues
 import avn.app.navigation.FakeLocationSource
 import avn.app.navigation.FakeNavigation
+import avn.app.navigation.FusedLocationSource
+import avn.app.navigation.HapticCues
 import avn.app.navigation.LocationSource
 import avn.app.navigation.Navigation
+import avn.app.navigation.VibratorHapticCues
 import avn.app.screen.FakeNotificationSource
 import avn.app.screen.FakeScreenActions
 import avn.app.screen.FakeScreenAi
@@ -47,6 +52,7 @@ import avn.app.vision.YoloV8OnnxDetector
 import avn.app.voice.ActionRouter
 import avn.app.voice.EmergencyKeywordDetector
 import avn.app.voice.FakeActionRouter
+import avn.app.voice.NavigationActionRouter
 import avn.app.voice.FakeEmergencyKeywordDetector
 import avn.app.voice.FakeIntentRouter
 import avn.app.voice.FakeSpeaker
@@ -64,6 +70,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 /**
  * The one place each seam is bound. Camera, detector, and tracker use real implementations in
@@ -94,9 +103,6 @@ abstract class ModulesModule {
     abstract fun intentRouter(fake: FakeIntentRouter): IntentRouter
 
     @Binds
-    abstract fun actionRouter(fake: FakeActionRouter): ActionRouter
-
-    @Binds
     abstract fun screenReader(fake: FakeScreenReader): ScreenReader
 
     @Binds
@@ -110,12 +116,6 @@ abstract class ModulesModule {
 
     @Binds
     abstract fun notificationSource(fake: FakeNotificationSource): NotificationSource
-
-    @Binds
-    abstract fun locationSource(fake: FakeLocationSource): LocationSource
-
-    @Binds
-    abstract fun navigation(fake: FakeNavigation): Navigation
 
     @Binds
     abstract fun sos(fake: FakeSos): Sos
@@ -153,6 +153,31 @@ abstract class ModulesModule {
         @Singleton
         fun tracker(fake: FakeTracker): Tracker =
             if ("tracker" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) IouTracker() else fake
+
+        @Provides
+        @Singleton
+        fun locationSource(fake: FakeLocationSource, real: FusedLocationSource): LocationSource =
+            if ("location" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) real else fake
+
+        @Provides
+        @Singleton
+        fun navigation(fake: FakeNavigation, real: BackendNavigation): Navigation =
+            if ("navigation" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) real else fake
+
+        @Provides
+        @Singleton
+        fun hapticCues(fake: FakeHapticCues, real: VibratorHapticCues): HapticCues =
+            if ("haptics" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) real else fake
+
+        /**
+         * `NavigationActionRouter` only handles `PlanStep.NAVIGATE`; every other step is a no-op
+         * log line until WS-14 builds its own real router (see its doc comment). Keep this seam
+         * off by default so enabling it doesn't look like voice control as a whole went real.
+         */
+        @Provides
+        @Singleton
+        fun actionRouter(fake: FakeActionRouter, real: NavigationActionRouter): ActionRouter =
+            if ("action_router" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) real else fake
     }
 }
 
@@ -177,6 +202,11 @@ object DataModule {
     @Singleton
     fun consentManager(@ApplicationContext context: Context): ConsentManager =
         ConsentManager(context.getSharedPreferences("consent", Context.MODE_PRIVATE))
+
+    /** Background work that must outlive a single caller, e.g. navigation's live location tracking. */
+    @Provides
+    @Singleton
+    fun applicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     @Provides
     @Singleton

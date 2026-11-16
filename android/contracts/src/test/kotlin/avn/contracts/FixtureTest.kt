@@ -128,6 +128,15 @@ class FixtureTest {
         }
     }
 
+    /** Phase 2 (see this file's class doc): route.ok.json's `data` now has a matching Kotlin model. */
+    @Test
+    fun routeOkFixtureDataParsesIntoRouteResponse() {
+        val env = Json.decodeFromString(ApiEnvelope.serializer(), File(fixtures, "api/route.ok.json").readText())
+        val route = Json.decodeFromString(RouteResponse.serializer(), Json.encodeToString(env.data))
+        assertTrue("expected at least one step", route.steps.isNotEmpty())
+        assertEquals(Maneuver.ARRIVE, route.steps.last().maneuver)
+    }
+
     @Test
     fun screenFixturesParse() {
         val files = File(fixtures, "screens").listFiles { f -> f.extension == "json" }.orEmpty()
