@@ -3,7 +3,6 @@ package avn.app.vision
 import avn.app.camera.Frame
 import avn.app.core.logging.JsonLinesLogger
 import avn.contracts.Event
-import avn.contracts.OcrResult
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,10 +39,6 @@ interface Tracker {
     fun update(detections: List<Detection>, timestampMs: Long): List<Track>
 }
 
-interface OcrEngine {
-    suspend fun read(frame: Frame): OcrResult
-}
-
 /**
  * architecture.md WS-06 / AVN-45: "APIs / interfaces: ... EventBuilder.build(track): Event?".
  * The real signature also takes the analysed frame's pixel size -- [Detection] boxes are in that
@@ -72,14 +67,6 @@ class FakeTracker @Inject constructor(private val log: JsonLinesLogger) : Tracke
     override fun update(detections: List<Detection>, timestampMs: Long): List<Track> {
         log.log("tracker", "fake_update", fields = mapOf("detections" to detections.size))
         return emptyList()
-    }
-}
-
-@Singleton
-class FakeOcrEngine @Inject constructor(private val log: JsonLinesLogger) : OcrEngine {
-    override suspend fun read(frame: Frame): OcrResult {
-        log.log("ocr", "fake_read")
-        return OcrResult(text = "", confidence = 0.0, language = "en", source = "fake")
     }
 }
 
