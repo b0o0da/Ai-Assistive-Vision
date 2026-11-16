@@ -1,0 +1,50 @@
+{
+  "name": "empty",
+  "description": "Empty corridor: no detections in any frame.",
+  "source": "authored",
+  "frameWidth": 1080,
+  "frameHeight": 1920,
+  "expected": [],
+  "frames": [
+    {
+      "timestampMs": 0,
+      "detections": []
+    },
+    {
+      "timestampMs": 100,
+      "detections": []
+    },
+    {
+      "timestampMs": 200,
+      "detections": []
+    },
+    {
+      "timestampMs": 300,
+      "detections": []
+    },
+    {
+      "timestampMs": 400,
+      "detections": []
+    },
+    {
+      "timestampMs": 500,
+      "detections": []
+    },
+    {
+      "timestampMs": 600,
+      "detections": []
+    },
+    {
+      "timestampMs": 700,
+      "detections": []
+    },
+    {
+      "timestampMs": 800,
+      "detections": []
+    },
+    {
+      "timestampMs": 900,
+      "detections": []
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "detection_sequence.schema.json",
+  "sequences": [
+    "chair_approach.json",
+    "person_close.json",
+    "car_from_right.json",
+    "crowded.json",
+    "empty.json",
+    "night.json"
+  ]
+}

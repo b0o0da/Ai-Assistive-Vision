@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SCHEMAS = ROOT / "contracts" / "schemas"
 FIXTURES = ROOT / "contracts" / "fixtures"
 INVALID = ROOT / "tests" / "fixtures" / "contract_invalid"
+DETECTIONS = ROOT / "tests" / "fixtures" / "detections"
 BASE = "https://avn.local/contracts/"
 
 
@@ -96,9 +97,38 @@ def main() -> int:
             print(f"FAIL invalid/{path.name}\n      not listed in {INVALID.name}/index.json")
             failures += 1
 
-    total = len(index["fixtures"]) + len(negatives)
+    detection_count, detection_failures = check_detection_sequences()
+    failures += detection_failures
+
+    total = len(index["fixtures"]) + len(negatives) + detection_count
     print(f"\n{total} fixtures checked ({len(negatives)} must-reject), {failures} failure(s)")
     return 1 if failures else 0
+
+
+def check_detection_sequences() -> tuple[int, int]:
+    """WS05-03: every sequence in tests/fixtures/detections/index.json must match its schema,
+    keep time moving forward and keep boxes inside the frame."""
+    index = json.loads((DETECTIONS / "index.json").read_text(encoding="utf-8"))
+    schema = json.loads((DETECTIONS / index["schema"]).read_text(encoding="utf-8"))
+    Draft202012Validator.check_schema(schema)
+    validator = Draft202012Validator(schema)
+    failures = 0
+    for rel in index["sequences"]:
+        doc = json.loads((DETECTIONS / rel).read_text(encoding="utf-8"))
+        errors = [f"{e.message} at /{'/'.join(map(str, e.path))}" for e in validator.iter_errors(doc)]
+        if not errors:
+            times = [f["timestampMs"] for f in doc["frames"]]
+            if times != sorted(set(times)):
+                errors.append("timestampMs must strictly increase")
+            for i, frame in enumerate(doc["frames"]):
+                for d in frame["detections"]:
+                    if d["x"] + d["w"] > doc["frameWidth"] + 0.5 or d["y"] + d["h"] > doc["frameHeight"] + 0.5:
+                        errors.append(f"frame {i}: box leaves the frame")
+        print(f"{'ok  ' if not errors else 'FAIL'} detections/{rel}")
+        for err in errors:
+            print(f"      {err}")
+        failures += bool(errors)
+    return len(index["sequences"]), failures
 
 
 if __name__ == "__main__":

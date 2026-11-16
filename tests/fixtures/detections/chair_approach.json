@@ -1,4 +1,16 @@
 {
+  "name": "chair_approach",
+  "description": "A chair straight ahead gets closer; box grows every frame (AVN-40 frames, unchanged).",
+  "source": "authored",
+  "frameWidth": 1080,
+  "frameHeight": 1920,
+  "expected": [
+    {
+      "label": "chair",
+      "band": "medium",
+      "side": "center"
+    }
+  ],
   "frames": [
     {
       "timestampMs": 0,

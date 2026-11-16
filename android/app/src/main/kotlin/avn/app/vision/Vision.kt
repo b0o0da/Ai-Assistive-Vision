@@ -61,9 +61,21 @@ interface EventBuilder {
 
 @Singleton
 class FakeDetector @Inject constructor(private val log: JsonLinesLogger) : Detector {
+    private val pending = ArrayDeque<List<Detection>>()
+
+    /**
+     * WS05-03: queues every frame of [sequence]; each [detect] call returns the next one, then
+     * empty lists once the sequence is used up. With nothing loaded it always returns empty, as before.
+     */
+    @Synchronized
+    fun load(sequence: DetectionSequence) {
+        sequence.frames.forEach { pending.addLast(it.detections) }
+    }
+
     override suspend fun detect(frame: Frame): List<Detection> {
-        log.log("detector", "fake_detect")
-        return emptyList()
+        val next = synchronized(this) { pending.removeFirstOrNull() }.orEmpty()
+        log.log("detector", "fake_detect", fields = mapOf("detections" to next.size))
+        return next
     }
 }
 
