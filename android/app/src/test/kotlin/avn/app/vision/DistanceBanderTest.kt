@@ -124,7 +124,8 @@ class DistanceBanderTest {
         // A tall box (camera-tilt artifact) near the top of the frame: height alone says NEAR,
         // but the bottom edge (near the top, not the bottom of the frame) alone would only say
         // MEDIUM. The bias favours the nearer reading over under-warning.
-        // heightRatio = 500/1000 = 0.5 (>= 0.45 -> NEAR), bottomRatio = (10+500)/1000 = 0.51 (in [0.50, 0.80) -> MEDIUM)
+        // heightRatio = 500/1000 = 0.5 (>= 0.45 -> NEAR)
+        // bottomRatio = (10+500)/1000 = 0.51 (in [0.50, 0.80) -> MEDIUM)
         assertEquals(DistanceBand.NEAR, bander.estimate(box(y = 10f, h = 500f), frameHeightPx = 1000f))
     }
 

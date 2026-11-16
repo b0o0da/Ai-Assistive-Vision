@@ -18,14 +18,20 @@ data class Detection(
     val timestampMs: Long
 )
 
+/**
+ * A stable identity across frames (architecture.md WS-06). `history` is every detection the
+ * track has been matched to so far (oldest first, capped by the tracker that builds it), kept so
+ * the velocity extrapolation and approach detection in [IouTracker] do not need to re-derive
+ * motion from `lastBox` alone. `approaching` is [IouTracker]'s own verdict from that history and
+ * the live [avn.app.vision.MotionEstimator] signal -- see [ApproachDetector].
+ */
 data class Track(
     val id: Int,
     val label: String,
+    val history: List<Detection>,
     val lastBox: Detection,
     val age: Int,
     val lostFrames: Int,
-    /** Recent boxes are kept in memory only for temporal decisions such as vehicle approach. */
-    val history: List<Detection> = listOf(lastBox),
     val approaching: Boolean = false
 )
 

@@ -75,3 +75,5 @@ each hazard class, then evaluate the exported model's latency on the eventual ta
 
 Dataset images, labels, and extracted frames are intentionally excluded from Git. Commit only
 scripts, guidelines, and aggregate reports without personal data.
+
+See [`LICENSES.md`](LICENSES.md) for the source, licence, use and consent of every dataset and model.

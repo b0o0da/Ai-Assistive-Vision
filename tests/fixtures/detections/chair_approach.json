@@ -1,0 +1,199 @@
+{
+  "frames": [
+    {
+      "timestampMs": 0,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 480.0,
+          "y": 900,
+          "w": 60.0,
+          "h": 80.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 100,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 472.0,
+          "y": 878,
+          "w": 76.0,
+          "h": 102.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 200,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 464.0,
+          "y": 856,
+          "w": 92.0,
+          "h": 124.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 300,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 456.0,
+          "y": 834,
+          "w": 108.0,
+          "h": 146.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 400,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 448.0,
+          "y": 812,
+          "w": 124.0,
+          "h": 168.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 500,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 440.0,
+          "y": 790,
+          "w": 140.0,
+          "h": 190.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 600,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 432.0,
+          "y": 768,
+          "w": 156.0,
+          "h": 212.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 700,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 424.0,
+          "y": 746,
+          "w": 172.0,
+          "h": 234.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 800,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 416.0,
+          "y": 724,
+          "w": 188.0,
+          "h": 256.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 900,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 408.0,
+          "y": 702,
+          "w": 204.0,
+          "h": 278.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 1000,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 400.0,
+          "y": 680,
+          "w": 220.0,
+          "h": 300.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 1100,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 392.0,
+          "y": 658,
+          "w": 236.0,
+          "h": 322.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 1200,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 384.0,
+          "y": 636,
+          "w": 252.0,
+          "h": 344.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 1300,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 376.0,
+          "y": 614,
+          "w": 268.0,
+          "h": 366.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 1400,
+      "detections": [
+        {
+          "label": "chair",
+          "confidence": 0.9,
+          "x": 368.0,
+          "y": 592,
+          "w": 284.0,
+          "h": 388.0
+        }
+      ]
+    }
+  ]
+}
