@@ -4,8 +4,8 @@ import android.content.Context
 import android.util.Log
 import androidx.room.Room
 import avn.app.BuildConfig
-import avn.app.camera.FakeFrameSource
 import avn.app.camera.CameraXFrameSource
+import avn.app.camera.FakeFrameSource
 import avn.app.camera.FrameSource
 import avn.app.core.FakeEngineInput
 import avn.app.core.consent.ConsentGuard
@@ -138,23 +138,23 @@ abstract class ModulesModule {
             log: JsonLinesLogger,
             perf: PerfLogger,
             fake: FakeDetector
-        ): Detector =
-            if ("detector" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) {
-                // Two separate checkpoints, two disjoint class sets -- see CompositeDetector and
-                // DetectorConfig.DEFAULT/POTHOLE_DEFAULT's doc comments for why.
-                CompositeDetector(
-                    listOf(
-                        YoloV8OnnxDetector(context, log, DetectorConfig.load("/config/detector.json"), perf),
-                        YoloV8OnnxDetector(
-                            context, log,
-                            DetectorConfig.load("/config/detector_pothole.json", DetectorConfig.POTHOLE_DEFAULT),
-                            perf
-                        )
+        ): Detector = if ("detector" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) {
+            // Two separate checkpoints, two disjoint class sets -- see CompositeDetector and
+            // DetectorConfig.DEFAULT/POTHOLE_DEFAULT's doc comments for why.
+            CompositeDetector(
+                listOf(
+                    YoloV8OnnxDetector(context, log, DetectorConfig.load("/config/detector.json"), perf),
+                    YoloV8OnnxDetector(
+                        context,
+                        log,
+                        DetectorConfig.load("/config/detector_pothole.json", DetectorConfig.POTHOLE_DEFAULT),
+                        perf
                     )
                 )
-            } else {
-                fake
-            }
+            )
+        } else {
+            fake
+        }
 
         @Provides
         @Singleton

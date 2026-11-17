@@ -14,8 +14,13 @@ class DetectorConfigTest {
     fun theRealGeneralDetectorJsonLoadsAndMergesVehicleTypesIntoTransportation() {
         val config = DetectorConfig.load()
         val expectedClasses = setOf(
-            "person", "transportation",
-            "bench", "chair", "fire hydrant", "stop sign", "parking meter"
+            "person",
+            "transportation",
+            "bench",
+            "chair",
+            "fire hydrant",
+            "stop sign",
+            "parking meter"
         )
         assertEquals(expectedClasses, config.classes)
         assertEquals(CocoLabels.names, config.labels)

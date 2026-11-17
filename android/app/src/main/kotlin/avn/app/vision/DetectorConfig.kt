@@ -67,8 +67,13 @@ data class DetectorConfig(
             confidenceThreshold = 0.35f,
             nmsIouThreshold = 0.50f,
             classes = setOf(
-                "person", "transportation",
-                "bench", "chair", "fire hydrant", "stop sign", "parking meter"
+                "person",
+                "transportation",
+                "bench",
+                "chair",
+                "fire hydrant",
+                "stop sign",
+                "parking meter"
             ),
             labels = CocoLabels.names,
             classMap = mapOf(
@@ -99,8 +104,7 @@ data class DetectorConfig(
             labels = listOf("pothole")
         )
 
-        fun load(resourcePath: String = "/config/detector.json"): DetectorConfig =
-            load(resourcePath, DEFAULT)
+        fun load(resourcePath: String = "/config/detector.json"): DetectorConfig = load(resourcePath, DEFAULT)
 
         fun load(resourcePath: String, fallback: DetectorConfig): DetectorConfig {
             val text = DetectorConfig::class.java.getResourceAsStream(resourcePath)

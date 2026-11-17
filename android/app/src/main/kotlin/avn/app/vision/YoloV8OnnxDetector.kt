@@ -1,5 +1,8 @@
 package avn.app.vision
 
+import ai.onnxruntime.OnnxTensor
+import ai.onnxruntime.OrtEnvironment
+import ai.onnxruntime.OrtSession
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -10,16 +13,13 @@ import android.graphics.RectF
 import avn.app.camera.Frame
 import avn.app.core.logging.JsonLinesLogger
 import avn.app.perf.PerfLogger
-import ai.onnxruntime.OnnxTensor
-import ai.onnxruntime.OrtEnvironment
-import ai.onnxruntime.OrtSession
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * On-device ONNX inference for one [DetectorConfig]/model pair. Not Hilt-constructor-injected:
@@ -66,8 +66,14 @@ class YoloV8OnnxDetector(
                             @Suppress("UNCHECKED_CAST")
                             val output = result[0].value as Array<Array<FloatArray>>
                             YoloDecoder.decode(
-                                output[0], upright.width, upright.height, frame.timestampMs,
-                                prepared.scale, prepared.padX, prepared.padY, config
+                                output[0],
+                                upright.width,
+                                upright.height,
+                                frame.timestampMs,
+                                prepared.scale,
+                                prepared.padX,
+                                prepared.padY,
+                                config
                             )
                         }
                     }
@@ -115,12 +121,7 @@ class YoloV8OnnxDetector(
         }
     }
 
-    private data class Letterboxed(
-        val bitmap: Bitmap,
-        val scale: Float,
-        val padX: Float,
-        val padY: Float
-    )
+    private data class Letterboxed(val bitmap: Bitmap, val scale: Float, val padX: Float, val padY: Float)
 
     private fun rotateIfNeeded(bitmap: Bitmap, degrees: Int): Bitmap {
         val normalized = ((degrees % 360) + 360) % 360

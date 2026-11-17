@@ -44,7 +44,8 @@ class FakeMotionEstimator @Inject constructor() : MotionEstimator {
 class AccelerometerMotionEstimator @Inject constructor(
     @ApplicationContext context: Context,
     private val log: JsonLinesLogger
-) : MotionEstimator, SensorEventListener {
+) : MotionEstimator,
+    SensorEventListener {
     private val window = MotionWindow()
     private val sensorManager = context.getSystemService(SensorManager::class.java)
     private val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)

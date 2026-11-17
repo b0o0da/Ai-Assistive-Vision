@@ -78,9 +78,11 @@ class IouTracker(
 
         val candidates = tracks.values.asSequence()
             .filter { it.id in unmatchedTrackIds }
-            .flatMap { state -> detections.indices.asSequence().map { index ->
-                Candidate(state.id, index, intersectionOverUnion(predictedBox(state), detections[index]))
-            } }
+            .flatMap { state ->
+                detections.indices.asSequence().map { index ->
+                    Candidate(state.id, index, intersectionOverUnion(predictedBox(state), detections[index]))
+                }
+            }
             .filter { it.iou >= config.matchIou }
             .sortedByDescending { it.iou }
             .toList()
@@ -149,5 +151,11 @@ class ApproachDetector(private val config: TrackerConfig = TrackerConfig.load())
 }
 
 private fun String.isVehicle(): Boolean = lowercase() in setOf(
-    "vehicle", "car", "truck", "bus", "motorcycle", "motorbike", "bicycle"
+    "vehicle",
+    "car",
+    "truck",
+    "bus",
+    "motorcycle",
+    "motorbike",
+    "bicycle"
 )

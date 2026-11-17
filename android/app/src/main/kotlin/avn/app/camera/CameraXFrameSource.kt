@@ -34,7 +34,9 @@ class CameraXFrameSource @Inject constructor(
     override fun bind(lifecycleOwner: LifecycleOwner) {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) !=
             PackageManager.PERMISSION_GRANTED
-        ) return
+        ) {
+            return
+        }
 
         val providerFuture = ProcessCameraProvider.getInstance(context)
         providerFuture.addListener({
@@ -64,28 +66,37 @@ class CameraXFrameSource @Inject constructor(
     override suspend fun captureStill(): Frame? {
         val capture = imageCapture ?: return null
         return suspendCancellableCoroutine { continuation ->
-            capture.takePicture(callbackExecutor, object : ImageCapture.OnImageCapturedCallback() {
-                override fun onCaptureSuccess(image: ImageProxy) {
-                    val frame = try {
-                        Frame(
-                            bitmap = image.toBitmap(),
-                            rotationDegrees = image.imageInfo.rotationDegrees,
-                            timestampMs = System.currentTimeMillis()
-                        )
-                    } catch (error: Exception) {
-                        log.log("camera", "frame_conversion_failed", fields = mapOf("error" to error.javaClass.simpleName))
-                        null
-                    } finally {
-                        image.close()
+            capture.takePicture(
+                callbackExecutor,
+                object : ImageCapture.OnImageCapturedCallback() {
+                    override fun onCaptureSuccess(image: ImageProxy) {
+                        val frame = try {
+                            Frame(
+                                bitmap = image.toBitmap(),
+                                rotationDegrees = image.imageInfo.rotationDegrees,
+                                timestampMs = System.currentTimeMillis()
+                            )
+                        } catch (error: Exception) {
+                            log.log(
+                                "camera",
+                                "frame_conversion_failed",
+                                fields = mapOf(
+                                    "error" to error.javaClass.simpleName
+                                )
+                            )
+                            null
+                        } finally {
+                            image.close()
+                        }
+                        if (continuation.isActive) continuation.resume(frame)
                     }
-                    if (continuation.isActive) continuation.resume(frame)
-                }
 
-                override fun onError(exception: ImageCaptureException) {
-                    log.log("camera", "capture_failed", fields = mapOf("error" to exception.imageCaptureError))
-                    if (continuation.isActive) continuation.resume(null)
+                    override fun onError(exception: ImageCaptureException) {
+                        log.log("camera", "capture_failed", fields = mapOf("error" to exception.imageCaptureError))
+                        if (continuation.isActive) continuation.resume(null)
+                    }
                 }
-            })
+            )
         }
     }
 }

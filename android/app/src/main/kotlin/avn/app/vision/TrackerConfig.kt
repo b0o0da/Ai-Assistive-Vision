@@ -47,7 +47,9 @@ data class TrackerConfig(
                     approachMinObservations = values.getValue("approachMinObservations").jsonPrimitive.int,
                     approachMinSpanMs = values.getValue("approachMinSpanMs").jsonPrimitive.content.toLong(),
                     approachGrowthRatio = values.getValue("approachGrowthRatio").jsonPrimitive.float,
-                    approachGrowthRatioWhileMoving = values.getValue("approachGrowthRatioWhileMoving").jsonPrimitive.float
+                    approachGrowthRatioWhileMoving = values.getValue(
+                        "approachGrowthRatioWhileMoving"
+                    ).jsonPrimitive.float
                 ).validated()
             }.getOrDefault(DEFAULT)
         }

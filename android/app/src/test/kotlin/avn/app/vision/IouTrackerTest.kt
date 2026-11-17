@@ -111,7 +111,17 @@ class IouTrackerTest {
     private fun growingVehicleFrames(label: String, count: Int): List<Detection> {
         var size = 100f
         return (0 until count).map { index ->
-            val detection = box(label, x = 50f - size / 2f, y = 50f - size / 2f, w = size, h = size, confidence = 0.9f, ts = index * 100L)
+            val detection =
+                box(
+                    label,
+                    x = 50f - size / 2f,
+                    y = 50f - size / 2f,
+                    w = size,
+                    h = size,
+                    confidence = 0.9f,
+                    ts =
+                    index * 100L
+                )
             size *= 1.1f
             detection
         }
@@ -143,7 +153,16 @@ class IouTrackerTest {
         var size = 160f
         var last: Track? = null
         repeat(6) { index ->
-            val frame = box("car", x = 50f - size / 2f, y = 50f - size / 2f, w = size, h = size, confidence = 0.9f, ts = index * 100L)
+            val frame = box(
+                "car",
+                x = 50f - size / 2f,
+                y = 50f - size / 2f,
+                w = size,
+                h = size,
+                confidence = 0.9f,
+                ts =
+                index * 100L
+            )
             last = tracker.update(listOf(frame), frame.timestampMs).single()
             size *= 0.9f
         }
