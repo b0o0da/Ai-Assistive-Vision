@@ -1,0 +1,233 @@
+{
+  "name": "cooldown_dedup",
+  "description": "WS16-05: same type+label+side+band is suppressed inside its level's cooldown (proposed Critical 3 s, Warning 8 s, Info 30 s); a band change speaks at once; an escalation to Critical skips the Warning cooldown. Level comes from the event's risk (>=80 Critical, >=45 Warning) in the test adapter.",
+  "steps": [
+    {
+      "at_ms": 0,
+      "context": {
+        "moving": true
+      }
+    },
+    {
+      "at_ms": 100,
+      "event": {
+        "id": "evt_chair_1",
+        "source": "camera",
+        "type": "obstacle_ahead",
+        "label": "chair",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 0.9,
+        "risk": 54,
+        "timestamp": 1760000000100
+      }
+    },
+    {
+      "at_ms": 2000,
+      "event": {
+        "id": "evt_chair_2",
+        "source": "camera",
+        "type": "obstacle_ahead",
+        "label": "chair",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 0.9,
+        "risk": 54,
+        "timestamp": 1760000002000
+      }
+    },
+    {
+      "at_ms": 4000,
+      "event": {
+        "id": "evt_chair_medium",
+        "source": "camera",
+        "type": "obstacle_ahead",
+        "label": "chair",
+        "side": "center",
+        "distance_band": "medium",
+        "confidence": 0.9,
+        "risk": 38,
+        "timestamp": 1760000004000
+      }
+    },
+    {
+      "at_ms": 8200,
+      "event": {
+        "id": "evt_chair_3",
+        "source": "camera",
+        "type": "obstacle_ahead",
+        "label": "chair",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 0.9,
+        "risk": 54,
+        "timestamp": 1760000008200
+      }
+    },
+    {
+      "at_ms": 9000,
+      "event": {
+        "id": "evt_person_1",
+        "source": "camera",
+        "type": "person_close",
+        "label": "person",
+        "side": "left",
+        "distance_band": "near",
+        "confidence": 0.9,
+        "risk": 50,
+        "timestamp": 1760000009000
+      }
+    },
+    {
+      "at_ms": 10000,
+      "event": {
+        "id": "evt_car_1",
+        "source": "camera",
+        "type": "vehicle_approaching",
+        "label": "car",
+        "side": "right",
+        "distance_band": "near",
+        "confidence": 0.9,
+        "risk": 94,
+        "timestamp": 1760000010000
+      }
+    },
+    {
+      "at_ms": 11000,
+      "event": {
+        "id": "evt_car_2",
+        "source": "camera",
+        "type": "vehicle_approaching",
+        "label": "car",
+        "side": "right",
+        "distance_band": "near",
+        "confidence": 0.9,
+        "risk": 94,
+        "timestamp": 1760000011000
+      }
+    },
+    {
+      "at_ms": 11000,
+      "event": {
+        "id": "evt_person_escalated",
+        "source": "camera",
+        "type": "person_close",
+        "label": "person",
+        "side": "left",
+        "distance_band": "near",
+        "confidence": 0.9,
+        "risk": 85,
+        "timestamp": 1760000011000
+      }
+    },
+    {
+      "at_ms": 13500,
+      "event": {
+        "id": "evt_car_3",
+        "source": "camera",
+        "type": "vehicle_approaching",
+        "label": "car",
+        "side": "right",
+        "distance_band": "near",
+        "confidence": 0.9,
+        "risk": 94,
+        "timestamp": 1760000013500
+      }
+    },
+    {
+      "at_ms": 14000,
+      "event": {
+        "id": "evt_text_1",
+        "source": "voice",
+        "type": "text_result",
+        "label": "text",
+        "side": null,
+        "distance_band": null,
+        "confidence": 0.9,
+        "risk": 20,
+        "timestamp": 1760000014000
+      }
+    },
+    {
+      "at_ms": 30000,
+      "event": {
+        "id": "evt_text_2",
+        "source": "voice",
+        "type": "text_result",
+        "label": "text",
+        "side": null,
+        "distance_band": null,
+        "confidence": 0.9,
+        "risk": 20,
+        "timestamp": 1760000030000
+      }
+    },
+    {
+      "at_ms": 44100,
+      "event": {
+        "id": "evt_text_3",
+        "source": "voice",
+        "type": "text_result",
+        "label": "text",
+        "side": null,
+        "distance_band": null,
+        "confidence": 0.9,
+        "risk": 20,
+        "timestamp": 1760000044100
+      }
+    }
+  ],
+  "expect": [
+    {
+      "event_id": "evt_chair_1",
+      "decision": "spoken"
+    },
+    {
+      "event_id": "evt_chair_2",
+      "decision": "suppressed",
+      "reason": "cooldown"
+    },
+    {
+      "event_id": "evt_chair_medium",
+      "decision": "spoken"
+    },
+    {
+      "event_id": "evt_chair_3",
+      "decision": "spoken"
+    },
+    {
+      "event_id": "evt_person_1",
+      "decision": "spoken"
+    },
+    {
+      "event_id": "evt_car_1",
+      "decision": "spoken"
+    },
+    {
+      "event_id": "evt_car_2",
+      "decision": "suppressed",
+      "reason": "cooldown"
+    },
+    {
+      "event_id": "evt_person_escalated",
+      "decision": "spoken"
+    },
+    {
+      "event_id": "evt_car_3",
+      "decision": "spoken"
+    },
+    {
+      "event_id": "evt_text_1",
+      "decision": "spoken"
+    },
+    {
+      "event_id": "evt_text_2",
+      "decision": "suppressed",
+      "reason": "cooldown"
+    },
+    {
+      "event_id": "evt_text_3",
+      "decision": "spoken"
+    }
+  ]
+}
