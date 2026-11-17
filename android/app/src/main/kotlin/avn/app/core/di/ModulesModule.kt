@@ -29,16 +29,19 @@ import avn.app.navigation.LocationSource
 import avn.app.navigation.Navigation
 import avn.app.navigation.VibratorHapticCues
 import avn.app.perf.PerfLogger
+import avn.app.screen.ApiScreenSummaryClient
 import avn.app.screen.FakeNotificationSource
 import avn.app.screen.FakeScreenActions
 import avn.app.screen.FakeScreenAi
 import avn.app.screen.FakeScreenCapture
 import avn.app.screen.FakeScreenReader
+import avn.app.screen.FakeScreenSummaryClient
 import avn.app.screen.NotificationSource
 import avn.app.screen.ScreenActions
 import avn.app.screen.ScreenAi
 import avn.app.screen.ScreenCapture
 import avn.app.screen.ScreenReader
+import avn.app.screen.ScreenSummaryClient
 import avn.app.sos.FakeSos
 import avn.app.sos.Sos
 import avn.app.vision.AccelerometerMotionEstimator
@@ -194,6 +197,12 @@ abstract class ModulesModule {
         @Singleton
         fun motionEstimator(fake: FakeMotionEstimator, real: AccelerometerMotionEstimator): MotionEstimator =
             if ("motion" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) real else fake
+
+        /** WS18-02. Real client talks to `/screen/summarize` (mock backend first); fake echoes the tree text. */
+        @Provides
+        @Singleton
+        fun screenSummaryClient(fake: FakeScreenSummaryClient, real: ApiScreenSummaryClient): ScreenSummaryClient =
+            if ("screen_summary" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) real else fake
     }
 }
 
