@@ -53,3 +53,18 @@ Decision and reason values come from architecture §5 "Logging".
 
 See `sample.json`: the user is moving, a far person at confidence 0.15 is dropped as `low_confidence`,
 and a user-requested sign reading is `spoken`.
+
+## Replaying a scenario (WS16-02)
+
+```kotlin
+val report = ScenarioRunner { clock, log -> MyEngine(clock, log) }.run(ScenarioLoader.parse(text))
+assert(report.passed) { report.mismatches.joinToString() }
+report.logLines() // runner log as JSON lines (no speech text), attach as evidence
+```
+
+- The runner owns a `VirtualClock`: before each step it jumps to `at_ms`, so nothing waits in real time.
+- Events go through `EventIntake` first. A rejected event never reaches the engine and is listed in `report.rejectedByIntake`.
+- `context` steps are merged into the full context and passed to `EngineInput.updateContext(...)`.
+- The engine reports every decision through the `DecisionLog` it is given. For each `expect` row the last decision logged for that id is compared; `reason` only when the row has one.
+
+Files here: `sample.json`, `critical_interrupts_info.json`, `tracker_builder_events.json` (the AVN-45 EventBuilder fixtures, kept identical by a test).
