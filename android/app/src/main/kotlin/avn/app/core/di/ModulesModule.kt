@@ -4,11 +4,13 @@ import android.content.Context
 import android.util.Log
 import androidx.room.Room
 import avn.app.BuildConfig
+import avn.app.camera.CameraXFrameSource
 import avn.app.camera.FakeFrameSource
 import avn.app.camera.FrameSource
 import avn.app.core.FakeEngineInput
 import avn.app.core.consent.ConsentGuard
 import avn.app.core.consent.ConsentManager
+import avn.app.core.logging.JsonLinesLogger
 import avn.app.data.AlertLogDao
 import avn.app.data.AvnDatabase
 import avn.app.data.KnownPeopleDao
@@ -21,6 +23,7 @@ import avn.app.navigation.FakeLocationSource
 import avn.app.navigation.FakeNavigation
 import avn.app.navigation.LocationSource
 import avn.app.navigation.Navigation
+import avn.app.perf.PerfLogger
 import avn.app.screen.FakeNotificationSource
 import avn.app.screen.FakeScreenActions
 import avn.app.screen.FakeScreenAi
@@ -33,12 +36,19 @@ import avn.app.screen.ScreenCapture
 import avn.app.screen.ScreenReader
 import avn.app.sos.FakeSos
 import avn.app.sos.Sos
+import avn.app.vision.AccelerometerMotionEstimator
+import avn.app.vision.CompositeDetector
 import avn.app.vision.Detector
+import avn.app.vision.DetectorConfig
 import avn.app.vision.FakeDetector
+import avn.app.vision.FakeMotionEstimator
 import avn.app.vision.FakeOcrEngine
 import avn.app.vision.FakeTracker
+import avn.app.vision.IouTracker
+import avn.app.vision.MotionEstimator
 import avn.app.vision.OcrEngine
 import avn.app.vision.Tracker
+import avn.app.vision.YoloV8OnnxDetector
 import avn.app.voice.ActionRouter
 import avn.app.voice.EmergencyKeywordDetector
 import avn.app.voice.FakeActionRouter
@@ -61,11 +71,8 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 /**
- * The one place a seam is bound. Every seam is a fake in Phase 1.
- *
- * When a real implementation lands, replace that seam's @Binds with a @Provides that picks by
- * `"<seam>" in BuildConfig.REAL_SEAMS` (gradle property `avn.realSeams`), so integration swaps one
- * seam per build. Callers never branch on fake vs real.
+ * The one place each seam is bound. Camera, detector, and tracker use real implementations in
+ * the normal debug build; set `-Pavn.realSeams=` to force their fakes for isolated tests.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -75,15 +82,6 @@ abstract class ModulesModule {
 
     @Binds
     abstract fun speechOutput(fake: FakeSpeaker): SpeechOutput
-
-    @Binds
-    abstract fun frameSource(fake: FakeFrameSource): FrameSource
-
-    @Binds
-    abstract fun detector(fake: FakeDetector): Detector
-
-    @Binds
-    abstract fun tracker(fake: FakeTracker): Tracker
 
     @Binds
     abstract fun ocrEngine(fake: FakeOcrEngine): OcrEngine
@@ -126,6 +124,52 @@ abstract class ModulesModule {
 
     @Binds
     abstract fun sos(fake: FakeSos): Sos
+
+    companion object {
+        @Provides
+        @Singleton
+        fun frameSource(fake: FakeFrameSource, real: CameraXFrameSource): FrameSource =
+            if ("camera" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) real else fake
+
+        @Provides
+        @Singleton
+        fun detector(
+            @ApplicationContext context: Context,
+            log: JsonLinesLogger,
+            perf: PerfLogger,
+            fake: FakeDetector
+        ): Detector = if ("detector" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) {
+            // Two separate checkpoints, two disjoint class sets -- see CompositeDetector and
+            // DetectorConfig.DEFAULT/POTHOLE_DEFAULT's doc comments for why.
+            CompositeDetector(
+                listOf(
+                    YoloV8OnnxDetector(context, log, DetectorConfig.load("/config/detector.json"), perf),
+                    YoloV8OnnxDetector(
+                        context,
+                        log,
+                        DetectorConfig.load("/config/detector_pothole.json", DetectorConfig.POTHOLE_DEFAULT),
+                        perf
+                    )
+                )
+            )
+        } else {
+            fake
+        }
+
+        @Provides
+        @Singleton
+        fun tracker(perf: PerfLogger, motion: MotionEstimator, fake: FakeTracker): Tracker =
+            if ("tracker" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) {
+                IouTracker(isUserMoving = motion::isWalking, perf = perf)
+            } else {
+                fake
+            }
+
+        @Provides
+        @Singleton
+        fun motionEstimator(fake: FakeMotionEstimator, real: AccelerometerMotionEstimator): MotionEstimator =
+            if ("motion" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) real else fake
+    }
 }
 
 @Module

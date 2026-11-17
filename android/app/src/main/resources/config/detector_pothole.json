@@ -1,0 +1,12 @@
+{
+  "modelAsset": "pothole_keremberke_n.onnx",
+  "inputSize": 640,
+  "confidenceThreshold": 0.25,
+  "nmsIouThreshold": 0.45,
+  "classes": [
+    "pothole"
+  ],
+  "labels": [
+    "pothole"
+  ]
+}

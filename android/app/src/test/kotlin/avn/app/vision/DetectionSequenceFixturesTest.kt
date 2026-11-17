@@ -85,7 +85,7 @@ class DetectionSequenceFixturesTest {
     @Test
     fun trackerRunsOnEverySequence() {
         names.forEach { name ->
-            val tracker = ByteTrackTracker()
+            val tracker = IouTracker()
             val outputs = load(name).frames.map { tracker.update(it.detections, it.timestampMs) }
             if (name == "empty.json") assertTrue(outputs.all { it.isEmpty() })
             if (name == "crowded.json") assertEquals(6, outputs.last().size)

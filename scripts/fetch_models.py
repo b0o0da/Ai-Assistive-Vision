@@ -46,9 +46,17 @@ def main() -> int:
         if target.exists() and sha256(target) == entry["sha256"]:
             print(f"ok    {entry['name']} ({entry['file']}) already present")
         else:
-            print(f"get   {entry['name']} from {entry['url']}")
+            url = entry.get("url")
+            if not url:
+                print(
+                    f"MISS  {entry['name']}: {target} is absent or has the wrong SHA-256. "
+                    "Follow the model source/export instructions in models/README.md."
+                )
+                failures += 1
+                continue
+            print(f"get   {entry['name']} from {url}")
             tmp = target.with_suffix(target.suffix + ".part")
-            urllib.request.urlretrieve(entry["url"], tmp)  # noqa: S310 (URLs come from the reviewed manifest)
+            urllib.request.urlretrieve(url, tmp)  # noqa: S310 (URLs come from the reviewed manifest)
             actual = sha256(tmp)
             if actual != entry["sha256"]:
                 print(f"FAIL  {entry['name']}: sha256 {actual} does not match the manifest")

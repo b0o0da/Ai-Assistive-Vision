@@ -3,6 +3,7 @@ package avn.app.vision
 import avn.app.camera.Frame
 import avn.app.core.logging.JsonLinesLogger
 import avn.contracts.Event
+import avn.contracts.OcrResult
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,7 +21,9 @@ data class Detection(
 /**
  * A stable identity across frames (architecture.md WS-06). `history` is every detection the
  * track has been matched to so far (oldest first, capped by the tracker that builds it), kept so
- * a future velocity/approach estimator does not need to re-derive motion from `lastBox` alone.
+ * the velocity extrapolation and approach detection in [IouTracker] do not need to re-derive
+ * motion from `lastBox` alone. `approaching` is [IouTracker]'s own verdict from that history and
+ * the live [avn.app.vision.MotionEstimator] signal -- see [ApproachDetector].
  */
 data class Track(
     val id: Int,
@@ -28,7 +31,8 @@ data class Track(
     val history: List<Detection>,
     val lastBox: Detection,
     val age: Int,
-    val lostFrames: Int
+    val lostFrames: Int,
+    val approaching: Boolean = false
 )
 
 interface Detector {
@@ -37,6 +41,15 @@ interface Detector {
 
 interface Tracker {
     fun update(detections: List<Detection>, timestampMs: Long): List<Track>
+}
+
+/** Result of one explicit camera-to-text request; no frame or text is persisted by this workflow. */
+sealed interface OcrCapture {
+    data class Found(val result: OcrResult) : OcrCapture
+    data object Busy : OcrCapture
+    data object CameraUnavailable : OcrCapture
+    data object NoText : OcrCapture
+    data object Failed : OcrCapture
 }
 
 /**

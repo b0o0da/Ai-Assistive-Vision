@@ -30,10 +30,17 @@ class BandThresholds private constructor(
     private val default: ClassBands,
     private val perClass: Map<String, ClassBands>
 ) {
-    /** [ClassBands] for [label], falling back to the `default` entry for any class not listed. */
-    fun forClass(label: String): ClassBands = perClass[label] ?: default
+    /** [ClassBands] for [label], with vehicle subclasses sharing the calibrated vehicle tier. */
+    fun forClass(label: String): ClassBands {
+        perClass[label]?.let { return it }
+        val normalized = label.lowercase()
+        if (normalized in VEHICLE_LABELS) perClass["vehicle"]?.let { return it }
+        return default
+    }
 
     companion object {
+        private val VEHICLE_LABELS = setOf("car", "truck", "bus", "motorcycle", "motorbike", "bicycle")
+
         /** Fail-soft fallback mirroring `config/bands.json`, used only if the resource is missing
          * -- a missing config file must never crash the engine. */
         val DEFAULT = BandThresholds(

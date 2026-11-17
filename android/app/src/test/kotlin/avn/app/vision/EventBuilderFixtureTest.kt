@@ -41,7 +41,15 @@ class EventBuilderFixtureTest {
         ts: Long
     ): Track {
         val box = Detection(label = label, confidence = confidence, x = x, y = y, w = w, h = h, timestampMs = ts)
-        return Track(id = id, label = label, history = listOf(box), lastBox = box, age = 1, lostFrames = 0)
+        return Track(
+            id = id,
+            label = label,
+            history = listOf(box),
+            lastBox = box,
+            age = 1,
+            lostFrames = 0,
+            approaching = label == "vehicle"
+        )
     }
 
     @Test
