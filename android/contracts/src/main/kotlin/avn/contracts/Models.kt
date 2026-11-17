@@ -108,6 +108,28 @@ data class NavState(
     @SerialName("off_route") val offRoute: Boolean = false
 )
 
+@Serializable
+data class LatLon(val lat: Double, val lon: Double)
+
+/** GET /route `data.steps[]` (app/schemas/api.py `RouteStep`, contracts/fixtures/api/route.ok.json). */
+@Serializable
+data class RouteStep(
+    val instruction: String,
+    val maneuver: Maneuver,
+    @SerialName("distance_m") val distanceM: Double,
+    val end: LatLon
+)
+
+/** GET /route `data` (app/schemas/api.py `RouteResponse`, contracts/fixtures/api/route.ok.json). */
+@Serializable
+data class RouteResponse(
+    val steps: List<RouteStep>,
+    val polyline: String,
+    @SerialName("distance_m") val distanceM: Double,
+    @SerialName("duration_s") val durationS: Double,
+    @SerialName("destination_name") val destinationName: String? = null
+)
+
 const val ENVELOPE_VERSION = "1.0"
 
 /** contracts/schemas/envelope.schema.json error object. */
