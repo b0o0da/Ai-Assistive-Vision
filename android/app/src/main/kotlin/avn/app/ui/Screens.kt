@@ -1,7 +1,7 @@
 package avn.app.ui
 
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,8 +41,8 @@ import avn.app.core.service.AssistantService
 import avn.app.data.SettingEntity
 import avn.app.data.SettingKeys
 import avn.app.vision.OcrCapture
-import avn.contracts.OcrResult
 import avn.contracts.Event
+import avn.contracts.OcrResult
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 

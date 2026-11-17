@@ -1,0 +1,35 @@
+{
+  "name": "critical_interrupts_info",
+  "description": "User stands still and asks for a sign reading; a car approaches while it is spoken. Critical cuts the reading off.",
+  "steps": [
+    { "at_ms": 0, "context": { "moving": false } },
+    {
+      "at_ms": 100,
+      "candidate": {
+        "text": "The sign says: Pharmacy.",
+        "source": "camera",
+        "type": "text_result",
+        "user_requested": true,
+        "event_id": "cand_read"
+      }
+    },
+    {
+      "at_ms": 900,
+      "event": {
+        "id": "evt_car",
+        "source": "camera",
+        "type": "vehicle_approaching",
+        "label": "vehicle",
+        "side": "left",
+        "distance_band": "near",
+        "confidence": 0.9,
+        "risk": 0,
+        "timestamp": 900
+      }
+    }
+  ],
+  "expect": [
+    { "event_id": "cand_read", "decision": "spoken" },
+    { "event_id": "evt_car", "decision": "spoken" }
+  ]
+}

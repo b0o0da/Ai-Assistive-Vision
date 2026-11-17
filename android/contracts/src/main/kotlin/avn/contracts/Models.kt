@@ -94,6 +94,7 @@ data class ScreenSnapshot(
 
 // Phone-internal seam types with no JSON schema yet (architecture WS-07, WS-12, WS-20). Phase 2 finalises them.
 
+/** contracts/schemas/android.schema.json `$defs/Transcript` (contract 1.1.0, TD-008). [text] may be empty (nothing heard). */
 @Serializable
 data class Transcript(val text: String, val confidence: Double, val language: String)
 

@@ -1,0 +1,172 @@
+{
+  "name": "car_from_right",
+  "description": "A car enters from the right edge and approaches; box grows and moves inward but stays in the right third.",
+  "source": "authored",
+  "frameWidth": 1080,
+  "frameHeight": 1920,
+  "expected": [
+    {
+      "label": "vehicle",
+      "band": "near",
+      "side": "right"
+    }
+  ],
+  "frames": [
+    {
+      "timestampMs": 0,
+      "detections": [
+        {
+          "label": "vehicle",
+          "confidence": 0.82,
+          "x": 962.5,
+          "y": 701.8,
+          "w": 117.5,
+          "h": 90.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 100,
+      "detections": [
+        {
+          "label": "vehicle",
+          "confidence": 0.82,
+          "x": 931.2,
+          "y": 712.9,
+          "w": 147.3,
+          "h": 140.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 200,
+      "detections": [
+        {
+          "label": "vehicle",
+          "confidence": 0.82,
+          "x": 900.8,
+          "y": 718.6,
+          "w": 174.5,
+          "h": 190.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 300,
+      "detections": [
+        {
+          "label": "vehicle",
+          "confidence": 0.82,
+          "x": 875.4,
+          "y": 728.2,
+          "w": 201.8,
+          "h": 240.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 400,
+      "detections": [
+        {
+          "label": "vehicle",
+          "confidence": 0.82,
+          "x": 846.5,
+          "y": 737.0,
+          "w": 229.1,
+          "h": 290.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 500,
+      "detections": [
+        {
+          "label": "vehicle",
+          "confidence": 0.82,
+          "x": 816.2,
+          "y": 741.8,
+          "w": 256.4,
+          "h": 340.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 600,
+      "detections": [
+        {
+          "label": "vehicle",
+          "confidence": 0.82,
+          "x": 783.3,
+          "y": 752.9,
+          "w": 283.6,
+          "h": 390.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 700,
+      "detections": [
+        {
+          "label": "vehicle",
+          "confidence": 0.82,
+          "x": 753.0,
+          "y": 761.5,
+          "w": 310.9,
+          "h": 440.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 800,
+      "detections": [
+        {
+          "label": "vehicle",
+          "confidence": 0.82,
+          "x": 724.1,
+          "y": 771.0,
+          "w": 338.2,
+          "h": 490.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 900,
+      "detections": [
+        {
+          "label": "vehicle",
+          "confidence": 0.82,
+          "x": 699.3,
+          "y": 780.7,
+          "w": 365.5,
+          "h": 540.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 1000,
+      "detections": [
+        {
+          "label": "vehicle",
+          "confidence": 0.82,
+          "x": 668.1,
+          "y": 788.6,
+          "w": 392.7,
+          "h": 590.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 1100,
+      "detections": [
+        {
+          "label": "vehicle",
+          "confidence": 0.82,
+          "x": 638.1,
+          "y": 803.5,
+          "w": 420.0,
+          "h": 640.0
+        }
+      ]
+    }
+  ]
+}

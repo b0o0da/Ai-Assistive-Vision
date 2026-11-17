@@ -1,5 +1,8 @@
 package avn.app.vision
 
+import ai.onnxruntime.OnnxTensor
+import ai.onnxruntime.OrtEnvironment
+import ai.onnxruntime.OrtSession
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -9,16 +12,14 @@ import android.graphics.Paint
 import android.graphics.RectF
 import avn.app.camera.Frame
 import avn.app.core.logging.JsonLinesLogger
-import ai.onnxruntime.OnnxTensor
-import ai.onnxruntime.OrtEnvironment
-import ai.onnxruntime.OrtSession
+import avn.app.perf.PerfLogger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * On-device ONNX inference for one [DetectorConfig]/model pair. Not Hilt-constructor-injected:
@@ -31,7 +32,8 @@ import kotlin.math.roundToInt
 class YoloV8OnnxDetector(
     private val context: Context,
     private val log: JsonLinesLogger,
-    private val config: DetectorConfig
+    private val config: DetectorConfig,
+    private val perf: PerfLogger
 ) : Detector {
     private val env: OrtEnvironment by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
         OrtEnvironment.getEnvironment()
@@ -50,27 +52,35 @@ class YoloV8OnnxDetector(
         val source = frame.bitmap ?: return@withContext emptyList()
         try {
             val activeSession = getOrCreateSession()
-            val upright = rotateIfNeeded(source, frame.rotationDegrees)
-            val prepared = letterbox(upright, config.inputSize)
-            try {
-                val input = bitmapToChw(prepared.bitmap, config.inputSize)
-                OnnxTensor.createTensor(
-                    env,
-                    input,
-                    longArrayOf(1, 3, config.inputSize.toLong(), config.inputSize.toLong())
-                ).use { tensor ->
-                    activeSession.run(mapOf(inputName!! to tensor)).use { result ->
-                        @Suppress("UNCHECKED_CAST")
-                        val output = result[0].value as Array<Array<FloatArray>>
-                        YoloDecoder.decode(
-                            output[0], upright.width, upright.height, frame.timestampMs,
-                            prepared.scale, prepared.padX, prepared.padY, config
-                        )
+            perf.measure("detector", "inference_ms") {
+                val upright = rotateIfNeeded(source, frame.rotationDegrees)
+                val prepared = letterbox(upright, config.inputSize)
+                try {
+                    val input = bitmapToChw(prepared.bitmap, config.inputSize)
+                    OnnxTensor.createTensor(
+                        env,
+                        input,
+                        longArrayOf(1, 3, config.inputSize.toLong(), config.inputSize.toLong())
+                    ).use { tensor ->
+                        activeSession.run(mapOf(inputName!! to tensor)).use { result ->
+                            @Suppress("UNCHECKED_CAST")
+                            val output = result[0].value as Array<Array<FloatArray>>
+                            YoloDecoder.decode(
+                                output[0],
+                                upright.width,
+                                upright.height,
+                                frame.timestampMs,
+                                prepared.scale,
+                                prepared.padX,
+                                prepared.padY,
+                                config
+                            )
+                        }
                     }
+                } finally {
+                    prepared.bitmap.recycle()
+                    if (upright !== source) upright.recycle()
                 }
-            } finally {
-                prepared.bitmap.recycle()
-                if (upright !== source) upright.recycle()
             }
         } catch (error: Exception) {
             log.log("detector", "inference_failed", fields = mapOf("error" to error.javaClass.simpleName))
@@ -111,12 +121,7 @@ class YoloV8OnnxDetector(
         }
     }
 
-    private data class Letterboxed(
-        val bitmap: Bitmap,
-        val scale: Float,
-        val padX: Float,
-        val padY: Float
-    )
+    private data class Letterboxed(val bitmap: Bitmap, val scale: Float, val padX: Float, val padY: Float)
 
     private fun rotateIfNeeded(bitmap: Bitmap, degrees: Int): Bitmap {
         val normalized = ((degrees % 360) + 360) % 360

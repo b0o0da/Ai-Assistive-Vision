@@ -37,7 +37,10 @@ class YoloDecoderTest {
 
     private fun anchor(cx: Float, cy: Float, w: Float, h: Float, classId: Int, score: Float): FloatArray {
         val row = FloatArray(4 + CocoLabels.names.size)
-        row[0] = cx; row[1] = cy; row[2] = w; row[3] = h
+        row[0] = cx
+        row[1] = cy
+        row[2] = w
+        row[3] = h
         row[4 + classId] = score
         return row
     }
@@ -50,8 +53,14 @@ class YoloDecoderTest {
     fun aHighConfidenceAnchorInIdentityLetterboxSpaceDecodesToTheExpectedBox() {
         val out = output(anchor(cx = 100f, cy = 100f, w = 40f, h = 60f, classId = personId, score = 0.9f))
         val detections = YoloDecoder.decode(
-            out, frameWidth = 640, frameHeight = 640, timestampMs = 123L,
-            scale = 1f, padX = 0f, padY = 0f, config = config
+            out,
+            frameWidth = 640,
+            frameHeight = 640,
+            timestampMs = 123L,
+            scale = 1f,
+            padX = 0f,
+            padY = 0f,
+            config = config
         )
         assertEquals(1, detections.size)
         val detection = detections.single()
@@ -85,8 +94,14 @@ class YoloDecoderTest {
         // Anchor center/size are in 640-space; expected box is in original 1280x640-space.
         val out = output(anchor(cx = 320f, cy = 320f, w = 100f, h = 80f, classId = personId, score = 0.9f))
         val detections = YoloDecoder.decode(
-            out, frameWidth = 1280, frameHeight = 640, timestampMs = 0L,
-            scale = 0.5f, padX = 0f, padY = 160f, config = config
+            out,
+            frameWidth = 1280,
+            frameHeight = 640,
+            timestampMs = 0L,
+            scale = 0.5f,
+            padX = 0f,
+            padY = 160f,
+            config = config
         )
         val detection = detections.single()
         // left = (320 - 50 - 0) / 0.5 = 540 ; top = (320 - 40 - 160) / 0.5 = 240
@@ -163,7 +178,10 @@ class YoloDecoderTest {
             labels = listOf("cone", "person")
         )
         val row = FloatArray(6) // 4 box coords + 2 class scores
-        row[0] = 100f; row[1] = 100f; row[2] = 40f; row[3] = 60f
+        row[0] = 100f
+        row[1] = 100f
+        row[2] = 40f
+        row[3] = 60f
         row[5] = 0.9f // "person" is index 1 in this custom label order
         val out = Array(6) { r -> FloatArray(1) { row[r] } }
         val detections = YoloDecoder.decode(out, 640, 640, 0L, scale = 1f, padX = 0f, padY = 0f, config = customConfig)

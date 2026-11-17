@@ -1,12 +1,15 @@
 package avn.app.vision
 
+import avn.app.perf.PerfLogger
+
 /** A light, on-device ByteTrack-style tracker: high-confidence matching first, then low-confidence
  * detections may recover an existing track but can never create a new one. Boxes and short history
  * remain in memory; the tracker never receives or stores image pixels.
  */
 class IouTracker(
     private val config: TrackerConfig = TrackerConfig.load(),
-    private val isUserMoving: () -> Boolean = { false }
+    private val isUserMoving: () -> Boolean = { false },
+    private val perf: PerfLogger? = null
 ) : Tracker {
     private data class State(
         val id: Int,
@@ -20,7 +23,11 @@ class IouTracker(
     private val approachDetector = ApproachDetector(config)
     private var nextId = 1
 
-    override fun update(detections: List<Detection>, timestampMs: Long): List<Track> {
+    override fun update(detections: List<Detection>, timestampMs: Long): List<Track> =
+        perf?.measure("tracker", "update_ms") { updateInternal(detections, timestampMs) }
+            ?: updateInternal(detections, timestampMs)
+
+    private fun updateInternal(detections: List<Detection>, timestampMs: Long): List<Track> {
         tracks.values.forEach { it.lostFrames++ }
         tracks.entries.removeAll { it.value.lostFrames > config.maxLostFrames }
 
@@ -71,9 +78,11 @@ class IouTracker(
 
         val candidates = tracks.values.asSequence()
             .filter { it.id in unmatchedTrackIds }
-            .flatMap { state -> detections.indices.asSequence().map { index ->
-                Candidate(state.id, index, intersectionOverUnion(predictedBox(state), detections[index]))
-            } }
+            .flatMap { state ->
+                detections.indices.asSequence().map { index ->
+                    Candidate(state.id, index, intersectionOverUnion(predictedBox(state), detections[index]))
+                }
+            }
             .filter { it.iou >= config.matchIou }
             .sortedByDescending { it.iou }
             .toList()
@@ -142,5 +151,11 @@ class ApproachDetector(private val config: TrackerConfig = TrackerConfig.load())
 }
 
 private fun String.isVehicle(): Boolean = lowercase() in setOf(
-    "vehicle", "car", "truck", "bus", "motorcycle", "motorbike", "bicycle"
+    "vehicle",
+    "car",
+    "truck",
+    "bus",
+    "motorcycle",
+    "motorbike",
+    "bicycle"
 )

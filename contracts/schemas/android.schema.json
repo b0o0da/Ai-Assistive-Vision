@@ -4,6 +4,17 @@
   "title": "On-phone shared types",
   "description": "Types that cross module seams inside the Android app. Not sent to the backend except where an endpoint embeds them.",
   "$defs": {
+    "Transcript": {
+      "description": "STT output handed to intent routing (WS-12 -> WS-14). Added in contract 1.1.0 (TD-008). text may be empty: nothing was heard; confidence is then 0. Never logged (private content).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "confidence", "language"],
+      "properties": {
+        "text": { "type": "string", "maxLength": 500 },
+        "confidence": { "$ref": "common.schema.json#/$defs/Confidence" },
+        "language": { "$ref": "common.schema.json#/$defs/Language" }
+      }
+    },
     "SpeechRequest": {
       "type": "object",
       "additionalProperties": false,

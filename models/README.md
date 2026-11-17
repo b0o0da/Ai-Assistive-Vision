@@ -60,6 +60,25 @@ order, classMap, and thresholds) synchronized with whatever ONNX asset `manifest
 points at whenever replacing a model — a mismatch here is exactly the silent-misdecode failure
 `DetectorConfig.DEFAULT`'s doc comment warns about.
 
+Both `detector` and `detector-pothole` have `"url": null` — neither is a direct-downloadable
+ONNX file, so `fetch_models.py` reports `MISS` for them if missing, by design, rather than
+attempting a download that would silently fail. To (re)produce them manually:
+
+- **`detector`** (`yolo11m_int8_coco_stock.onnx`): `pip install ultralytics onnxruntime`, then
+  `yolo export model=yolo11m.pt format=onnx imgsz=640` (downloads the stock Ultralytics
+  checkpoint automatically), then INT8-quantize with
+  `onnxruntime.quantization.quantize_dynamic` (QUInt8 weights).
+- **`detector-pothole`** (`pothole_keremberke_n.onnx`): the Hugging Face repo
+  (`keremberke/yolov8n-pothole-segmentation`) hosts only a PyTorch checkpoint (`best.pt`), never
+  an ONNX export — confirmed via its HF API `siblings` listing, 2026-11-15, which is why this
+  entry's `url` is `null` rather than the model-card page (a web page is not a fetchable binary;
+  pointing `url` at it would make `fetch_models.py` "succeed" at downloading HTML and fail SHA
+  verification with a confusing mismatch). Download `best.pt` from that repo, then run
+  `yolo export model=best.pt format=onnx imgsz=640 opset=12`.
+
+Either way, verify the new file's SHA-256 and update `manifest.json`'s `sha256` field to match
+before shipping it.
+
 Manifest entry shape:
 
 ```json

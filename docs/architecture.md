@@ -480,6 +480,24 @@ Wire names are `step`, `arg`, `requires_confirmation`, `spoken_ack`, `clarificat
 - **Security / Privacy:** Spending limits on every key; no image or screen content logged by default; screen content sent only after the consent notice; password/banking screens never sent.
 - **Definition of Done:** All prompts versioned and evaluated on the golden set; provider switch works by env var; mock mode returns deterministic answers; limits configured.
 
+#### WS-15 · VlmProvider and MockVlmProvider (AVN-13)
+
+**Files added**
+
+| Path | Purpose |
+| --- | --- |
+| `backend/app/providers/vlm.py` | `VlmProvider` (ABC): `complete(prompt, images, max_tokens, timeout, *, template)`; wrappers `describe`, `ask`, `summarize`; `UnconfiguredVlmProvider`; `get_vlm_provider(settings, scenario)` |
+| `backend/app/providers/vlm_mock.py` | `MockVlmProvider`: deterministic canned answer per template, no network |
+| `backend/tests/test_mock_vlm_provider.py` | Determinism, length limits, wrappers, scenarios, factory, no-network guard |
+
+**Layering:** `Provider` (`base.py`) answers a whole endpoint. `VlmProvider` is one level below: prompt in, text out. Real adapters (WS15-07) implement `complete` only.
+
+**Selection:** `MOCK_MODE=true` returns `MockVlmProvider`; otherwise `UnconfiguredVlmProvider`, which raises `ProviderError` (fails soft through `gateway.call`). Not wired into `deps.py` yet: the `/describe` and `/ask` services do that.
+
+**Scenarios:** reuses `Scenario` (ok, timeout, error, empty) from `mock.py`.
+
+**Privacy:** prompts, images and answers are never logged.
+
 ### WS-16 Priority and context engine
 
 The central product component. Full specification is in the **Priority engine deep dive** section below. Summary: consumes `Event` and `SpeechRequest` candidates from every pipeline, applies risk, thresholds, cooldowns and duplicate suppression, schedules speech through the single `SpeechOutput`, logs every decision including suppressed ones, and exposes the alert-log view. Primary owner Marwan; the engine is pure Kotlin with no Android dependencies so it is unit-testable on a laptop from week 1.

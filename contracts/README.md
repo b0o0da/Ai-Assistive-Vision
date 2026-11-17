@@ -1,8 +1,8 @@
-# Contracts — version 1.0.0
+# Contracts — version 1.1.0
 
 The shared language between the Android app and the backend. Status: **FROZEN at Gate 1** (tag `contract-v1`). Changes follow the process below and §7 of `docs/api-contract.md`.
 
-- `schemas/` — JSON Schema (draft 2020-12): `common` (enums), `event`, `envelope`, `api` (the 9 endpoints), `android` (on-phone seam types: SpeechRequest, ActionPlan, ScreenSnapshot).
+- `schemas/` — JSON Schema (draft 2020-12): `common` (enums), `event`, `envelope`, `api` (the 9 endpoints), `android` (on-phone seam types: SpeechRequest, ActionPlan, ScreenSnapshot, Transcript).
 - `fixtures/` — example documents for every response and failure. `fixtures/index.json` maps each fixture to its schema.
 - Kotlin models (`android/contracts`) and Pydantic models (`backend/app/schemas`) are written to match these files, and both test suites parse every fixture.
 

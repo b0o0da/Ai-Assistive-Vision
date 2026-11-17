@@ -4,10 +4,11 @@ import android.content.Context
 import android.util.Log
 import androidx.room.Room
 import avn.app.BuildConfig
-import avn.app.camera.FakeFrameSource
 import avn.app.camera.CameraXFrameSource
+import avn.app.camera.FakeFrameSource
 import avn.app.camera.FrameSource
 import avn.app.core.FakeEngineInput
+import avn.app.core.consent.ConsentGuard
 import avn.app.core.consent.ConsentManager
 import avn.app.core.logging.JsonLinesLogger
 import avn.app.data.AlertLogDao
@@ -27,6 +28,7 @@ import avn.app.navigation.HapticCues
 import avn.app.navigation.LocationSource
 import avn.app.navigation.Navigation
 import avn.app.navigation.VibratorHapticCues
+import avn.app.perf.PerfLogger
 import avn.app.screen.FakeNotificationSource
 import avn.app.screen.FakeScreenActions
 import avn.app.screen.FakeScreenAi
@@ -39,26 +41,29 @@ import avn.app.screen.ScreenCapture
 import avn.app.screen.ScreenReader
 import avn.app.sos.FakeSos
 import avn.app.sos.Sos
+import avn.app.vision.AccelerometerMotionEstimator
 import avn.app.vision.CompositeDetector
 import avn.app.vision.Detector
 import avn.app.vision.DetectorConfig
 import avn.app.vision.FakeDetector
+import avn.app.vision.FakeMotionEstimator
 import avn.app.vision.FakeOcrEngine
 import avn.app.vision.FakeTracker
 import avn.app.vision.IouTracker
+import avn.app.vision.MotionEstimator
 import avn.app.vision.OcrEngine
 import avn.app.vision.Tracker
 import avn.app.vision.YoloV8OnnxDetector
 import avn.app.voice.ActionRouter
 import avn.app.voice.EmergencyKeywordDetector
 import avn.app.voice.FakeActionRouter
-import avn.app.voice.NavigationActionRouter
 import avn.app.voice.FakeEmergencyKeywordDetector
 import avn.app.voice.FakeIntentRouter
 import avn.app.voice.FakeSpeaker
 import avn.app.voice.FakeSttEngine
 import avn.app.voice.FakeWakeWord
 import avn.app.voice.IntentRouter
+import avn.app.voice.NavigationActionRouter
 import avn.app.voice.SttEngine
 import avn.app.voice.WakeWord
 import avn.engine.EngineInput
@@ -131,28 +136,34 @@ abstract class ModulesModule {
         fun detector(
             @ApplicationContext context: Context,
             log: JsonLinesLogger,
+            perf: PerfLogger,
             fake: FakeDetector
-        ): Detector =
-            if ("detector" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) {
-                // Two separate checkpoints, two disjoint class sets -- see CompositeDetector and
-                // DetectorConfig.DEFAULT/POTHOLE_DEFAULT's doc comments for why.
-                CompositeDetector(
-                    listOf(
-                        YoloV8OnnxDetector(context, log, DetectorConfig.load("/config/detector.json")),
-                        YoloV8OnnxDetector(
-                            context, log,
-                            DetectorConfig.load("/config/detector_pothole.json", DetectorConfig.POTHOLE_DEFAULT)
-                        )
+        ): Detector = if ("detector" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) {
+            // Two separate checkpoints, two disjoint class sets -- see CompositeDetector and
+            // DetectorConfig.DEFAULT/POTHOLE_DEFAULT's doc comments for why.
+            CompositeDetector(
+                listOf(
+                    YoloV8OnnxDetector(context, log, DetectorConfig.load("/config/detector.json"), perf),
+                    YoloV8OnnxDetector(
+                        context,
+                        log,
+                        DetectorConfig.load("/config/detector_pothole.json", DetectorConfig.POTHOLE_DEFAULT),
+                        perf
                     )
                 )
-            } else {
-                fake
-            }
+            )
+        } else {
+            fake
+        }
 
         @Provides
         @Singleton
-        fun tracker(fake: FakeTracker): Tracker =
-            if ("tracker" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) IouTracker() else fake
+        fun tracker(perf: PerfLogger, motion: MotionEstimator, fake: FakeTracker): Tracker =
+            if ("tracker" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) {
+                IouTracker(isUserMoving = motion::isWalking, perf = perf)
+            } else {
+                fake
+            }
 
         @Provides
         @Singleton
@@ -178,6 +189,11 @@ abstract class ModulesModule {
         @Singleton
         fun actionRouter(fake: FakeActionRouter, real: NavigationActionRouter): ActionRouter =
             if ("action_router" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) real else fake
+
+        @Provides
+        @Singleton
+        fun motionEstimator(fake: FakeMotionEstimator, real: AccelerometerMotionEstimator): MotionEstimator =
+            if ("motion" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) real else fake
     }
 }
 
@@ -215,4 +231,8 @@ object DataModule {
         consent = ConsentGate(consent::isGranted),
         log = { line -> Log.d("avn.api", line) }
     )
+
+    @Provides
+    @Singleton
+    fun consentGuard(consent: ConsentManager): ConsentGuard = ConsentGuard(consent)
 }

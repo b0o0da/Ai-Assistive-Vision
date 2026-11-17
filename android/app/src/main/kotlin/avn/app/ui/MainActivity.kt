@@ -4,17 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
+import avn.app.camera.FrameSource
 import avn.app.core.connectivity.ConnectivityMonitor
 import avn.app.core.consent.ConsentManager
 import avn.app.core.permissions.PermissionManager
 import avn.app.core.state.AppStateStore
 import avn.app.data.AlertLogDao
 import avn.app.data.SettingsDao
-import avn.app.camera.FrameSource
+import avn.app.vision.Detection
+import avn.app.vision.Detector
 import avn.app.vision.OcrCapture
 import avn.app.vision.OcrEngine
-import avn.app.vision.Detector
-import avn.app.vision.Detection
 import avn.app.voice.FakeSpeaker
 import avn.app.voice.FakeSttEngine
 import avn.app.voice.FakeWakeWord
@@ -22,10 +22,10 @@ import avn.contracts.EventType
 import avn.contracts.Source
 import avn.contracts.SpeechCandidate
 import avn.engine.EngineInput
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.sync.Mutex
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.sync.Mutex
 
 /** What the four screens need. The Debug screen drives the fakes directly, so it names them. */
 class UiDeps @Inject constructor(
@@ -68,7 +68,7 @@ class UiDeps @Inject constructor(
             val capturedFrame = frameSource.captureStill() ?: return OcrCapture.CameraUnavailable
             frame = capturedFrame
             val result = ocrEngine.read(capturedFrame)
-            if (result.text.isBlank()) OcrCapture.NoText else OcrCapture.Found(result)
+            if (result.text.isBlank()) OcrCapture.NoText else OcrCapture.Found(result.toResult())
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {

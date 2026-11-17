@@ -1,0 +1,30 @@
+# Pinned, verified-working set for computer_vision/export/ (AVN-5 / WS-05).
+#
+# Resolved fresh (not copied from any other project) into an isolated venv
+# because the versions below are mutually compatible -- in particular
+# tensorflow==2.21.0 is required to work with numpy 2.x; older tensorflow
+# releases pinned here would raise
+# "AttributeError: np.complex_ was removed in the NumPy 2.0 release."
+# Install into your own project-local virtualenv, not the system Python:
+#   python3 -m venv .venv && . .venv/bin/activate
+#   pip install -r computer_vision/export/requirements.txt
+#
+# Regenerate with `pip freeze` after any intentional upgrade and re-run
+# `pytest computer_vision/export/test_export.py` before committing the bump.
+
+numpy==2.4.6
+pillow==13.0.0
+torch==2.14.1
+onnx==1.23.2
+onnxruntime==1.31.0
+onnx2tf==1.28.8
+onnx_graphsurgeon==0.6.1
+onnxsim==0.4.30
+sng4onnx==2.0.1
+psutil==7.2.2
+tensorflow==2.21.0
+tf_keras==2.21.0
+ai-edge-litert==2.3.0
+
+# Test runner
+pytest==9.1.1

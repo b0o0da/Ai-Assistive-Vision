@@ -15,10 +15,10 @@ import avn.contracts.Source
  * area growth and marked the track as approaching. A non-approaching vehicle can still produce a
  * generic obstacle warning when it enters the medium/near band; distant vehicles stay quiet.
  *
- * **Side and band.** Delegated to [SideEstimator] and [DistanceBander] (AVN-43) -- the only two
- * "Internal components" from architecture.md's WS-06 list this ticket already has available
- * (`ApproachDetector` and `MotionEstimator` are not built yet; `motion_state` and the approach
- * bonus they would feed the engine's risk formula are simply not available to this class).
+ * **Side and band.** Delegated to [SideEstimator] and [DistanceBander] (AVN-43). `ApproachDetector`
+ * and `MotionEstimator` are built too, but inside [IouTracker] -- this class only sees their
+ * result as [Track.approaching]; `motion_state` itself, and any approach bonus it could feed the
+ * engine's risk formula, are not plumbed through to this class or the `Event` schema.
  *
  * **Risk.** Always sent as 0. `Event.risk`'s own doc comment already says why: "Producers send 0;
  * the engine computes the real value" (`docs/api-contract.md`: "risk ... computed by the engine

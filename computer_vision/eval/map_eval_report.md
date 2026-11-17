@@ -83,10 +83,69 @@ reassuringly close to the 0.858 mAP50 the model card itself reports on its own v
 labeled pothole set in this repo. Egyptian-road accuracy remains completely unverified by either
 number (noted already in `models/manifest.json` and `docs/decisions/`).
 
+## Combined two-model latency + Egyptian-scene spot check
+
+Date: 2026-11-15 · Script: `computer_vision/eval/egyptian_spotcheck_and_combined_latency.py`
+
+Real numbers for two of the three gaps above (desktop CPU, sequential sum of both models'
+inference time per image — a safe upper bound on the true on-device coroutine-concurrent cost,
+since `CompositeDetector.kt` runs both ONNX sessions concurrently, not sequentially):
+
+Images evaluated: 20 real, legally-licensed Egyptian street photos from Wikimedia Commons
+(`datasets/data/detection/egyptian/images/commons/`, no ground-truth labels — qualitative only,
+cannot produce mAP).
+
+| metric | value |
+|---|---|
+| mean combined latency | 156.5ms |
+| median combined latency | 154.6ms |
+| min / max | 151.5ms / 176.4ms |
+| images with >=1 detection of any kind | 19/20 |
+| images with a "transportation" detection | 18/20 |
+
+Qualitative read: `transportation` fires reliably on real tuk-tuks/microbuses/cars in actual Cairo
+and Upper Egypt street scenes (e.g. `Toktok.jpg`, `Tuk_-tuk_in_Egypt.JPG`, `Cairo_ring_road.JPG`),
+not just on the stock photography used elsewhere in this repo's benchmarks. One image
+(`Toktok85.jpg`) produced zero detections from either model. No ground truth exists for these
+images, so this is a sanity check that the models fire at all on real local scenes, not a
+precision/recall claim.
+
+## On-device (real ARM64) latency
+
+Date: 2026-11-15 · one-off instrumented probe run against the debug APK on an ARM64-v8a Android
+34 AVD (`visionnav_test`, Pixel 6 profile) — a real ARM64 system image on Apple Silicon, not an
+x86_64-translated emulator, so this runs the actual `onnxruntime-android` ARM binary and confirms
+its kernel set covers this INT8 quantization's ops end-to-end (the open question `manifest.json`
+flagged). The probe loaded both ONNX assets directly, ran the same letterbox/CHW/inference steps
+as `YoloV8OnnxDetector`, and measured wall-clock per image on the same 20 Egyptian Commons photos.
+The probe used plain CPU execution (no NNAPI delegate) — the emulator has no real NPU, so an
+NNAPI session would only exercise a software reference path, not real accelerator hardware; this
+number is the CPU-fallback path the app also uses whenever NNAPI setup fails on real devices.
+
+| metric | value |
+|---|---|
+| mean combined latency | 333.0ms |
+| median combined latency | 303.8ms |
+| min / max | 289.0ms / 786.5ms (first image includes ART/JIT warm-up) |
+
+This is real ARM64 CPU execution, roughly 2x the desktop-CPU sequential sum above (156.5ms mean) —
+expected, since the AVD is capped at 4 vCPUs / 2GB RAM versus the full desktop. The probe test and
+its temporary build.gradle.kts dependencies were removed after this measurement (see
+`android/CLAUDE.md`: instrumented tests are otherwise reserved for permission flow, service
+restart and Room — this was a one-off measurement, not a kept test).
+
+**Still not measured: real NPU/NNAPI acceleration on physical silicon.** No physical Android
+device was available for this round. The ARM64 emulator closes the "does the ARM binary even run
+with this quantization" question but not real-hardware NNAPI delegate behavior, thermals, or
+real-phone memory bandwidth — tracked in `docs/decisions/`, `models/manifest.json`.
+
 ## What this does and doesn't prove
 
 - Proves: both shipped ONNX assets run end-to-end and produce real, scorable detections matching
-  production decode logic, on real labeled data, at real production thresholds.
-- Does not prove: on-device (phone/NNAPI) behavior, combined two-model per-frame latency, or any
-  Egyptian-scene accuracy. Those remain open gaps tracked elsewhere (`docs/decisions/`,
-  `models/manifest.json`).
+  production decode logic, on real labeled data, at real production thresholds. Also proves that
+  both models fire on real Egyptian street scenes, gives a real desktop-CPU upper bound for
+  combined two-model latency (~156ms mean, sequential sum), and now a real ARM64 on-device CPU
+  latency number (~333ms mean) confirming the quantized ops actually run on `onnxruntime-android`.
+- Does not prove: real-silicon NNAPI/NPU acceleration, thermals, or true on-device behavior on a
+  physical phone — the one gap still requiring a physical Android device (minSdk 31). Tracked in
+  `docs/decisions/`, `models/manifest.json`.
