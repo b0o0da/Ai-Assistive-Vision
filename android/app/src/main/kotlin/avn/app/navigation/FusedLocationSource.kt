@@ -30,7 +30,8 @@ class FusedLocationSource @Inject constructor(
     private val manager = context.getSystemService(LocationManager::class.java)
 
     private fun hasPermission() = ContextCompat.checkSelfPermission(
-        context, Manifest.permission.ACCESS_FINE_LOCATION
+        context,
+        Manifest.permission.ACCESS_FINE_LOCATION
     ) == PackageManager.PERMISSION_GRANTED
 
     private fun Location.toFix() = LocationFix(latitude, longitude, accuracy, time)

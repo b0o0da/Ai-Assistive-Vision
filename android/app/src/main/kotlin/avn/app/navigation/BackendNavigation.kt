@@ -131,7 +131,11 @@ class BackendNavigation @Inject constructor(
                     announcer.announce(parsed.steps[0])
                 }
             }
-            is ApiResult.Fallback -> log.log("navigation", "reroute_failed", fields = mapOf("message" to result.message))
+            is ApiResult.Fallback -> log.log(
+                "navigation",
+                "reroute_failed",
+                fields = mapOf("message" to result.message)
+            )
         }
     }
 

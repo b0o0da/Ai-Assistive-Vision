@@ -38,7 +38,11 @@ class NavigationActionRouterTest {
     fun aNavigateStepStartsNavigationWithItsDestination() = runBlocking {
         val navigation = RecordingNavigation()
         val router = NavigationActionRouter(navigation, JsonLinesLogger(context))
-        val plan = ActionPlan(steps = listOf(PlanStepItem(PlanStep.NAVIGATE, "nearest pharmacy")), requiresConfirmation = false)
+        val plan =
+            ActionPlan(
+                steps = listOf(PlanStepItem(PlanStep.NAVIGATE, "nearest pharmacy")),
+                requiresConfirmation = false
+            )
 
         router.execute(plan)
 

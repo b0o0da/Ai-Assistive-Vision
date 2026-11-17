@@ -15,10 +15,8 @@ import javax.inject.Singleton
  * as [FakeActionRouter]) so enabling this seam doesn't silently no-op the rest of voice control.
  */
 @Singleton
-class NavigationActionRouter @Inject constructor(
-    private val navigation: Navigation,
-    private val log: JsonLinesLogger
-) : ActionRouter {
+class NavigationActionRouter @Inject constructor(private val navigation: Navigation, private val log: JsonLinesLogger) :
+    ActionRouter {
     override suspend fun execute(plan: ActionPlan) {
         for (item in plan.steps) {
             val destination = item.arg
