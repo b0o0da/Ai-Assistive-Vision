@@ -1,9 +1,0 @@
-{
-  "status": "PROPOSED",
-  "source": "docs/architecture.md section 5, Cooldowns table: per-key cooldown Critical 3 s, Warning 8 s, Info 30 s. Starting values, tuned from field-test logs.",
-  "cooldownMs": {
-    "critical": 3000,
-    "warning": 8000,
-    "info": 30000
-  }
-}
