@@ -1,8 +1,9 @@
 """MockProvider: answers from contracts/fixtures/api/<endpoint>.ok.json (MOCK_MODE=true).
 
 X-Mock-Scenario picks the behaviour so the app can rehearse every failure path offline:
-ok -> the fixture's data, timeout -> never answers in time, error -> provider failure,
-empty -> provider returned nothing.
+ok -> the fixture's data, timeout -> never answers in time, error / provider_error -> provider
+failure, empty -> provider returned nothing. rate_limited / unauthorized / bad_request are refused
+in app.core.deps.mock_scenario before the provider is reached (429 / 401 / 400 envelopes).
 """
 
 import asyncio
@@ -20,6 +21,10 @@ class Scenario(StrEnum):
     timeout = "timeout"
     error = "error"
     empty = "empty"
+    provider_error = "provider_error"
+    rate_limited = "rate_limited"
+    unauthorized = "unauthorized"
+    bad_request = "bad_request"
 
 
 @lru_cache(maxsize=32)
@@ -38,7 +43,7 @@ class MockProvider:
         if self.scenario is Scenario.timeout:
             # Outlast the service's timeout so the real timeout path runs.
             await asyncio.sleep(self.timeout_s + 1)
-        if self.scenario is Scenario.error:
+        if self.scenario in (Scenario.error, Scenario.provider_error):
             raise ProviderError(f"mock error for {endpoint}")
         if self.scenario is Scenario.empty:
             return None

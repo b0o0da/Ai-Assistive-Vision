@@ -107,6 +107,10 @@ def repo(tmp_path: Path) -> Path:
     return tmp_path
 
 
+# Any version above the committed lock, so these tests do not depend on the current contract version.
+NEXT_VERSION = "99.0.0"
+
+
 def bump_doc(repo: Path, new: str) -> None:
     doc = repo / "docs" / "api-contract.md"
     old = drift.contract_version(doc.read_text(encoding="utf-8"))
@@ -146,20 +150,20 @@ def test_relock_refused_without_version_bump(repo: Path):
 
 def test_relock_refused_without_decision(repo: Path):
     (repo / "contracts" / "fixtures" / "api" / "new.json").write_text("{}", encoding="utf-8")
-    bump_doc(repo, "1.2.0")
+    bump_doc(repo, NEXT_VERSION)
     ok, msg = drift.relock(repo)
     assert not ok and "Contract impact" in msg
 
 
 def test_relock_accepted_with_bump_and_decision(repo: Path):
     (repo / "contracts" / "fixtures" / "api" / "new.json").write_text("{}", encoding="utf-8")
-    bump_doc(repo, "1.2.0")
+    bump_doc(repo, NEXT_VERSION)
     (repo / "docs" / "decisions" / "TD-099-test.md").write_text(
-        "# TD-099\nContract impact: [x] yes, contract version 1.1.0 -> 1.2.0\n", encoding="utf-8"
+        f"# TD-099\nContract impact: [x] yes, contract version 1.1.0 -> {NEXT_VERSION}\n", encoding="utf-8"
     )
     ok, msg = drift.relock(repo)
     assert ok, msg
-    assert json.loads((repo / "contracts" / "contract.lock.json").read_text())["version"] == "1.2.0"
+    assert json.loads((repo / "contracts" / "contract.lock.json").read_text())["version"] == NEXT_VERSION
     assert drift.check_lock(repo) == []
 
 

@@ -226,6 +226,29 @@ Each workstream is described with the same 15 fields so the task generator can l
 - **Security / Privacy:** Contract states which fields may carry personal data (images, screen text, embeddings) and that none are persisted by default.
 - **Definition of Done:** Contract merged and reviewed by all six; fixtures validate on both sides; a change process exists (PR + Technical Decision entry).
 
+#### WS-02 · Failure-case fixtures (AVN-37)
+
+Lets Android rehearse every failure path before the real backend exists. Contract minor bump `1.2.0` (TD-010): the mock-only `X-Mock-Scenario` header accepts four new values; no schema field changed.
+
+**Files added**
+
+| Path | Purpose |
+| --- | --- |
+| `contracts/fixtures/failures/<endpoint>.<case>.json` | 19 failure envelopes (`data: null`, speakable `message`, `error {code, retryable}`) |
+| `contracts/fixtures/index.json` | The 19 files listed with `schema: envelope-only`, version 1.2.0 |
+| `android/contracts/src/test/kotlin/avn/contracts/FailureFixtureTest.kt` | Contract test (JUnit 4): decode, envelope rules, error code matches the file name, all five cases per endpoint |
+| `docs/decisions/TD-010-failure-fixtures.md` | Decision record |
+| `backend/app/providers/mock.py` | `Scenario` gains `provider_error`, `rate_limited`, `unauthorized` and `bad_request`; `provider_error` behaves like `error` |
+| `backend/app/core/deps.py` | `mock_scenario` refuses `rate_limited`, `unauthorized` and `bad_request` with 429, 401 and 400 before any router runs |
+| `backend/tests/test_mock_endpoints.py` | 69 new tests: the three refusals on all 8 endpoints, `provider_error`, `/health` ignores the header, every failure fixture validates and names a scenario |
+| `contracts/contract.lock.json` | Relocked to `1.2.0` (`python scripts/check_contract_drift.py --relock`), as the drift guard requires after a version bump |
+| `scripts/tests/test_check_contract_drift.py` | The relock tests bump to a fixed `NEXT_VERSION` instead of a hard-coded `1.2.0`, so they no longer depend on the current contract version |
+
+**Coverage:** `describe`, `ask`, `screen_summarize`, `intent` and `route` each have timeout, provider_error, rate_limited, unauthorized and bad_request. Some cases still live in `contracts/fixtures/api/` (for example `describe.timeout`, `intent.fallback`); the new files fill the gaps.
+
+**Mapping:** every case now has a matching `X-Mock-Scenario` value: `timeout`, `error` or `provider_error` (5xx), `rate_limited` (429), `unauthorized` (401) and `bad_request` (400). The last three are refused in `mock_scenario` before any provider runs, so they apply to every endpoint including `/faces/match`; `/health` ignores the header. The full table is in `docs/api-contract.md`.
+
+**Privacy:** the fixtures carry no images, screen text or embeddings, and `message` never contains personal content.
 ### WS-03 Android app core
 
 - **Purpose / Why:** The shell that hosts every pipeline; the user never sees a screen, so reliability beats UI.

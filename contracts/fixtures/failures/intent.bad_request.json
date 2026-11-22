@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "ok": false,
+  "fallback": false,
+  "message": "Sorry, I could not understand that request.",
+  "data": null,
+  "request_id": "req_int_13",
+  "error": {
+    "code": "bad_request",
+    "retryable": false
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "fixtures": [
     {
       "fixture": "events/vehicle_approaching_left.json",
@@ -300,6 +300,101 @@
       "fixture": "transcripts/empty.json",
       "schema": "android.schema.json#/$defs/Transcript",
       "envelope": false
+    },
+    {
+      "fixture": "failures/ask.bad_request.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/ask.provider_error.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/ask.rate_limited.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/ask.unauthorized.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/describe.bad_request.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/describe.rate_limited.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/describe.unauthorized.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/intent.bad_request.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/intent.rate_limited.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/intent.timeout.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/intent.unauthorized.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/route.bad_request.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/route.provider_error.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/route.rate_limited.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/route.unauthorized.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/screen_summarize.bad_request.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/screen_summarize.provider_error.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/screen_summarize.rate_limited.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/screen_summarize.unauthorized.json",
+      "schema": "envelope-only",
+      "envelope": true
     }
   ]
 }

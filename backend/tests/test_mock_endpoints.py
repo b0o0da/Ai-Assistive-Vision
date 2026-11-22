@@ -7,8 +7,9 @@ import httpx
 import pytest
 
 from app.core.config import Settings, get_settings
-from app.core.envelope import Envelope
+from app.core.envelope import FALLBACK_MESSAGES, Envelope, ErrorCode
 from app.main import create_app
+from app.providers.mock import Scenario
 from app.schemas import api
 from app.services import gateway
 from app.services.gateway import FALLBACKS
@@ -69,7 +70,13 @@ async def test_no_scenario_header_means_ok(client, name, method, path, req):
 
 
 @pytest.mark.parametrize(
-    ("scenario", "code"), [("timeout", "timeout"), ("error", "provider_error"), ("empty", None)]
+    ("scenario", "code"),
+    [
+        ("timeout", "timeout"),
+        ("error", "provider_error"),
+        ("provider_error", "provider_error"),
+        ("empty", None),
+    ],
 )
 @pytest.mark.parametrize(("name", "method", "path", "req"), ENDPOINTS)
 async def test_failure_scenarios_fall_back_with_spoken_message(
@@ -86,6 +93,60 @@ async def test_failure_scenarios_fall_back_with_spoken_message(
     assert body.fallback and body.data is None
     assert body.message == FALLBACKS[name]
     assert (body.error.code if body.error else None) == code
+
+
+# AVN-37: these scenarios are refused in the mock_scenario dependency, before any router runs
+# (so faces_match is refused too, unlike the "unknown" soft-fail above).
+REFUSED = [
+    ("rate_limited", 429, "rate_limited", True),
+    ("unauthorized", 401, "unauthorized", False),
+    ("bad_request", 400, "bad_request", False),
+]
+REFUSED_NAMES = [s for s, *_ in REFUSED]
+FAILURES = FIXTURES / "failures"
+FAILURE_FILES = sorted(FAILURES.glob("*.json"))
+
+
+@pytest.mark.parametrize(("scenario", "status", "code", "retryable"), REFUSED)
+@pytest.mark.parametrize(("name", "method", "path", "req"), ENDPOINTS)
+async def test_refusal_scenarios_are_rejected_before_the_provider(
+    client, name, method, path, req, scenario, status, code, retryable
+):
+    r = await send(client, method, path, load(req), scenario)
+    assert r.status_code == status
+    body = Envelope.model_validate(r.json())
+    assert body.ok is False and body.fallback is False and body.data is None
+    assert body.error.code == code and body.error.retryable is retryable
+    assert body.message == FALLBACK_MESSAGES[ErrorCode(code)]
+
+
+@pytest.mark.parametrize("scenario", REFUSED_NAMES)
+async def test_health_ignores_the_refusal_scenarios(client, scenario):
+    r = await client.get("/health", headers={"X-Mock-Scenario": scenario})
+    assert r.status_code == 200 and r.json()["data"]["mock_mode"] is True
+
+
+@pytest.mark.parametrize("path", FAILURE_FILES, ids=lambda p: p.name)
+def test_failure_fixtures_validate_and_name_a_mock_scenario(path):
+    env = Envelope.model_validate(json.loads(path.read_text(encoding="utf-8")))
+    endpoint, case = path.stem.split(".")
+    assert endpoint in {n for n, *_ in ENDPOINTS}
+    assert case in {s.value for s in Scenario}
+    assert env.error is not None and env.error.code == case and env.message
+
+
+@pytest.mark.parametrize(
+    "path",
+    [p for p in FAILURE_FILES if p.stem.split(".")[1] in REFUSED_NAMES],
+    ids=lambda p: p.name,
+)
+async def test_refused_scenario_serves_the_fixture_message(client, path):
+    endpoint, case = path.stem.split(".")
+    _, method, route, req = next(e for e in ENDPOINTS if e[0] == endpoint)
+    r = await send(client, method, route, load(req), case)
+    fixture = json.loads(path.read_text(encoding="utf-8"))
+    assert r.json()["message"] == fixture["message"]
+    assert r.json()["error"] == fixture["error"]
 
 
 async def test_unknown_scenario_is_a_400_envelope(client):

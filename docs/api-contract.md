@@ -1,6 +1,6 @@
 # AVN API and event contract
 
-**Version 1.1.0 · status: FROZEN at Gate 1 (end of week 2, tag `contract-v1`). Any change follows §7 below.**
+**Version 1.2.0 · status: FROZEN at Gate 1 (end of week 2, tag `contract-v1`). Any change follows §7 below.**
 Machine-readable source: `contracts/schemas/` and `contracts/fixtures/`. If this page and the schemas disagree, the schemas win and this page is fixed.
 
 ## 1. Conventions
@@ -29,7 +29,7 @@ Example: `contracts/fixtures/events/vehicle_approaching_left.json`.
 ## 3. Transport rules (all endpoints)
 - HTTPS. Header `X-API-Key: <per-install key>` on every endpoint except `GET /health`. Rate limit per key.
 - Header `X-Request-Id` (optional, echoed as `request_id`).
-- Header `X-Mock-Scenario: ok | timeout | error | empty` — honoured only when the server runs with `MOCK_MODE=true`.
+- Header `X-Mock-Scenario: ok | timeout | error | provider_error | empty | rate_limited | unauthorized | bad_request` — honoured only when the server runs with `MOCK_MODE=true`.
 - Images: base64 JPEG, longest side 512–768 px, ≤ 400,000 base64 characters.
 - Server provider timeout `PROVIDER_TIMEOUT_S` (default 4 s). Client timeout = server timeout + 1 s. The client retries at most once.
 
@@ -156,6 +156,20 @@ Fallback example, same endpoint after a provider timeout:
 }
 ```
 
+### Failure fixtures (AVN-37)
+
+Failure cases live in `contracts/fixtures/failures/<endpoint>.<case>.json`, next to the older ones in `api/`. Every file is an `ApiEnvelope` with `data: null`, a speakable `message` and an `error`. Together, `describe`, `ask`, `screen_summarize`, `intent` and `route` cover all five cases.
+
+| Case | `error.code` | ok | fallback | HTTP | `X-Mock-Scenario` | Existing file in `api/` |
+| --- | --- | --- | --- | --- | --- | --- |
+| timeout | `timeout` | true | true | 504 | `timeout` | `describe.timeout`, `ask.timeout`, `screen_summarize.timeout`, `route.fallback` |
+| 5xx | `provider_error` | true | true | 5xx | `error` or `provider_error` | `describe.provider_error`, `intent.fallback` |
+| 429 | `rate_limited` | false | false | 429 | `rate_limited` | `error.rate_limited` (generic) |
+| 401 | `unauthorized` | false | false | 401 | `unauthorized` | `error.unauthorized` (generic) |
+| malformed request | `bad_request` | false | false | 400, 422 | `bad_request` | `error.invalid_request` (generic) |
+
+Every `X-Mock-Scenario` value in the table is accepted by the mock backend (TD-010). `rate_limited`, `unauthorized` and `bad_request` are refused in the `mock_scenario` dependency before any provider runs, so they apply to every cloud endpoint including `/faces/match`; `/health` ignores the header. A malformed provider response is not a valid envelope, so it belongs in `tests/fixtures/contract_invalid/`.
+
 ## 6. Change log
 | Version | Date | Change |
 | --- | --- | --- |
@@ -164,6 +178,7 @@ Fallback example, same endpoint after a provider timeout:
 | 0.2.0-draft | Week 2 | Envelope, error codes and privacy rules settled; Event v0 with Kotlin and Pydantic models (WS02-01). |
 | 1.0.0 | Week 2 (Gate 1) | Frozen. Request, success and failure fixtures for all 9 endpoints; change rule added (§7). |
 | 1.1.0 | Week 2 | Additive (TD-008, AVN-35): `Transcript {text, confidence, language}` schema in `android.schema.json`, same shape as the existing Kotlin model; 8 fixtures incl. the empty transcript. No existing field changed. |
+| 1.2.0 | Week 2 | Minor (TD-010, AVN-37): 19 failure fixtures in `contracts/fixtures/failures/` so every cloud endpoint has timeout, provider_error, rate_limited, unauthorized and bad_request. New `X-Mock-Scenario` values `provider_error`, `rate_limited`, `unauthorized`, `bad_request` (mock-only header; no schema field changed). |
 
 ## 7. Changing the contract after the freeze
 
