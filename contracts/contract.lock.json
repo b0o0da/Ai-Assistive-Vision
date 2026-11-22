@@ -85,7 +85,7 @@
     "contracts/schemas/common.schema.json": "sha256:ce20b6b0b54c3e778eaca6535e1d7fbcd7bb465616076f1af246927781e989bd",
     "contracts/schemas/envelope.schema.json": "sha256:de3c86f387405802e1a962c0f7d470609999074bf3871e51cf9bb938df275038",
     "contracts/schemas/event.schema.json": "sha256:07d106647992f7e6182b050f4a11e930b02e62656e2f7547ed4f1476bdb1fb4d",
-    "docs/api-contract.md": "sha256:b507ef731721c321e8bdbacc43c30e720b1af1cc4f751d94c9646ae4ced5696c"
+    "docs/api-contract.md": "sha256:ae736f3189f5be3e25448e20bbe6aa59f1cf5e9ee19f9eb3c866854b55e0d85c"
   },
-  "version": "1.2.0"
+  "version": "1.2.1"
 }

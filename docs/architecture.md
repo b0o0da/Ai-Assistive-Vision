@@ -627,6 +627,16 @@ The central product component. Full specification is in the **Priority engine de
 - **Security / Privacy:** Per-install API key header plus HTTPS and rate limit *(proposed; the spec is silent on auth)*; keys only in env; spending limits at the provider; request bodies with images or screen text are not logged.
 - **Definition of Done:** `docker compose up` starts the service; all 9 endpoints behave per contract in mock mode; real provider path works for `/describe`, `/ask`, `/screen/summarize`, `/intent`; deployed to a VPS; limits set; health endpoint monitored.
 
+#### WS-22 · Backend authentication (AVN-115, TD-005)
+
+Decision only; the code is WS22-04. Contract patch `1.2.1` (section 3.1 of `docs/api-contract.md`). Record: `docs/decisions/TD-005-backend-auth.md`.
+
+- **Header and key:** `X-API-Key` on every endpoint except `GET /health`. Key format `avn_` + 43 base64url chars. The server keeps only SHA-256 hashes (from env), several valid at once for rotation; revocation = remove the hash.
+- **Errors:** any bad key gives `401` `unauthorized` (one message, no reason given). Over the limit gives `429` `rate_limited` plus an HTTP `Retry-After` header. Envelope, error codes and fixtures are unchanged.
+- **Rate limit:** per key, values are config (starting values 60 per minute, 20 per minute on `/describe`, `/ask`, `/screen/summarize`, `/intent`). Not part of the contract.
+- **Proposed for WS22-04 (confirm there):** auth as a FastAPI dependency so `/health` stays open; order body size, key, rate limit, `mock_scenario`; `MOCK_MODE=true` turns auth off; `X-Mock-Scenario` is ignored when mock mode is off.
+- **WS22-04 must also fix:** `http_error_handler` and `_reply` drop `exc.headers` (needed for `Retry-After`); `refuse()` in `deps.py` always returns `bad_request`; there is no rate limiter in `main.py` yet.
+
 ### WS-23 Database and known-people data
 
 - **Purpose / Why:** Persist users, faces, saved places, settings and logs on the backend, and keep a fast offline cache on the phone.

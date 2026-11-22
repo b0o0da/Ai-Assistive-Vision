@@ -1,6 +1,6 @@
 # AVN API and event contract
 
-**Version 1.2.0 · status: FROZEN at Gate 1 (end of week 2, tag `contract-v1`). Any change follows §7 below.**
+**Version 1.2.1 · status: FROZEN at Gate 1 (end of week 2, tag `contract-v1`). Any change follows §7 below.**
 Machine-readable source: `contracts/schemas/` and `contracts/fixtures/`. If this page and the schemas disagree, the schemas win and this page is fixed.
 
 ## 1. Conventions
@@ -27,11 +27,21 @@ Machine-readable source: `contracts/schemas/` and `contracts/fixtures/`. If this
 Example: `contracts/fixtures/events/vehicle_approaching_left.json`.
 
 ## 3. Transport rules (all endpoints)
-- HTTPS. Header `X-API-Key: <per-install key>` on every endpoint except `GET /health`. Rate limit per key.
+- HTTPS. Authentication and rate limiting: see §3.1.
 - Header `X-Request-Id` (optional, echoed as `request_id`).
 - Header `X-Mock-Scenario: ok | timeout | error | provider_error | empty | rate_limited | unauthorized | bad_request` — honoured only when the server runs with `MOCK_MODE=true`.
 - Images: base64 JPEG, longest side 512–768 px, ≤ 400,000 base64 characters.
 - Server provider timeout `PROVIDER_TIMEOUT_S` (default 4 s). Client timeout = server timeout + 1 s. The client retries at most once.
+
+### 3.1 Authentication and rate limiting (TD-005)
+
+- Header `X-API-Key: <per-install key>` on every endpoint except `GET /health`.
+- Key format: `avn_` + 32 random bytes in base64url without padding (43 chars), 47 characters in total. Example shape: `avn_<43 chars>`.
+- Several keys are valid at once, so a key can be rotated without breaking installs. Revoking a key means removing it on the server. The key is never logged.
+- Missing, malformed, unknown or revoked key: `401`, `error.code = unauthorized`, `retryable = false`, same message for every cause. `403` is not used for keys.
+- Over the per-key rate limit: `429`, `error.code = rate_limited`, `retryable = true`, plus the HTTP header `Retry-After: <seconds>`. The header is not part of the envelope.
+- Limit values are server configuration, not part of the contract.
+- The envelope, error codes and fixtures are unchanged.
 
 ## 4. Envelope (every response)
 
@@ -179,6 +189,7 @@ Every `X-Mock-Scenario` value in the table is accepted by the mock backend (TD-0
 | 1.0.0 | Week 2 (Gate 1) | Frozen. Request, success and failure fixtures for all 9 endpoints; change rule added (§7). |
 | 1.1.0 | Week 2 | Additive (TD-008, AVN-35): `Transcript {text, confidence, language}` schema in `android.schema.json`, same shape as the existing Kotlin model; 8 fixtures incl. the empty transcript. No existing field changed. |
 | 1.2.0 | Week 2 | Minor (TD-010, AVN-37): 19 failure fixtures in `contracts/fixtures/failures/` so every cloud endpoint has timeout, provider_error, rate_limited, unauthorized and bad_request. New `X-Mock-Scenario` values `provider_error`, `rate_limited`, `unauthorized`, `bad_request` (mock-only header; no schema field changed). |
+| 1.2.1 | Week 2 | Patch (TD-005, AVN-115): documents key format, rotation, 401 and 429 rules and the `Retry-After` header (§3.1). No schema field, enum value or fixture changed. |
 
 ## 7. Changing the contract after the freeze
 
