@@ -13,3 +13,10 @@ Check everything: `python scripts/validate_contracts.py` (CI runs it on every PR
 2. Bump the version here, in `fixtures/index.json` and in `docs/api-contract.md` (major for breaking, minor for additive, patch for wording).
 3. Update schemas, fixtures, Kotlin and Pydantic models in the same PR.
 4. Reviewed by at least one Android and one backend owner; tag `contract-vX.Y.Z` after merge.
+
+## Drift check and freeze lock (AVN-266, WS25-14)
+`python scripts/check_contract_drift.py` runs in CI after `validate_contracts.py` and fails the build when:
+- a Kotlin model in `android/contracts` or a Pydantic model in `backend/app/schemas` / `backend/app/core/envelope.py` has a field name or enum value the schema does not (or lacks one it has). The mapping of schema types to classes is the `OBJECTS` / `ENUMS` table at the top of the script; add a row when you add a mirrored type.
+- any frozen file changed: `docs/api-contract.md`, `contracts/schemas/*.json`, `contracts/fixtures/**/*.json`. Their SHA-256 hashes and the contract version are in `contract.lock.json`.
+
+After steps 1-3 above, regenerate the lock in the same PR: `python scripts/check_contract_drift.py --relock`. It refuses unless the version line in `docs/api-contract.md` is higher than the locked one **and** a `docs/decisions/TD-*.md` says `Contract impact: [x] yes ... -> X.Y.Z` for that version. Tests: `python -m pytest scripts/tests -q`.
