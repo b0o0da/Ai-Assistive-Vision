@@ -51,6 +51,72 @@ async def request_context(request: Request, call_next):
     return response
 
 
+TOO_LARGE = "That request is too large. Please try again with a smaller picture."
+
+
+class BodySizeLimit:
+    """Refuse request bodies over `max_bytes` with 413 and a spoken-safe envelope (WS22-07).
+
+    Checked before routing or JSON parsing, so an oversize image never reaches Pydantic or a
+    provider. Content-Length is checked first; a body sent without one (chunked) is read up to
+    the limit and replayed to the app. The body itself is never logged.
+    """
+
+    def __init__(self, app, max_bytes: int) -> None:
+        self.app = app
+        self.max_bytes = max_bytes
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        headers = dict(scope.get("headers") or [])
+        length = headers.get(b"content-length")
+        if length is not None:
+            if not length.isdigit() or int(length) > self.max_bytes:
+                return await self._refuse(scope, headers, send)
+            return await self.app(scope, receive, send)
+        if scope.get("method") in ("GET", "HEAD", "OPTIONS"):
+            return await self.app(scope, receive, send)
+
+        chunks, size, more = [], 0, True
+        while more:
+            message = await receive()
+            if message["type"] == "http.disconnect":
+                return
+            chunk = message.get("body", b"")
+            size += len(chunk)
+            if size > self.max_bytes:
+                return await self._refuse(scope, headers, send)
+            chunks.append(chunk)
+            more = message.get("more_body", False)
+        body, sent = b"".join(chunks), False
+
+        async def replay():
+            nonlocal sent
+            if sent:
+                return await receive()
+            sent = True
+            return {"type": "http.request", "body": body, "more_body": False}
+
+        return await self.app(scope, replay, send)
+
+    async def _refuse(self, scope, headers, send) -> None:
+        incoming = headers.get(b"x-request-id", b"").decode("latin-1")
+        rid = incoming if _VALID_ID.match(incoming) else f"req_{uuid.uuid4().hex[:16]}"
+        payload = json.dumps(rejected(TOO_LARGE, rid, ErrorCode.bad_request).model_dump()).encode()
+        logger.info(json.dumps({"request_id": rid, "endpoint": scope.get("path"), "status": 413}))
+        await send({
+            "type": "http.response.start",
+            "status": 413,
+            "headers": [
+                (b"content-type", b"application/json"),
+                (b"content-length", str(len(payload)).encode()),
+                (b"x-request-id", rid.encode()),
+            ],
+        })
+        await send({"type": "http.response.body", "body": payload})
+
+
 def _code_for(status: int) -> ErrorCode:
     if status in (401, 403):
         return ErrorCode.unauthorized

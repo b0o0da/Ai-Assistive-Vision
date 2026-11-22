@@ -22,5 +22,5 @@ async def route(
 ) -> Envelope:
     return await gateway.call(
         provider, "route", query.model_dump(), RouteResponse,
-        request_id_of(request), settings.provider_timeout_s,
+        request_id_of(request), settings.budget_for("route"),
     )

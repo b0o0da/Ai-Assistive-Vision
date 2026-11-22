@@ -19,5 +19,5 @@ async def intent(
     # becomes a spoken fallback. Dropping single bad steps arrives with the real LLM (WS22-13).
     return await gateway.call(
         provider, "intent", body.model_dump(), ActionPlan,
-        request_id_of(request), settings.provider_timeout_s,
+        request_id_of(request), settings.budget_for("intent"),
     )
