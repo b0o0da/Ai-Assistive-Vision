@@ -51,8 +51,26 @@ the required third-party notice text.
 ## Fetching and verifying
 
 ```sh
-python scripts/fetch_models.py --android
+python scripts/fetch_models.py --android            # fetch, verify, copy app models into assets
+python scripts/fetch_models.py --from ~/avn-models  # copy from a folder a teammate shared
+python scripts/fetch_models.py --check              # verify only: no downloads, no copies
+python scripts/fetch_models.py --history            # fail if any weight file is in Git history
 ```
+
+For each entry the script keeps a file already in `models/` with the right SHA-256, else copies it
+from `--from DIR`, else downloads `url` (https only). Anything whose SHA-256 does not match the
+manifest is deleted, never installed. Exit code 1 means a **required** model is still missing.
+
+- `"required": false` marks reference/rollback copies (the superseded fine-tune and the stock
+  backup): a fresh clone does not need them and the script does not fail without them.
+- `"android_asset": false` keeps a file out of `android/app/src/main/assets/`. Only `detector`
+  and `detector-pothole` are copied, under the file names that `detector.json` / `detector_pothole.json`
+  load (`modelAsset`); a test checks the two stay in sync.
+
+**Making a fresh clone work without manual export:** upload the two verified ONNX files as assets
+of a GitHub Release (for example tag `models-2026-11`) and put each asset's download URL in that
+entry's `url`. The script then fetches and verifies them on any machine. Until that is done, share
+the files and use `--from`.
 
 The script checks the SHA-256 of each entry in `manifest.json` before copying it into
 `android/app/src/main/assets/`. Keep `detector.json` / `detector_pothole.json` (the app's class
