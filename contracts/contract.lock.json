@@ -41,7 +41,26 @@
     "contracts/fixtures/events/person_close_right_near.json": "sha256:d44f5f87fb2281c393b5bc14a7686294f2256d4bfbd0b72c1270fb2099c14384",
     "contracts/fixtures/events/text_result_sign.json": "sha256:2aef2a644216419f8e01ad04124ab531b0ab3f86a11301a8e24510d12f3b26df",
     "contracts/fixtures/events/vehicle_approaching_left.json": "sha256:6448f014ec83b0faf477906727dbd6a4b43e352f4891bb06ef77e40481d14c3e",
-    "contracts/fixtures/index.json": "sha256:54890e918d9dde243df1550559a81e17acf91d021ade125de40ce79a4d984f36",
+    "contracts/fixtures/failures/ask.bad_request.json": "sha256:8bd8e07cceffa0f5480451047996268fabf7d5c9cc6b9aba0996bc19f8c7217e",
+    "contracts/fixtures/failures/ask.provider_error.json": "sha256:190a0dd0f8fd8bec182737b9834dbe4b2915c2f3d8322eaed4cc4ff07370881f",
+    "contracts/fixtures/failures/ask.rate_limited.json": "sha256:b56445892b1744a53b0b0b1d559e7f6bf48a461f03f1defdb31cd645ca217ee2",
+    "contracts/fixtures/failures/ask.unauthorized.json": "sha256:5046296a524b6839c2d66d35197ac97b6513803edd6e32970e051b78be8cb908",
+    "contracts/fixtures/failures/describe.bad_request.json": "sha256:e47c483a9885caa1905770253cd311cf2b62edb9ead18b06cb2958a8fd56a3f0",
+    "contracts/fixtures/failures/describe.rate_limited.json": "sha256:0e51d546cacec048184f3ec1ad805cfe281fb24604c2244e340bbf691a028a69",
+    "contracts/fixtures/failures/describe.unauthorized.json": "sha256:c7e463c9301b63e250be671bacd5162d54169c6c7d0e57a85a34b312e120c929",
+    "contracts/fixtures/failures/intent.bad_request.json": "sha256:d5fcc098e1dec026af95971ee63d7e3cd799644300b4316943800cc1008a84b8",
+    "contracts/fixtures/failures/intent.rate_limited.json": "sha256:834d0a202091144d95957c71df4c2792ab31e3657abf4aeb25f55734060457e4",
+    "contracts/fixtures/failures/intent.timeout.json": "sha256:0560ec18a906b9d1d411855596723ae5a68957ef20a3845a5a114bd3ee15213b",
+    "contracts/fixtures/failures/intent.unauthorized.json": "sha256:84731b8280674ba0210a319af533f64e92c45d99fea45c07b8407714d9c27820",
+    "contracts/fixtures/failures/route.bad_request.json": "sha256:bfeecb3569f1ed563358544ac9650e6ebe84b3950e06eb2573de3698c3a16965",
+    "contracts/fixtures/failures/route.provider_error.json": "sha256:87e6ce9b25cfb8d231c067297ada1092df50dc1e3119f679723acd5fcdf846d2",
+    "contracts/fixtures/failures/route.rate_limited.json": "sha256:d11828954ed63e10ade08fc38d7e7875cbb852ac06428a09d04ca8fb136df4ba",
+    "contracts/fixtures/failures/route.unauthorized.json": "sha256:f35ca5c58d1df8189b0d45ee02f991eeda5a8d4f29ac7b9cb77ff00966d5c564",
+    "contracts/fixtures/failures/screen_summarize.bad_request.json": "sha256:3a8e37b2bf3b31c18718ad5e5a7d1bb4161a4fc4a1a5321c34f1c89b9cf15626",
+    "contracts/fixtures/failures/screen_summarize.provider_error.json": "sha256:5b1fd13bfcae41f525f94ba9d8015420f62dc98e95bc284f0671bb0350a421de",
+    "contracts/fixtures/failures/screen_summarize.rate_limited.json": "sha256:df946945dfc037091fc1d7e9afb5015582c81dc56e535592d348ade3be101053",
+    "contracts/fixtures/failures/screen_summarize.unauthorized.json": "sha256:39ceec6b2ddebc766c5ac3fba13a38787efc57d2d3ce9e337c856bb9cf740a85",
+    "contracts/fixtures/index.json": "sha256:2bccaa2c7c1093ea7fa4b1f321270a59080db60b98e3acafa3d19aed5affe63f",
     "contracts/fixtures/plans/valid/ask.json": "sha256:d22fcdb81e7e8787841e6170c5f8294eab41d3fd5f5da7d522038771371fd49c",
     "contracts/fixtures/plans/valid/back.json": "sha256:a021c1648e924a4d62927d8c3f2866cb9509a11ab6579ee46dafcbae39408020",
     "contracts/fixtures/plans/valid/clarification.json": "sha256:d4bd012ef958daf79ce82c64a8e6939ba89c56989d74439be34a2ea21e1a37ff",
@@ -66,7 +85,7 @@
     "contracts/schemas/common.schema.json": "sha256:ce20b6b0b54c3e778eaca6535e1d7fbcd7bb465616076f1af246927781e989bd",
     "contracts/schemas/envelope.schema.json": "sha256:de3c86f387405802e1a962c0f7d470609999074bf3871e51cf9bb938df275038",
     "contracts/schemas/event.schema.json": "sha256:07d106647992f7e6182b050f4a11e930b02e62656e2f7547ed4f1476bdb1fb4d",
-    "docs/api-contract.md": "sha256:3771608a857bf081483428236d904e1553f62a69e7c7911d563b29da7a030dd2"
+    "docs/api-contract.md": "sha256:b507ef731721c321e8bdbacc43c30e720b1af1cc4f751d94c9646ae4ced5696c"
   },
-  "version": "1.1.0"
+  "version": "1.2.0"
 }

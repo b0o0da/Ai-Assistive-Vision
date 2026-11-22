@@ -13,18 +13,31 @@ from app.providers.mock import MockProvider, Scenario
 
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 
+# Scenarios that are refused here, before any provider runs: the HTTP error handler then turns
+# them into the matching ok:false envelope (error.code + the spoken FALLBACK_MESSAGES text).
+_REFUSED_STATUS: dict[Scenario, int] = {
+    Scenario.rate_limited: 429,
+    Scenario.unauthorized: 401,
+    Scenario.bad_request: 400,
+}
+
 
 def mock_scenario(
     settings: SettingsDep,
     x_mock_scenario: Annotated[str | None, Header()] = None,
 ) -> Scenario:
-    """X-Mock-Scenario: ok | timeout | error | empty. Only honoured when MOCK_MODE=true."""
+    """X-Mock-Scenario: ok | timeout | error | provider_error | empty | rate_limited |
+    unauthorized | bad_request. Only honoured when MOCK_MODE=true."""
     if not settings.mock_mode or x_mock_scenario is None:
         return Scenario.ok
     try:
-        return Scenario(x_mock_scenario.strip().lower())
+        scenario = Scenario(x_mock_scenario.strip().lower())
     except ValueError:
         raise HTTPException(status_code=400) from None
+    status = _REFUSED_STATUS.get(scenario)
+    if status is not None:
+        raise HTTPException(status_code=status)
+    return scenario
 
 
 def get_provider(
