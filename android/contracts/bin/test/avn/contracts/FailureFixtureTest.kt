@@ -22,8 +22,7 @@ class FailureFixtureTest {
         "bad_request" to ErrorCode.BAD_REQUEST
     )
 
-    private fun files(): List<File> =
-        failures.listFiles { f -> f.extension == "json" }.orEmpty().sortedBy { it.name }
+    private fun files(): List<File> = failures.listFiles { f -> f.extension == "json" }.orEmpty().sortedBy { it.name }
 
     private fun decode(f: File) = Json.decodeFromString(ApiEnvelope.serializer(), f.readText())
 
