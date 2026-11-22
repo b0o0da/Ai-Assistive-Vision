@@ -27,7 +27,7 @@ async def enroll(
         return refuse(request, NO_CONSENT_MESSAGE)
     return await gateway.call(
         provider, "faces_enroll", body.model_dump(), FacesEnrollResponse,
-        request_id_of(request), settings.provider_timeout_s,
+        request_id_of(request), settings.budget_for("faces_enroll"),
     )
 
 
@@ -38,7 +38,7 @@ async def match(
     rid = request_id_of(request)
     env = await gateway.call(
         provider, "faces_match", body.model_dump(), FacesMatchResponse,
-        rid, settings.provider_timeout_s,
+        rid, settings.budget_for("faces_match"),
     )
     if env.fallback:
         # Contract: a failed match is "someone you don't know", never a guess at a name.

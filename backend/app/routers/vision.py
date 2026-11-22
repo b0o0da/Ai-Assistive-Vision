@@ -17,7 +17,7 @@ async def describe(
 ) -> Envelope:
     return await gateway.call(
         provider, "describe", body.model_dump(), DescribeResponse,
-        request_id_of(request), settings.provider_timeout_s,
+        request_id_of(request), settings.budget_for("describe"),
     )
 
 
@@ -27,5 +27,5 @@ async def ask(
 ) -> Envelope:
     return await gateway.call(
         provider, "ask", body.model_dump(), AskResponse,
-        request_id_of(request), settings.provider_timeout_s,
+        request_id_of(request), settings.budget_for("ask"),
     )

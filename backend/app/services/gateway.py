@@ -12,6 +12,7 @@ from pydantic import BaseModel, ValidationError
 
 from app.core.envelope import Envelope, ErrorCode, fallback, success
 from app.providers.base import Provider, ProviderError
+from app.services.bounds import cap_strings
 
 logger = logging.getLogger("avn")
 
@@ -50,8 +51,9 @@ async def call(
         _log(request_id, endpoint, "empty")
         return fallback(message, request_id)
     try:
-        # Never pass on a provider answer that breaks the frozen contract.
-        return success(response_model.model_validate(data), request_id)
+        # Trim over-long text to the contract caps, then never pass on an answer that still
+        # breaks the frozen contract.
+        return success(response_model.model_validate(cap_strings(data, response_model)), request_id)
     except ValidationError:
         _log(request_id, endpoint, "invalid_output")
         return fallback(message, request_id, ErrorCode.provider_error)

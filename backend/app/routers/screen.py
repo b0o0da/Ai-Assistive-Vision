@@ -24,5 +24,5 @@ async def screen_summarize(
         return refuse(request, BLOCKED_MESSAGE)
     return await gateway.call(
         provider, "screen_summarize", body.model_dump(), ScreenSummarizeResponse,
-        request_id_of(request), settings.provider_timeout_s,
+        request_id_of(request), settings.budget_for("screen_summarize"),
     )

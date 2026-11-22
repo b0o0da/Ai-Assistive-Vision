@@ -17,5 +17,5 @@ async def sos(
 ) -> Envelope:
     return await gateway.call(
         provider, "sos", body.model_dump(), SosResponse,
-        request_id_of(request), settings.provider_timeout_s,
+        request_id_of(request), settings.budget_for("sos"),
     )

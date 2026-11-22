@@ -15,6 +15,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app import __version__
 from app.core.config import get_settings
 from app.core.middleware import (
+    BodySizeLimit,
     http_error_handler,
     request_context,
     unhandled_error_handler,
@@ -29,6 +30,8 @@ def create_app() -> FastAPI:
 
     app = FastAPI(title="AVN backend", version=__version__)
     app.middleware("http")(request_context)
+    # Added last, so it runs first: oversize bodies are refused before anything else reads them.
+    app.add_middleware(BodySizeLimit, max_bytes=settings.max_body_bytes)
     app.add_exception_handler(RequestValidationError, validation_error_handler)
     app.add_exception_handler(StarletteHTTPException, http_error_handler)
     app.add_exception_handler(Exception, unhandled_error_handler)
