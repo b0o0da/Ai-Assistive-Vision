@@ -401,17 +401,17 @@ Lets Android rehearse every failure path before the real backend exists. Contrac
 
 - **Purpose / Why:** Turn commands into text; spec says Android on-device recognizer first, with a Whisper-class upgrade for Egyptian Arabic and English mixing.
 - **Inputs:** Audio after wake word, language setting.
-- **Processing:** Android `SpeechRecognizer` (on-device where available) in English for the demo; endpointing and timeout; partial results; confidence; on failure ask once to repeat.
-- **Outputs:** `Transcript{text, confidence, language}`.
+- **Processing:** Android `SpeechRecognizer` (on-device where available) in English for the demo; endpointing and timeout; partial results (`is_final = false`, the final result has `is_final = true`); confidence; on failure ask once to repeat.
+- **Outputs:** `Transcript{text, confidence, language, is_final}` (contract 1.3.0, TD-011; `is_final` is optional on the wire and absent means true).
 - **Internal components:** `SttEngine` interface, `AndroidSttEngine`, `FakeSttEngine` (text injected from a debug box or fixture file).
 - **APIs / interfaces:** `SttEngine.listen(timeout): Transcript`. The Whisper-class upgrade has **no endpoint in the spec**, so it is Nice-tier and needs a contract change first.
-- **Data structures:** `Transcript`.
+- **Data structures:** `Transcript` (Kotlin `isFinal: Boolean = true`, wire name `is_final`). `FakeSttEngine` relies on the default; `AndroidSttEngine` (WS12-04) sets `isFinal = false` for partial results. An empty `text` is valid (nothing heard).
 - **Dependencies:** WS-11 for live audio; `FakeSttEngine` makes WS-14 independent.
 - **Consumers:** WS-14.
 - **Error cases:** Street noise, silence, recognizer offline pack missing, recognizer busy, wrong language.
 - **Testing:** Fixed command list spoken at several noise levels; word accuracy per command.
 - **Performance:** Session opened only after wake; closed on endpoint.
-- **Security / Privacy:** Android's on-device mode preferred; if the platform recognizer uses the network, disclose it in the consent text.
+- **Security / Privacy:** Android's on-device mode preferred; if the platform recognizer uses the network, disclose it in the consent text. Transcripts are never written to logs.
 - **Definition of Done:** All demo commands recognized with an agreed accuracy in a quiet room and in noise; fake engine exists; timeouts speak a recoverable prompt.
 
 ### WS-13 Text-to-speech and audio output

@@ -1,6 +1,6 @@
 # AVN API and event contract
 
-**Version 1.2.1 · status: FROZEN at Gate 1 (end of week 2, tag `contract-v1`). Any change follows §7 below.**
+**Version 1.3.0 · status: FROZEN at Gate 1 (end of week 2, tag `contract-v1`). Any change follows §7 below.**
 Machine-readable source: `contracts/schemas/` and `contracts/fixtures/`. If this page and the schemas disagree, the schemas win and this page is fixed.
 
 ## 1. Conventions
@@ -190,6 +190,7 @@ Every `X-Mock-Scenario` value in the table is accepted by the mock backend (TD-0
 | 1.1.0 | Week 2 | Additive (TD-008, AVN-35): `Transcript {text, confidence, language}` schema in `android.schema.json`, same shape as the existing Kotlin model; 8 fixtures incl. the empty transcript. No existing field changed. |
 | 1.2.0 | Week 2 | Minor (TD-010, AVN-37): 19 failure fixtures in `contracts/fixtures/failures/` so every cloud endpoint has timeout, provider_error, rate_limited, unauthorized and bad_request. New `X-Mock-Scenario` values `provider_error`, `rate_limited`, `unauthorized`, `bad_request` (mock-only header; no schema field changed). |
 | 1.2.1 | Week 2 | Patch (TD-005, AVN-115): documents key format, rotation, 401 and 429 rules and the `Retry-After` header (§3.1). No schema field, enum value or fixture changed. |
+| 1.3.0 | Week 2 | Additive (TD-011, AVN-88): `Transcript` gains optional `is_final` (boolean, wire name `is_final`, default true; false marks a partial result). Not in `required`, so the 8 existing transcript fixtures stay valid. New fixtures `transcripts/final.json` and `transcripts/partial.json`. No existing field changed. |
 
 ## 7. Changing the contract after the freeze
 

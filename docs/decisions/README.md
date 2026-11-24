@@ -11,6 +11,8 @@ Each decision is also a row in the Notion "Technical Decisions" database. Record
 | TD-007 | Third tested app for screen reading | e.g. Chrome (enables web reading) vs another app | Week 3 | Open |
 | TD-008 | Transcript schema and ActionPlan field names (AVN-35) | add Transcript schema (minor 1.1.0) / rename ActionPlan to Notion names (major 2.0.0) | Week 2 | Proposed, see `TD-008-transcript-schema.md` |
 | TD-009 | OCR interaction | Continuous OCR vs capture then read on request | — | Decided: on-demand capture/read flow; see `TD-009-on-demand-ocr-workflow.md` |
+| TD-010 | Failure-case fixtures (AVN-37) | 19 failure fixtures + 4 new mock `X-Mock-Scenario` values vs none | Week 2 | Decided: see `TD-010-failure-fixtures.md` |
+| TD-011 | Transcript `is_final` flag (AVN-88) | optional `is_final` (additive, minor 1.3.0) vs required field (major) vs no flag | Week 2 | Decided: optional `is_final`, absent means true; see `TD-011-transcript-is-final.md` |
 
 Template for a decision file `TD-xxx-short-name.md`:
 
