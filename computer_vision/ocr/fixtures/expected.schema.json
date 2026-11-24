@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://avn.local/computer_vision/ocr/fixtures/expected.schema.json",
+  "title": "OcrFixtureExpectations",
+  "description": "WS07-02 (AVN-129): exact expected text for each real, own-made OCR fixture photo in this folder, keyed by filename.",
+  "type": "object",
+  "additionalProperties": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["category", "text"],
+    "properties": {
+      "category": { "enum": ["sign", "menu", "medicine_box"] },
+      "text": {
+        "description": "The exact text in the photo, character for character.",
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}
