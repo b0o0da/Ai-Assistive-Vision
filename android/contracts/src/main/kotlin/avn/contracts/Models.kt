@@ -94,9 +94,14 @@ data class ScreenSnapshot(
 
 // Phone-internal seam types with no JSON schema yet (architecture WS-07, WS-12, WS-20). Phase 2 finalises them.
 
-/** contracts/schemas/android.schema.json `$defs/Transcript` (contract 1.1.0, TD-008). [text] may be empty (nothing heard). */
+/** contracts/schemas/android.schema.json `$defs/Transcript` (contract 1.1.0, TD-008; is_final added in 1.3.0, TD-011). [text] may be empty (nothing heard). [isFinal] is false for a partial result, true by default. */
 @Serializable
-data class Transcript(val text: String, val confidence: Double, val language: String)
+data class Transcript(
+    val text: String,
+    val confidence: Double,
+    val language: String,
+    @SerialName("is_final") val isFinal: Boolean = true
+)
 
 @Serializable
 data class OcrResult(val text: String, val confidence: Double, val language: String, val source: String)

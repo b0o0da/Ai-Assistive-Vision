@@ -60,7 +60,7 @@
     "contracts/fixtures/failures/screen_summarize.provider_error.json": "sha256:5b1fd13bfcae41f525f94ba9d8015420f62dc98e95bc284f0671bb0350a421de",
     "contracts/fixtures/failures/screen_summarize.rate_limited.json": "sha256:df946945dfc037091fc1d7e9afb5015582c81dc56e535592d348ade3be101053",
     "contracts/fixtures/failures/screen_summarize.unauthorized.json": "sha256:39ceec6b2ddebc766c5ac3fba13a38787efc57d2d3ce9e337c856bb9cf740a85",
-    "contracts/fixtures/index.json": "sha256:2bccaa2c7c1093ea7fa4b1f321270a59080db60b98e3acafa3d19aed5affe63f",
+    "contracts/fixtures/index.json": "sha256:92950cf653ad02b4ba30dff0caa70af496b457cb8f09532ba7b367fbb7c4524f",
     "contracts/fixtures/plans/valid/ask.json": "sha256:d22fcdb81e7e8787841e6170c5f8294eab41d3fd5f5da7d522038771371fd49c",
     "contracts/fixtures/plans/valid/back.json": "sha256:a021c1648e924a4d62927d8c3f2866cb9509a11ab6579ee46dafcbae39408020",
     "contracts/fixtures/plans/valid/clarification.json": "sha256:d4bd012ef958daf79ce82c64a8e6939ba89c56989d74439be34a2ea21e1a37ff",
@@ -75,17 +75,19 @@
     "contracts/fixtures/transcripts/arabic_read_this.json": "sha256:e9508ca1aeade21b6396cf957075762f93fcb45b3cc2da1dc6b9d82702e0a729",
     "contracts/fixtures/transcripts/describe_scene.json": "sha256:c32e394895fa3e0db1b9bf3a8290d4f2a313c5cee8bb5573b59ce2b81bbee6b4",
     "contracts/fixtures/transcripts/empty.json": "sha256:ecde09d0234e714c87b9c2c5cbcd9c77b2be94bc5dd491d67b05e54e91b7a16f",
+    "contracts/fixtures/transcripts/final.json": "sha256:0ad403204b797c1c06a44d3d68c03b96e3a635a601ffca9cd9a8d046eed0f93c",
     "contracts/fixtures/transcripts/low_confidence.json": "sha256:0388a768f8fc52992224f1036ba1dae3a7f30da6e9706824d3b1c7ffd05af89d",
     "contracts/fixtures/transcripts/navigate_pharmacy.json": "sha256:d3fcc60996caa9a98d938af84388fac5f34372b1c4689eaa6b5a785adc5ad59d",
+    "contracts/fixtures/transcripts/partial.json": "sha256:d75e9d820fdf8d909bcf5f0f2345cca7dc63b81f46c2732b076cfcec9f5198f5",
     "contracts/fixtures/transcripts/read_sign.json": "sha256:d37f1735787581277f437923bc149ddaa09d1e078452892478878388da25f12e",
     "contracts/fixtures/transcripts/read_whatsapp.json": "sha256:2052db5b26ffe53dacf04cebf8e3ea4e58babd29e445bb4684baf8d2d7c7aa96",
     "contracts/fixtures/transcripts/sos.json": "sha256:8c5500f05e8913b256b24efb0fc433a5d8d08aa1c876af6cb756dc2da16e2d9d",
-    "contracts/schemas/android.schema.json": "sha256:c5414166b7ffc90fc789353ad8839b51bef6aedaa6437fe541de703fcb139417",
+    "contracts/schemas/android.schema.json": "sha256:0b07b6f140612d3257d451aadf096c77cfd47a9507117f8b1e6d932c3792da5f",
     "contracts/schemas/api.schema.json": "sha256:3395cf2f632fa0779870f28d05f252e64e33aa2dc0cee9961aa01e3ea437e0d2",
     "contracts/schemas/common.schema.json": "sha256:ce20b6b0b54c3e778eaca6535e1d7fbcd7bb465616076f1af246927781e989bd",
     "contracts/schemas/envelope.schema.json": "sha256:de3c86f387405802e1a962c0f7d470609999074bf3871e51cf9bb938df275038",
     "contracts/schemas/event.schema.json": "sha256:07d106647992f7e6182b050f4a11e930b02e62656e2f7547ed4f1476bdb1fb4d",
-    "docs/api-contract.md": "sha256:ae736f3189f5be3e25448e20bbe6aa59f1cf5e9ee19f9eb3c866854b55e0d85c"
+    "docs/api-contract.md": "sha256:f2852d09d7be073a1ab380253ab444c3c4851f35a26505397bcce93558d1c1da"
   },
-  "version": "1.2.1"
+  "version": "1.3.0"
 }

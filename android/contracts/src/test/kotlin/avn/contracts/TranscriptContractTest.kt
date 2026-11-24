@@ -7,11 +7,12 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** AVN-35 (WS02-04, TD-008): Transcript fixtures and schema agree with the Kotlin model; ActionPlan keeps its frozen fields. */
+/** AVN-35 (WS02-04, TD-008) and AVN-88 (WS12-02, TD-011): Transcript fixtures and schema agree with the Kotlin model, including the optional is_final; ActionPlan keeps its frozen fields. */
 class TranscriptContractTest {
     private val root = File(System.getProperty("avn.repoRoot"))
     private val dir = File(root, "contracts/fixtures/transcripts")
@@ -22,8 +23,8 @@ class TranscriptContractTest {
             .jsonObject.getValue("\$defs").jsonObject.getValue(name).jsonObject
 
     @Test
-    fun eightTranscriptFixturesRoundTrip() {
-        assertEquals(8, files.size)
+    fun tenTranscriptFixturesRoundTrip() {
+        assertEquals(10, files.size)
         files.forEach { file ->
             val transcript = Json.decodeFromString(Transcript.serializer(), file.readText())
             assertEquals(
@@ -48,11 +49,53 @@ class TranscriptContractTest {
         val def = schemaDef("Transcript")
         val schemaKeys = def.getValue("properties").jsonObject.keys
         val required = def.getValue("required").jsonArray.map { it.jsonPrimitive.content }.toSet()
-        val kotlinKeys = Json.parseToJsonElement(
-            Json.encodeToString(Transcript.serializer(), Transcript("", 0.0, "en"))
-        ).jsonObject.keys
+        // Read the fields from the serializer, not from an encoded value: Json omits defaults.
+        val descriptor = Transcript.serializer().descriptor
+        val indices = 0 until descriptor.elementsCount
+        val kotlinKeys = indices.map { descriptor.getElementName(it) }.toSet()
+        val kotlinRequired = indices.filterNot { descriptor.isElementOptional(it) }
+            .map { descriptor.getElementName(it) }.toSet()
         assertEquals(schemaKeys, kotlinKeys)
-        assertEquals(schemaKeys, required)
+        assertEquals(required, kotlinRequired)
+        // TD-011: is_final is the only optional field.
+        assertEquals(setOf("is_final"), schemaKeys - required)
+    }
+
+    @Test
+    fun isFinalIsOptionalAndAbsentMeansTrue() {
+        // TD-011: the 8 pre-1.3.0 fixtures carry no is_final; they must still decode as final.
+        val bare = Json.decodeFromString(
+            Transcript.serializer(),
+            """{"text":"hi","confidence":0.9,"language":"en"}"""
+        )
+        assertTrue(bare.isFinal)
+        val legacy = files.filter { !it.readText().contains("is_final") }
+        assertEquals(8, legacy.size)
+        legacy.forEach { file ->
+            assertTrue(file.name, Json.decodeFromString(Transcript.serializer(), file.readText()).isFinal)
+        }
+    }
+
+    @Test
+    fun finalAndPartialFixturesSetIsFinalExplicitly() {
+        val finalT = Json.decodeFromString(Transcript.serializer(), File(dir, "final.json").readText())
+        val partialT = Json.decodeFromString(Transcript.serializer(), File(dir, "partial.json").readText())
+        assertTrue(finalT.isFinal)
+        assertFalse(partialT.isFinal)
+        assertTrue(partialT.text.isNotEmpty())
+        listOf("final.json", "partial.json").forEach { name ->
+            val obj = Json.parseToJsonElement(File(dir, name).readText()).jsonObject
+            assertTrue(name, obj.containsKey("is_final"))
+        }
+    }
+
+    @Test
+    fun partialFlagSurvivesEncodeAndDecode() {
+        // Json omits defaults, so is_final shows up on the wire only when it is false.
+        val partialT = Transcript("what is", 0.5, "en", isFinal = false)
+        val wire = Json.encodeToString(Transcript.serializer(), partialT)
+        assertEquals("false", Json.parseToJsonElement(wire).jsonObject.getValue("is_final").jsonPrimitive.content)
+        assertEquals(partialT, Json.decodeFromString(Transcript.serializer(), wire))
     }
 
     @Test
