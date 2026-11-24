@@ -7,6 +7,7 @@ Each decision is also a row in the Notion "Technical Decisions" database. Record
 | TD-001 | Detector licence | YOLO nano (AGPL: accept and release compatibly) vs an Apache-licensed detector | Before week 3 | Resolved: AGPL accepted; source is public + weights SHA-256-fetched, not committed; see NOTICE.md |
 | TD-002 | Wake word library | openWakeWord vs Porcupine custom keyword | Before week 3 | Open |
 | TD-004 | Screenshot method | MediaProjection (per-session consent) vs AccessibilityService.takeScreenshot | Week 3 | Open: desk research in `TD-004-screenshot-path.md`, proposes takeScreenshot; device test pending |
+| TD-006 | Text destinations in `/route` (WS20-03) | Backend resolves text (e.g. "nearest pharmacy") inside the Maps proxy vs coordinates only | Gate 1 | Decided: backend resolves text server-side, `destination` stays a free string; see `TD-006-text-destinations.md` |
 | TD-007 | Third tested app for screen reading | e.g. Chrome (enables web reading) vs another app | Week 3 | Open |
 | TD-008 | Transcript schema and ActionPlan field names (AVN-35) | add Transcript schema (minor 1.1.0) / rename ActionPlan to Notion names (major 2.0.0) | Week 2 | Proposed, see `TD-008-transcript-schema.md` |
 | TD-009 | OCR interaction | Continuous OCR vs capture then read on request | — | Decided: on-demand capture/read flow; see `TD-009-on-demand-ocr-workflow.md` |
