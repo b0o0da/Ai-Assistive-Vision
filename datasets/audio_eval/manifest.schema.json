@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://avn.local/datasets/audio_eval/manifest.schema.json",
+  "title": "AudioEvalManifest",
+  "description": "WS24-11 (AVN-234): index of wake-word/STT eval clips. The audio itself lives in the team's private storage, never in Git -- this manifest only ever points at it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["status", "clips"],
+  "properties": {
+    "status": {
+      "description": "FROZEN once every clip below has its consent and transcript filled in; OPEN while still collecting.",
+      "enum": ["OPEN", "FROZEN"]
+    },
+    "clips": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "category", "speaker", "consent"],
+        "properties": {
+          "path": {
+            "description": "Path relative to the team's private audio storage root, not this repo.",
+            "type": "string",
+            "minLength": 1
+          },
+          "category": { "enum": ["wake", "command", "noise"] },
+          "speaker": {
+            "description": "First name or initials only -- no other personal data.",
+            "type": "string",
+            "minLength": 1
+          },
+          "consent": {
+            "description": "Who confirmed the OK, and when (e.g. 'verbal OK, 2026-11-24').",
+            "type": "string",
+            "minLength": 1
+          },
+          "transcript": {
+            "description": "Exact words said. Required for wake/command; omitted for noise (no spoken target).",
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
