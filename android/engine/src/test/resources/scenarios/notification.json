@@ -1,0 +1,51 @@
+{
+  "name": "notification",
+  "description": "WS16-09: an Info notification is held while the user is moving, a user-requested scene answer still speaks right away, and a repeat of the held notification is suppressed by its own cooldown.",
+  "steps": [
+    { "at_ms": 0, "context": { "moving": true } },
+    {
+      "at_ms": 100,
+      "event": {
+        "id": "evt_notif1",
+        "source": "notification",
+        "type": "notification",
+        "label": "message",
+        "side": null,
+        "distance_band": null,
+        "confidence": 0.9,
+        "risk": 0,
+        "timestamp": 100
+      }
+    },
+    { "at_ms": 2000, "context": { "moving": false } },
+    {
+      "at_ms": 2100,
+      "candidate": {
+        "text": "You are near the park entrance.",
+        "source": "voice",
+        "type": "scene_answer",
+        "user_requested": true,
+        "event_id": "cand_answer"
+      }
+    },
+    {
+      "at_ms": 2200,
+      "event": {
+        "id": "evt_notif1_repeat",
+        "source": "notification",
+        "type": "notification",
+        "label": "message",
+        "side": null,
+        "distance_band": null,
+        "confidence": 0.9,
+        "risk": 0,
+        "timestamp": 2200
+      }
+    }
+  ],
+  "expect": [
+    { "event_id": "evt_notif1", "decision": "held" },
+    { "event_id": "cand_answer", "decision": "spoken" },
+    { "event_id": "evt_notif1_repeat", "decision": "suppressed", "reason": "cooldown" }
+  ]
+}
