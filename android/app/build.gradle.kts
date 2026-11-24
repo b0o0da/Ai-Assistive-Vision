@@ -68,6 +68,8 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.room.runtime)
     implementation(libs.onnxruntime.android)
+    implementation(libs.tensorflow.lite)
+    implementation(libs.tensorflow.lite.gpu)
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
