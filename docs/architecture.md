@@ -226,6 +226,29 @@ Each workstream is described with the same 15 fields so the task generator can l
 - **Security / Privacy:** Contract states which fields may carry personal data (images, screen text, embeddings) and that none are persisted by default.
 - **Definition of Done:** Contract merged and reviewed by all six; fixtures validate on both sides; a change process exists (PR + Technical Decision entry).
 
+#### WS-02 · Failure-case fixtures (AVN-37)
+
+Lets Android rehearse every failure path before the real backend exists. Contract minor bump `1.2.0` (TD-010): the mock-only `X-Mock-Scenario` header accepts four new values; no schema field changed.
+
+**Files added**
+
+| Path | Purpose |
+| --- | --- |
+| `contracts/fixtures/failures/<endpoint>.<case>.json` | 19 failure envelopes (`data: null`, speakable `message`, `error {code, retryable}`) |
+| `contracts/fixtures/index.json` | The 19 files listed with `schema: envelope-only`, version 1.2.0 |
+| `android/contracts/src/test/kotlin/avn/contracts/FailureFixtureTest.kt` | Contract test (JUnit 4): decode, envelope rules, error code matches the file name, all five cases per endpoint |
+| `docs/decisions/TD-010-failure-fixtures.md` | Decision record |
+| `backend/app/providers/mock.py` | `Scenario` gains `provider_error`, `rate_limited`, `unauthorized` and `bad_request`; `provider_error` behaves like `error` |
+| `backend/app/core/deps.py` | `mock_scenario` refuses `rate_limited`, `unauthorized` and `bad_request` with 429, 401 and 400 before any router runs |
+| `backend/tests/test_mock_endpoints.py` | 69 new tests: the three refusals on all 8 endpoints, `provider_error`, `/health` ignores the header, every failure fixture validates and names a scenario |
+| `contracts/contract.lock.json` | Relocked to `1.2.0` (`python scripts/check_contract_drift.py --relock`), as the drift guard requires after a version bump |
+| `scripts/tests/test_check_contract_drift.py` | The relock tests bump to a fixed `NEXT_VERSION` instead of a hard-coded `1.2.0`, so they no longer depend on the current contract version |
+
+**Coverage:** `describe`, `ask`, `screen_summarize`, `intent` and `route` each have timeout, provider_error, rate_limited, unauthorized and bad_request. Some cases still live in `contracts/fixtures/api/` (for example `describe.timeout`, `intent.fallback`); the new files fill the gaps.
+
+**Mapping:** every case now has a matching `X-Mock-Scenario` value: `timeout`, `error` or `provider_error` (5xx), `rate_limited` (429), `unauthorized` (401) and `bad_request` (400). The last three are refused in `mock_scenario` before any provider runs, so they apply to every endpoint including `/faces/match`; `/health` ignores the header. The full table is in `docs/api-contract.md`.
+
+**Privacy:** the fixtures carry no images, screen text or embeddings, and `message` never contains personal content.
 ### WS-03 Android app core
 
 - **Purpose / Why:** The shell that hosts every pipeline; the user never sees a screen, so reliability beats UI.
@@ -378,17 +401,17 @@ Each workstream is described with the same 15 fields so the task generator can l
 
 - **Purpose / Why:** Turn commands into text; spec says Android on-device recognizer first, with a Whisper-class upgrade for Egyptian Arabic and English mixing.
 - **Inputs:** Audio after wake word, language setting.
-- **Processing:** Android `SpeechRecognizer` (on-device where available) in English for the demo; endpointing and timeout; partial results; confidence; on failure ask once to repeat.
-- **Outputs:** `Transcript{text, confidence, language}`.
+- **Processing:** Android `SpeechRecognizer` (on-device where available) in English for the demo; endpointing and timeout; partial results (`is_final = false`, the final result has `is_final = true`); confidence; on failure ask once to repeat.
+- **Outputs:** `Transcript{text, confidence, language, is_final}` (contract 1.3.0, TD-011; `is_final` is optional on the wire and absent means true).
 - **Internal components:** `SttEngine` interface, `AndroidSttEngine`, `FakeSttEngine` (text injected from a debug box or fixture file).
 - **APIs / interfaces:** `SttEngine.listen(timeout): Transcript`. The Whisper-class upgrade has **no endpoint in the spec**, so it is Nice-tier and needs a contract change first.
-- **Data structures:** `Transcript`.
+- **Data structures:** `Transcript` (Kotlin `isFinal: Boolean = true`, wire name `is_final`). `FakeSttEngine` relies on the default; `AndroidSttEngine` (WS12-04) sets `isFinal = false` for partial results. An empty `text` is valid (nothing heard).
 - **Dependencies:** WS-11 for live audio; `FakeSttEngine` makes WS-14 independent.
 - **Consumers:** WS-14.
 - **Error cases:** Street noise, silence, recognizer offline pack missing, recognizer busy, wrong language.
 - **Testing:** Fixed command list spoken at several noise levels; word accuracy per command.
 - **Performance:** Session opened only after wake; closed on endpoint.
-- **Security / Privacy:** Android's on-device mode preferred; if the platform recognizer uses the network, disclose it in the consent text.
+- **Security / Privacy:** Android's on-device mode preferred; if the platform recognizer uses the network, disclose it in the consent text. Transcripts are never written to logs.
 - **Definition of Done:** All demo commands recognized with an agreed accuracy in a quiet room and in noise; fake engine exists; timeouts speak a recoverable prompt.
 
 ### WS-13 Text-to-speech and audio output
@@ -479,6 +502,24 @@ Wire names are `step`, `arg`, `requires_confirmation`, `spoken_ack`, `clarificat
 - **Performance:** 1.5-4 s target; images downscaled; cache repeated answers.
 - **Security / Privacy:** Spending limits on every key; no image or screen content logged by default; screen content sent only after the consent notice; password/banking screens never sent.
 - **Definition of Done:** All prompts versioned and evaluated on the golden set; provider switch works by env var; mock mode returns deterministic answers; limits configured.
+
+#### WS-15 · VlmProvider and MockVlmProvider (AVN-13)
+
+**Files added**
+
+| Path | Purpose |
+| --- | --- |
+| `backend/app/providers/vlm.py` | `VlmProvider` (ABC): `complete(prompt, images, max_tokens, timeout, *, template)`; wrappers `describe`, `ask`, `summarize`; `UnconfiguredVlmProvider`; `get_vlm_provider(settings, scenario)` |
+| `backend/app/providers/vlm_mock.py` | `MockVlmProvider`: deterministic canned answer per template, no network |
+| `backend/tests/test_mock_vlm_provider.py` | Determinism, length limits, wrappers, scenarios, factory, no-network guard |
+
+**Layering:** `Provider` (`base.py`) answers a whole endpoint. `VlmProvider` is one level below: prompt in, text out. Real adapters (WS15-07) implement `complete` only.
+
+**Selection:** `MOCK_MODE=true` returns `MockVlmProvider`; otherwise `UnconfiguredVlmProvider`, which raises `ProviderError` (fails soft through `gateway.call`). Not wired into `deps.py` yet: the `/describe` and `/ask` services do that.
+
+**Scenarios:** reuses `Scenario` (ok, timeout, error, empty) from `mock.py`.
+
+**Privacy:** prompts, images and answers are never logged.
 
 ### WS-16 Priority and context engine
 
@@ -585,6 +626,16 @@ The central product component. Full specification is in the **Priority engine de
 - **Performance:** Per-endpoint timeout under the 1.5-4 s cloud target; image caps; response cache.
 - **Security / Privacy:** Per-install API key header plus HTTPS and rate limit *(proposed; the spec is silent on auth)*; keys only in env; spending limits at the provider; request bodies with images or screen text are not logged.
 - **Definition of Done:** `docker compose up` starts the service; all 9 endpoints behave per contract in mock mode; real provider path works for `/describe`, `/ask`, `/screen/summarize`, `/intent`; deployed to a VPS; limits set; health endpoint monitored.
+
+#### WS-22 · Backend authentication (AVN-115, TD-005)
+
+Decision only; the code is WS22-04. Contract patch `1.2.1` (section 3.1 of `docs/api-contract.md`). Record: `docs/decisions/TD-005-backend-auth.md`.
+
+- **Header and key:** `X-API-Key` on every endpoint except `GET /health`. Key format `avn_` + 43 base64url chars. The server keeps only SHA-256 hashes (from env), several valid at once for rotation; revocation = remove the hash.
+- **Errors:** any bad key gives `401` `unauthorized` (one message, no reason given). Over the limit gives `429` `rate_limited` plus an HTTP `Retry-After` header. Envelope, error codes and fixtures are unchanged.
+- **Rate limit:** per key, values are config (starting values 60 per minute, 20 per minute on `/describe`, `/ask`, `/screen/summarize`, `/intent`). Not part of the contract.
+- **Proposed for WS22-04 (confirm there):** auth as a FastAPI dependency so `/health` stays open; order body size, key, rate limit, `mock_scenario`; `MOCK_MODE=true` turns auth off; `X-Mock-Scenario` is ignored when mock mode is off.
+- **WS22-04 must also fix:** `http_error_handler` and `_reply` drop `exc.headers` (needed for `Retry-After`); `refuse()` in `deps.py` always returns `bad_request`; there is no rate limiter in `main.py` yet.
 
 ### WS-23 Database and known-people data
 

@@ -2,6 +2,7 @@ package avn.app.vision
 
 import avn.app.camera.Frame
 import avn.app.core.logging.JsonLinesLogger
+import avn.contracts.Event
 import avn.contracts.OcrResult
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -17,7 +18,22 @@ data class Detection(
     val timestampMs: Long
 )
 
-data class Track(val id: Int, val label: String, val lastBox: Detection, val age: Int, val lostFrames: Int)
+/**
+ * A stable identity across frames (architecture.md WS-06). `history` is every detection the
+ * track has been matched to so far (oldest first, capped by the tracker that builds it), kept so
+ * the velocity extrapolation and approach detection in [IouTracker] do not need to re-derive
+ * motion from `lastBox` alone. `approaching` is [IouTracker]'s own verdict from that history and
+ * the live [avn.app.vision.MotionEstimator] signal -- see [ApproachDetector].
+ */
+data class Track(
+    val id: Int,
+    val label: String,
+    val history: List<Detection>,
+    val lastBox: Detection,
+    val age: Int,
+    val lostFrames: Int,
+    val approaching: Boolean = false
+)
 
 interface Detector {
     suspend fun detect(frame: Frame): List<Detection>
@@ -27,15 +43,47 @@ interface Tracker {
     fun update(detections: List<Detection>, timestampMs: Long): List<Track>
 }
 
-interface OcrEngine {
-    suspend fun read(frame: Frame): OcrResult
+/** Result of one explicit camera-to-text request; no frame or text is persisted by this workflow. */
+sealed interface OcrCapture {
+    data class Found(val result: OcrResult) : OcrCapture
+    data object Busy : OcrCapture
+    data object CameraUnavailable : OcrCapture
+    data object NoText : OcrCapture
+    data object Failed : OcrCapture
+}
+
+/**
+ * architecture.md WS-06 / AVN-45: "APIs / interfaces: ... EventBuilder.build(track): Event?".
+ * The real signature also takes the analysed frame's pixel size -- [Detection] boxes are in that
+ * frame's pixel coordinates (see [Detection]'s own doc comment) and [Frame] wraps a [Bitmap] whose
+ * size is not a fixed constant (CameraX target resolution, letterboxing), so [SideEstimator] and
+ * [DistanceBander] (both already take frame size per call, not as configuration) need it passed in
+ * here too, the same deviation from architecture.md's one-line summary already taken by [Tracker]
+ * (whose real implementation also carries constructor config architecture.md's one-liner elides).
+ *
+ * Returns null when there is nothing new worth telling the engine about -- see [TrackEventBuilder].
+ */
+interface EventBuilder {
+    fun build(track: Track, frameWidthPx: Float, frameHeightPx: Float): Event?
 }
 
 @Singleton
 class FakeDetector @Inject constructor(private val log: JsonLinesLogger) : Detector {
+    private val pending = ArrayDeque<List<Detection>>()
+
+    /**
+     * WS05-03: queues every frame of [sequence]; each [detect] call returns the next one, then
+     * empty lists once the sequence is used up. With nothing loaded it always returns empty, as before.
+     */
+    @Synchronized
+    fun load(sequence: DetectionSequence) {
+        sequence.frames.forEach { pending.addLast(it.detections) }
+    }
+
     override suspend fun detect(frame: Frame): List<Detection> {
-        log.log("detector", "fake_detect")
-        return emptyList()
+        val next = synchronized(this) { pending.removeFirstOrNull() }.orEmpty()
+        log.log("detector", "fake_detect", fields = mapOf("detections" to next.size))
+        return next
     }
 }
 
@@ -48,9 +96,9 @@ class FakeTracker @Inject constructor(private val log: JsonLinesLogger) : Tracke
 }
 
 @Singleton
-class FakeOcrEngine @Inject constructor(private val log: JsonLinesLogger) : OcrEngine {
-    override suspend fun read(frame: Frame): OcrResult {
-        log.log("ocr", "fake_read")
-        return OcrResult(text = "", confidence = 0.0, language = "en", source = "fake")
+class FakeEventBuilder @Inject constructor(private val log: JsonLinesLogger) : EventBuilder {
+    override fun build(track: Track, frameWidthPx: Float, frameHeightPx: Float): Event? {
+        log.log("event_builder", "fake_build", fields = mapOf("track" to track.id))
+        return null
     }
 }

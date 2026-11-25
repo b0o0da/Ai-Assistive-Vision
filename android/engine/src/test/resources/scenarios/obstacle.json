@@ -1,0 +1,69 @@
+{
+  "name": "obstacle",
+  "description": "WS16-09: a near obstacle is spoken, a critical vehicle cuts it off, a repeat inside the obstacle's cooldown is suppressed, and the same obstacle speaks again once its cooldown expires.",
+  "steps": [
+    { "at_ms": 0, "context": { "moving": true } },
+    {
+      "at_ms": 100,
+      "event": {
+        "id": "evt_pole_1",
+        "source": "camera",
+        "type": "obstacle_ahead",
+        "label": "pole",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 0.9,
+        "risk": 0,
+        "timestamp": 100
+      }
+    },
+    {
+      "at_ms": 500,
+      "event": {
+        "id": "evt_car_cut",
+        "source": "camera",
+        "type": "vehicle_approaching",
+        "label": "car",
+        "side": "left",
+        "distance_band": "near",
+        "confidence": 0.95,
+        "risk": 0,
+        "timestamp": 500
+      }
+    },
+    {
+      "at_ms": 2000,
+      "event": {
+        "id": "evt_pole_2",
+        "source": "camera",
+        "type": "obstacle_ahead",
+        "label": "pole",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 0.9,
+        "risk": 0,
+        "timestamp": 2000
+      }
+    },
+    {
+      "at_ms": 8300,
+      "event": {
+        "id": "evt_pole_3",
+        "source": "camera",
+        "type": "obstacle_ahead",
+        "label": "pole",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 0.9,
+        "risk": 0,
+        "timestamp": 8300
+      }
+    }
+  ],
+  "expect": [
+    { "event_id": "evt_pole_1", "decision": "spoken" },
+    { "event_id": "evt_car_cut", "decision": "spoken" },
+    { "event_id": "evt_pole_2", "decision": "suppressed", "reason": "cooldown" },
+    { "event_id": "evt_pole_3", "decision": "queued" }
+  ]
+}

@@ -1,0 +1,677 @@
+{
+  "name": "crowded",
+  "description": "Six people on a busy pavement, small drift: three at medium distance (one per third), three far.",
+  "source": "authored",
+  "frameWidth": 1080,
+  "frameHeight": 1920,
+  "expected": [
+    {
+      "label": "person",
+      "band": "medium",
+      "side": "left"
+    },
+    {
+      "label": "person",
+      "band": "far",
+      "side": "left"
+    },
+    {
+      "label": "person",
+      "band": "medium",
+      "side": "center"
+    },
+    {
+      "label": "person",
+      "band": "far",
+      "side": "center"
+    },
+    {
+      "label": "person",
+      "band": "medium",
+      "side": "right"
+    },
+    {
+      "label": "person",
+      "band": "far",
+      "side": "right"
+    }
+  ],
+  "frames": [
+    {
+      "timestampMs": 0,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.7,
+          "x": 40.9,
+          "y": 720.7,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.73,
+          "x": 248.0,
+          "y": 561.4,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.76,
+          "x": 418.0,
+          "y": 729.3,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.79,
+          "x": 622.9,
+          "y": 560.8,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.82,
+          "x": 800.3,
+          "y": 721.1,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.85,
+          "x": 962.1,
+          "y": 561.7,
+          "w": 90,
+          "h": 210
+        }
+      ]
+    },
+    {
+      "timestampMs": 100,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.7,
+          "x": 36.4,
+          "y": 717.2,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.73,
+          "x": 250.9,
+          "y": 558.6,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.76,
+          "x": 416.3,
+          "y": 732.7,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.79,
+          "x": 624.3,
+          "y": 558.9,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.82,
+          "x": 798.9,
+          "y": 719.4,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.85,
+          "x": 964.5,
+          "y": 559.8,
+          "w": 90,
+          "h": 210
+        }
+      ]
+    },
+    {
+      "timestampMs": 200,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.7,
+          "x": 34.6,
+          "y": 718.5,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.73,
+          "x": 254.4,
+          "y": 558.6,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.76,
+          "x": 416.5,
+          "y": 732.4,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.79,
+          "x": 623.4,
+          "y": 558.3,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.82,
+          "x": 799.0,
+          "y": 720.1,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.85,
+          "x": 961.5,
+          "y": 557.3,
+          "w": 90,
+          "h": 210
+        }
+      ]
+    },
+    {
+      "timestampMs": 300,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.7,
+          "x": 31.7,
+          "y": 720.8,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.73,
+          "x": 257.8,
+          "y": 559.5,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.76,
+          "x": 411.4,
+          "y": 729.3,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.79,
+          "x": 629.0,
+          "y": 560.2,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.82,
+          "x": 796.8,
+          "y": 722.2,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.85,
+          "x": 963.1,
+          "y": 561.3,
+          "w": 90,
+          "h": 210
+        }
+      ]
+    },
+    {
+      "timestampMs": 400,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.7,
+          "x": 33.1,
+          "y": 720.2,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.73,
+          "x": 256.6,
+          "y": 560.8,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.76,
+          "x": 409.7,
+          "y": 729.6,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.79,
+          "x": 627.7,
+          "y": 562.7,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.82,
+          "x": 794.3,
+          "y": 718.6,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.85,
+          "x": 968.0,
+          "y": 558.1,
+          "w": 90,
+          "h": 210
+        }
+      ]
+    },
+    {
+      "timestampMs": 500,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.7,
+          "x": 32.5,
+          "y": 722.2,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.73,
+          "x": 258.8,
+          "y": 560.8,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.76,
+          "x": 410.7,
+          "y": 727.9,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.79,
+          "x": 631.6,
+          "y": 560.2,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.82,
+          "x": 791.7,
+          "y": 720.2,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.85,
+          "x": 967.0,
+          "y": 558.9,
+          "w": 90,
+          "h": 210
+        }
+      ]
+    },
+    {
+      "timestampMs": 600,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.7,
+          "x": 25.1,
+          "y": 722.6,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.73,
+          "x": 264.3,
+          "y": 562.0,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.76,
+          "x": 406.8,
+          "y": 727.3,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.79,
+          "x": 634.3,
+          "y": 562.7,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.82,
+          "x": 785.5,
+          "y": 719.9,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.85,
+          "x": 969.4,
+          "y": 561.6,
+          "w": 90,
+          "h": 210
+        }
+      ]
+    },
+    {
+      "timestampMs": 700,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.7,
+          "x": 27.6,
+          "y": 717.8,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.73,
+          "x": 263.9,
+          "y": 560.3,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.76,
+          "x": 404.6,
+          "y": 732.2,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.79,
+          "x": 633.5,
+          "y": 558.3,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.82,
+          "x": 786.2,
+          "y": 721.4,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.85,
+          "x": 972.2,
+          "y": 558.9,
+          "w": 90,
+          "h": 210
+        }
+      ]
+    },
+    {
+      "timestampMs": 800,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.7,
+          "x": 27.0,
+          "y": 720.9,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.73,
+          "x": 265.6,
+          "y": 560.1,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.76,
+          "x": 401.7,
+          "y": 728.3,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.79,
+          "x": 635.0,
+          "y": 560.5,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.82,
+          "x": 782.4,
+          "y": 718.3,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.85,
+          "x": 973.4,
+          "y": 560.8,
+          "w": 90,
+          "h": 210
+        }
+      ]
+    },
+    {
+      "timestampMs": 900,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.7,
+          "x": 20.4,
+          "y": 722.4,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.73,
+          "x": 270.2,
+          "y": 557.4,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.76,
+          "x": 400.4,
+          "y": 731.0,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.79,
+          "x": 636.3,
+          "y": 557.8,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.82,
+          "x": 784.6,
+          "y": 720.4,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.85,
+          "x": 977.8,
+          "y": 561.7,
+          "w": 90,
+          "h": 210
+        }
+      ]
+    },
+    {
+      "timestampMs": 1000,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.7,
+          "x": 21.8,
+          "y": 718.1,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.73,
+          "x": 267.6,
+          "y": 559.6,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.76,
+          "x": 399.5,
+          "y": 729.8,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.79,
+          "x": 641.4,
+          "y": 561.0,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.82,
+          "x": 782.9,
+          "y": 717.6,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.85,
+          "x": 979.4,
+          "y": 559.0,
+          "w": 90,
+          "h": 210
+        }
+      ]
+    },
+    {
+      "timestampMs": 1100,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.7,
+          "x": 20.2,
+          "y": 718.5,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.73,
+          "x": 270.1,
+          "y": 559.7,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.76,
+          "x": 397.5,
+          "y": 728.7,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.79,
+          "x": 640.5,
+          "y": 562.5,
+          "w": 90,
+          "h": 210
+        },
+        {
+          "label": "person",
+          "confidence": 0.82,
+          "x": 777.7,
+          "y": 722.2,
+          "w": 120,
+          "h": 400
+        },
+        {
+          "label": "person",
+          "confidence": 0.85,
+          "x": 982.3,
+          "y": 557.3,
+          "w": 90,
+          "h": 210
+        }
+      ]
+    }
+  ]
+}

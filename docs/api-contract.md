@@ -1,6 +1,6 @@
 # AVN API and event contract
 
-**Version 0.2.0-draft · status: DRAFT, frozen at Gate 1 (end of week 2) after review by all six members.**
+**Version 1.3.0 · status: FROZEN at Gate 1 (end of week 2, tag `contract-v1`). Any change follows §7 below.**
 Machine-readable source: `contracts/schemas/` and `contracts/fixtures/`. If this page and the schemas disagree, the schemas win and this page is fixed.
 
 ## 1. Conventions
@@ -27,11 +27,21 @@ Machine-readable source: `contracts/schemas/` and `contracts/fixtures/`. If this
 Example: `contracts/fixtures/events/vehicle_approaching_left.json`.
 
 ## 3. Transport rules (all endpoints)
-- HTTPS. Header `X-API-Key: <per-install key>` on every endpoint except `GET /health`. Rate limit per key.
+- HTTPS. Authentication and rate limiting: see §3.1.
 - Header `X-Request-Id` (optional, echoed as `request_id`).
-- Header `X-Mock-Scenario: ok | timeout | error | empty` — honoured only when the server runs with `MOCK_MODE=true`.
+- Header `X-Mock-Scenario: ok | timeout | error | provider_error | empty | rate_limited | unauthorized | bad_request` — honoured only when the server runs with `MOCK_MODE=true`.
 - Images: base64 JPEG, longest side 512–768 px, ≤ 400,000 base64 characters.
 - Server provider timeout `PROVIDER_TIMEOUT_S` (default 4 s). Client timeout = server timeout + 1 s. The client retries at most once.
+
+### 3.1 Authentication and rate limiting (TD-005)
+
+- Header `X-API-Key: <per-install key>` on every endpoint except `GET /health`.
+- Key format: `avn_` + 32 random bytes in base64url without padding (43 chars), 47 characters in total. Example shape: `avn_<43 chars>`.
+- Several keys are valid at once, so a key can be rotated without breaking installs. Revoking a key means removing it on the server. The key is never logged.
+- Missing, malformed, unknown or revoked key: `401`, `error.code = unauthorized`, `retryable = false`, same message for every cause. `403` is not used for keys.
+- Over the per-key rate limit: `429`, `error.code = rate_limited`, `retryable = true`, plus the HTTP header `Retry-After: <seconds>`. The header is not part of the envelope.
+- Limit values are server configuration, not part of the contract.
+- The envelope, error codes and fixtures are unchanged.
 
 ## 4. Envelope (every response)
 
@@ -116,8 +126,80 @@ The `code` is fixed. An endpoint may replace the default `message` with a more s
 | `/faces/match` | `match: null` (unknown) |
 | `/sos` | failure swallowed; local SMS is the real SOS |
 
+### Examples per endpoint
+Every endpoint has a request, a success and at least one failure fixture in `contracts/fixtures/api/`. They are the reference payloads: mock mode serves them and both test suites parse them.
+
+| Endpoint | Request | Success | Failure |
+| --- | --- | --- | --- |
+| `GET /health` | — (no body) | `health.ok.json` | `health.degraded.json` |
+| `POST /describe` | `describe.request.json` | `describe.ok.json` | `describe.timeout.json`, `describe.provider_error.json` |
+| `POST /ask` | `ask.request.json` | `ask.ok.json` | `ask.timeout.json` |
+| `POST /screen/summarize` | `screen_summarize.request.json` | `screen_summarize.ok.json` | `screen_summarize.timeout.json`, `screen_summarize.blocked.json` |
+| `POST /intent` | `intent.request.json` | `intent.ok.json`, `intent.clarification.json` | `intent.fallback.json` |
+| `GET /route` | `route.request.json` (query parameters as an object) | `route.ok.json` | `route.fallback.json` |
+| `POST /faces/enroll` | `faces_enroll.request.json` | `faces_enroll.ok.json` | `faces_enroll.no_consent.json` |
+| `POST /faces/match` | `faces_match.request.json` | `faces_match.ok.json` | `faces_match.unknown.json` |
+| `POST /sos` | `sos.request.json` | `sos.ok.json` | `sos.provider_error.json` |
+| any | — | — | `error.invalid_request.json`, `error.unauthorized.json`, `error.rate_limited.json` |
+
+Request example, `POST /ask`:
+
+```json
+{
+  "image": "<base64 jpeg>",
+  "question": "What colour is this shirt?",
+  "context": { "mode": "idle", "language": "en" }
+}
+```
+
+Fallback example, same endpoint after a provider timeout:
+
+```json
+{
+  "version": "1.0",
+  "ok": true,
+  "fallback": true,
+  "message": "I can't describe the scene right now.",
+  "data": null,
+  "request_id": "req_ask_2",
+  "error": { "code": "timeout", "retryable": true }
+}
+```
+
+### Failure fixtures (AVN-37)
+
+Failure cases live in `contracts/fixtures/failures/<endpoint>.<case>.json`, next to the older ones in `api/`. Every file is an `ApiEnvelope` with `data: null`, a speakable `message` and an `error`. Together, `describe`, `ask`, `screen_summarize`, `intent` and `route` cover all five cases.
+
+| Case | `error.code` | ok | fallback | HTTP | `X-Mock-Scenario` | Existing file in `api/` |
+| --- | --- | --- | --- | --- | --- | --- |
+| timeout | `timeout` | true | true | 504 | `timeout` | `describe.timeout`, `ask.timeout`, `screen_summarize.timeout`, `route.fallback` |
+| 5xx | `provider_error` | true | true | 5xx | `error` or `provider_error` | `describe.provider_error`, `intent.fallback` |
+| 429 | `rate_limited` | false | false | 429 | `rate_limited` | `error.rate_limited` (generic) |
+| 401 | `unauthorized` | false | false | 401 | `unauthorized` | `error.unauthorized` (generic) |
+| malformed request | `bad_request` | false | false | 400, 422 | `bad_request` | `error.invalid_request` (generic) |
+
+Every `X-Mock-Scenario` value in the table is accepted by the mock backend (TD-010). `rate_limited`, `unauthorized` and `bad_request` are refused in the `mock_scenario` dependency before any provider runs, so they apply to every cloud endpoint including `/faces/match`; `/health` ignores the header. A malformed provider response is not a valid envelope, so it belongs in `tests/fixtures/contract_invalid/`.
+
 ## 6. Change log
 | Version | Date | Change |
 | --- | --- | --- |
 | 0.1.0-draft | Week 1 | First draft from the architecture blueprint (field names marked "proposed" there). |
 | 0.2.0-draft | Week 2 | Envelope gains `version` and `error {code, retryable}`; five error codes with default spoken messages; privacy note. AVN-33. |
+| 0.2.0-draft | Week 2 | Envelope, error codes and privacy rules settled; Event v0 with Kotlin and Pydantic models (WS02-01). |
+| 1.0.0 | Week 2 (Gate 1) | Frozen. Request, success and failure fixtures for all 9 endpoints; change rule added (§7). |
+| 1.1.0 | Week 2 | Additive (TD-008, AVN-35): `Transcript {text, confidence, language}` schema in `android.schema.json`, same shape as the existing Kotlin model; 8 fixtures incl. the empty transcript. No existing field changed. |
+| 1.2.0 | Week 2 | Minor (TD-010, AVN-37): 19 failure fixtures in `contracts/fixtures/failures/` so every cloud endpoint has timeout, provider_error, rate_limited, unauthorized and bad_request. New `X-Mock-Scenario` values `provider_error`, `rate_limited`, `unauthorized`, `bad_request` (mock-only header; no schema field changed). |
+| 1.2.1 | Week 2 | Patch (TD-005, AVN-115): documents key format, rotation, 401 and 429 rules and the `Retry-After` header (§3.1). No schema field, enum value or fixture changed. |
+| 1.3.0 | Week 2 | Additive (TD-011, AVN-88): `Transcript` gains optional `is_final` (boolean, wire name `is_final`, default true; false marks a partial result). Not in `required`, so the 8 existing transcript fixtures stay valid. New fixtures `transcripts/final.json` and `transcripts/partial.json`. No existing field changed. |
+
+## 7. Changing the contract after the freeze
+
+From v1.0.0 the contract does not change by pull request alone.
+
+1. Write a Technical Decision in `docs/decisions/TD-xxx-short-name.md` (and the Notion "Technical Decisions" row) with **Contract impact** ticked, saying which fields change and why.
+2. Bump the version. Removing or renaming a field, tightening a type or enum, or changing meaning is a major bump (`2.0.0`). Adding an optional field or a new enum value the client can ignore is a minor bump (`1.1.0`). Wording or examples only is a patch (`1.0.1`).
+3. In the same PR, update `contracts/schemas/`, the fixtures, `contracts/fixtures/index.json`, the Kotlin models in `android/contracts`, the Pydantic models in `backend/app/schemas`, the version line at the top of this page and the change log above.
+4. Get a review from at least one Android owner and one backend owner. `python scripts/validate_contracts.py` and both test suites must pass.
+5. After merge, tag the commit `contract-vX.Y.Z`.
+
+The envelope `version` field (`"1.0"`) changes only with a major bump of the envelope itself, because the client rejects unknown values.

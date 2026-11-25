@@ -1,0 +1,50 @@
+{
+  "name": "approaching_vehicle",
+  "description": "WS16-09: a critical approaching vehicle interrupts a user-requested sign reading, and a second, distinct critical vehicle queues behind it instead of cutting it off.",
+  "steps": [
+    { "at_ms": 0, "context": { "moving": true } },
+    {
+      "at_ms": 100,
+      "candidate": {
+        "text": "The sign says: Pharmacy, open until 10 PM.",
+        "source": "camera",
+        "type": "text_result",
+        "user_requested": true,
+        "event_id": "cand_sign_read"
+      }
+    },
+    {
+      "at_ms": 600,
+      "event": {
+        "id": "evt_car",
+        "source": "camera",
+        "type": "vehicle_approaching",
+        "label": "car",
+        "side": "left",
+        "distance_band": "near",
+        "confidence": 0.95,
+        "risk": 0,
+        "timestamp": 600
+      }
+    },
+    {
+      "at_ms": 1000,
+      "event": {
+        "id": "evt_bus",
+        "source": "camera",
+        "type": "vehicle_approaching",
+        "label": "bus",
+        "side": "left",
+        "distance_band": "near",
+        "confidence": 0.95,
+        "risk": 0,
+        "timestamp": 1000
+      }
+    }
+  ],
+  "expect": [
+    { "event_id": "cand_sign_read", "decision": "spoken" },
+    { "event_id": "evt_car", "decision": "spoken" },
+    { "event_id": "evt_bus", "decision": "queued" }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "language": "en",
+  "source": "fixture",
+  "blocks": [
+    { "text": "PHARMACY", "box": { "x": 120, "y": 80, "w": 400, "h": 90 }, "confidence": 0.97 },
+    { "text": "Open until 10 PM", "box": { "x": 140, "y": 190, "w": 360, "h": 50 }, "confidence": 0.91 }
+  ]
+}

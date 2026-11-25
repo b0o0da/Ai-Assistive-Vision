@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0-draft",
+  "version": "1.3.0",
   "fixtures": [
     {
       "fixture": "events/vehicle_approaching_left.json",
@@ -32,9 +32,34 @@
       "envelope": false
     },
     {
+      "fixture": "events/builder_person_close_left_medium.json",
+      "schema": "event.schema.json",
+      "envelope": false
+    },
+    {
+      "fixture": "events/builder_vehicle_approaching_right_near.json",
+      "schema": "event.schema.json",
+      "envelope": false
+    },
+    {
+      "fixture": "events/builder_obstacle_ahead_center_medium.json",
+      "schema": "event.schema.json",
+      "envelope": false
+    },
+    {
       "fixture": "api/health.ok.json",
       "schema": "api.schema.json#/$defs/HealthResponse",
       "envelope": true
+    },
+    {
+      "fixture": "api/health.degraded.json",
+      "schema": "api.schema.json#/$defs/HealthResponse",
+      "envelope": true
+    },
+    {
+      "fixture": "api/describe.request.json",
+      "schema": "api.schema.json#/$defs/DescribeRequest",
+      "envelope": false
     },
     {
       "fixture": "api/describe.ok.json",
@@ -52,9 +77,24 @@
       "envelope": true
     },
     {
+      "fixture": "api/ask.request.json",
+      "schema": "api.schema.json#/$defs/AskRequest",
+      "envelope": false
+    },
+    {
       "fixture": "api/ask.ok.json",
       "schema": "api.schema.json#/$defs/AskResponse",
       "envelope": true
+    },
+    {
+      "fixture": "api/ask.timeout.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "api/screen_summarize.request.json",
+      "schema": "api.schema.json#/$defs/ScreenSummarizeRequest",
+      "envelope": false
     },
     {
       "fixture": "api/screen_summarize.ok.json",
@@ -62,9 +102,19 @@
       "envelope": true
     },
     {
+      "fixture": "api/screen_summarize.timeout.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
       "fixture": "api/screen_summarize.blocked.json",
       "schema": "envelope-only",
       "envelope": true
+    },
+    {
+      "fixture": "api/intent.request.json",
+      "schema": "api.schema.json#/$defs/IntentRequest",
+      "envelope": false
     },
     {
       "fixture": "api/intent.ok.json",
@@ -77,8 +127,48 @@
       "envelope": true
     },
     {
+      "fixture": "api/intent.fallback.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "api/route.request.json",
+      "schema": "api.schema.json#/$defs/RouteRequestQuery",
+      "envelope": false
+    },
+    {
+      "fixture": "api/route.ok.json",
+      "schema": "api.schema.json#/$defs/RouteResponse",
+      "envelope": true
+    },
+    {
+      "fixture": "api/route.fallback.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "api/faces_enroll.request.json",
+      "schema": "api.schema.json#/$defs/FacesEnrollRequest",
+      "envelope": false
+    },
+    {
       "fixture": "api/faces_enroll.ok.json",
       "schema": "api.schema.json#/$defs/FacesEnrollResponse",
+      "envelope": true
+    },
+    {
+      "fixture": "api/faces_enroll.no_consent.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "api/faces_match.request.json",
+      "schema": "api.schema.json#/$defs/FacesMatchRequest",
+      "envelope": false
+    },
+    {
+      "fixture": "api/faces_match.ok.json",
+      "schema": "api.schema.json#/$defs/FacesMatchResponse",
       "envelope": true
     },
     {
@@ -87,13 +177,18 @@
       "envelope": true
     },
     {
-      "fixture": "api/route.ok.json",
-      "schema": "api.schema.json#/$defs/RouteResponse",
-      "envelope": true
+      "fixture": "api/sos.request.json",
+      "schema": "api.schema.json#/$defs/SosRequest",
+      "envelope": false
     },
     {
       "fixture": "api/sos.ok.json",
       "schema": "api.schema.json#/$defs/SosResponse",
+      "envelope": true
+    },
+    {
+      "fixture": "api/sos.provider_error.json",
+      "schema": "envelope-only",
       "envelope": true
     },
     {
@@ -110,16 +205,6 @@
       "fixture": "api/error.unauthorized.json",
       "schema": "envelope-only",
       "envelope": true
-    },
-    {
-      "fixture": "api/describe.request.json",
-      "schema": "api.schema.json#/$defs/DescribeRequest",
-      "envelope": false
-    },
-    {
-      "fixture": "api/intent.request.json",
-      "schema": "api.schema.json#/$defs/IntentRequest",
-      "envelope": false
     },
     {
       "fixture": "screens/whatsapp_chat_list.json",
@@ -175,6 +260,151 @@
       "fixture": "plans/valid/clarification.json",
       "schema": "android.schema.json#/$defs/ActionPlan",
       "envelope": false
+    },
+    {
+      "fixture": "transcripts/describe_scene.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/read_sign.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/navigate_pharmacy.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/read_whatsapp.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/sos.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/arabic_read_this.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/low_confidence.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/empty.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/final.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "transcripts/partial.json",
+      "schema": "android.schema.json#/$defs/Transcript",
+      "envelope": false
+    },
+    {
+      "fixture": "failures/ask.bad_request.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/ask.provider_error.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/ask.rate_limited.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/ask.unauthorized.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/describe.bad_request.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/describe.rate_limited.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/describe.unauthorized.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/intent.bad_request.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/intent.rate_limited.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/intent.timeout.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/intent.unauthorized.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/route.bad_request.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/route.provider_error.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/route.rate_limited.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/route.unauthorized.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/screen_summarize.bad_request.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/screen_summarize.provider_error.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/screen_summarize.rate_limited.json",
+      "schema": "envelope-only",
+      "envelope": true
+    },
+    {
+      "fixture": "failures/screen_summarize.unauthorized.json",
+      "schema": "envelope-only",
+      "envelope": true
     }
   ]
 }

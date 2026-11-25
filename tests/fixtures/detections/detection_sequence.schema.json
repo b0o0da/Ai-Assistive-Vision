@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://avn.local/tests/detection_sequence.schema.json",
+  "title": "DetectionSequence",
+  "description": "WS05-03: a recorded or authored stream of detector output, replayed by FakeDetector. Boxes are pixels of the analysed frame (same as avn.app.vision.Detection). No images, only boxes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "description", "source", "frameWidth", "frameHeight", "expected", "frames"],
+  "properties": {
+    "name": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+    "description": { "type": "string", "minLength": 1 },
+    "source": { "enum": ["authored", "recorded"] },
+    "frameWidth": { "type": "integer", "minimum": 1 },
+    "frameHeight": { "type": "integer", "minimum": 1 },
+    "expected": {
+      "description": "Every object in the LAST frame with the band and side a correct DistanceBander/SideEstimator gives. Empty when the last frame has no detections.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "band", "side"],
+        "properties": {
+          "label": { "type": "string" },
+          "band": { "enum": ["near", "medium", "far"] },
+          "side": { "enum": ["left", "center", "right"] }
+        }
+      }
+    },
+    "frames": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["timestampMs", "detections"],
+        "properties": {
+          "timestampMs": { "type": "integer", "minimum": 0 },
+          "detections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["label", "confidence", "x", "y", "w", "h"],
+              "properties": {
+                "label": { "type": "string", "minLength": 1 },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+                "x": { "type": "number", "minimum": 0 },
+                "y": { "type": "number", "minimum": 0 },
+                "w": { "type": "number", "exclusiveMinimum": 0 },
+                "h": { "type": "number", "exclusiveMinimum": 0 }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

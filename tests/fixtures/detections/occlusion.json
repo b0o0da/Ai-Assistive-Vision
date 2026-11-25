@@ -1,0 +1,133 @@
+{
+  "frames": [
+    {
+      "timestampMs": 0,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.9,
+          "x": 100.0,
+          "y": 500.0,
+          "w": 120.0,
+          "h": 300.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 100,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.9,
+          "x": 160.0,
+          "y": 500.0,
+          "w": 120.0,
+          "h": 300.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 200,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.9,
+          "x": 220.0,
+          "y": 500.0,
+          "w": 120.0,
+          "h": 300.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 300,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.9,
+          "x": 280.0,
+          "y": 500.0,
+          "w": 120.0,
+          "h": 300.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 400,
+      "detections": []
+    },
+    {
+      "timestampMs": 500,
+      "detections": []
+    },
+    {
+      "timestampMs": 600,
+      "detections": []
+    },
+    {
+      "timestampMs": 700,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.9,
+          "x": 520.0,
+          "y": 500.0,
+          "w": 120.0,
+          "h": 300.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 800,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.9,
+          "x": 580.0,
+          "y": 500.0,
+          "w": 120.0,
+          "h": 300.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 900,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.9,
+          "x": 640.0,
+          "y": 500.0,
+          "w": 120.0,
+          "h": 300.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 1000,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.9,
+          "x": 700.0,
+          "y": 500.0,
+          "w": 120.0,
+          "h": 300.0
+        }
+      ]
+    },
+    {
+      "timestampMs": 1100,
+      "detections": [
+        {
+          "label": "person",
+          "confidence": 0.9,
+          "x": 760.0,
+          "y": 500.0,
+          "w": 120.0,
+          "h": 300.0
+        }
+      ]
+    }
+  ]
+}

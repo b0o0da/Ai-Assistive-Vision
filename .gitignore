@@ -46,9 +46,13 @@ models/*
 # --- Datasets and field data (stored privately, outside Git) ---
 datasets/raw/
 datasets/data/
+datasets/prepared/
 datasets/**/*.mp4
 datasets/**/*.jpg
 datasets/**/*.png
+datasets/**/*.wav
+datasets/**/*.m4a
+datasets/**/*.mp3
 tests/field_logs/*
 !tests/field_logs/.gitkeep
 !tests/field_logs/README.md

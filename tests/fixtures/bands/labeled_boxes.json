@@ -1,0 +1,224 @@
+{
+  "cases": [
+    {
+      "label": "person",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 50,
+      "y": 700,
+      "w": 300,
+      "h": 900,
+      "expectedBand": "near",
+      "expectedSide": "left"
+    },
+    {
+      "label": "person",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 500,
+      "y": 750,
+      "w": 300,
+      "h": 1000,
+      "expectedBand": "near",
+      "expectedSide": "center"
+    },
+    {
+      "label": "person",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 800,
+      "y": 900,
+      "w": 300,
+      "h": 870,
+      "expectedBand": "near",
+      "expectedSide": "right"
+    },
+    {
+      "label": "person",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 50,
+      "y": 500,
+      "w": 300,
+      "h": 500,
+      "expectedBand": "medium",
+      "expectedSide": "left"
+    },
+    {
+      "label": "person",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 850,
+      "y": 600,
+      "w": 200,
+      "h": 450,
+      "expectedBand": "medium",
+      "expectedSide": "right"
+    },
+    {
+      "label": "person",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 500,
+      "y": 100,
+      "w": 300,
+      "h": 200,
+      "expectedBand": "far",
+      "expectedSide": "center"
+    },
+    {
+      "label": "person",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 50,
+      "y": 80,
+      "w": 250,
+      "h": 150,
+      "expectedBand": "far",
+      "expectedSide": "left"
+    },
+    {
+      "label": "person",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 850,
+      "y": 90,
+      "w": 200,
+      "h": 180,
+      "expectedBand": "far",
+      "expectedSide": "right"
+    },
+    {
+      "label": "vehicle",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 50,
+      "y": 700,
+      "w": 400,
+      "h": 700,
+      "expectedBand": "near",
+      "expectedSide": "left"
+    },
+    {
+      "label": "vehicle",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 800,
+      "y": 750,
+      "w": 300,
+      "h": 650,
+      "expectedBand": "near",
+      "expectedSide": "right"
+    },
+    {
+      "label": "vehicle",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 500,
+      "y": 450,
+      "w": 300,
+      "h": 350,
+      "expectedBand": "medium",
+      "expectedSide": "center"
+    },
+    {
+      "label": "vehicle",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 50,
+      "y": 50,
+      "w": 300,
+      "h": 150,
+      "expectedBand": "far",
+      "expectedSide": "left"
+    },
+    {
+      "label": "vehicle",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 60,
+      "y": 350,
+      "w": 300,
+      "h": 300,
+      "expectedBand": "medium",
+      "expectedSide": "left"
+    },
+    {
+      "label": "chair",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 500,
+      "y": 650,
+      "w": 300,
+      "h": 600,
+      "expectedBand": "near",
+      "expectedSide": "center"
+    },
+    {
+      "label": "chair",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 800,
+      "y": 400,
+      "w": 200,
+      "h": 300,
+      "expectedBand": "medium",
+      "expectedSide": "right"
+    },
+    {
+      "label": "chair",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 50,
+      "y": 50,
+      "w": 200,
+      "h": 100,
+      "expectedBand": "far",
+      "expectedSide": "left"
+    },
+    {
+      "label": "chair",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 850,
+      "y": 80,
+      "w": 150,
+      "h": 120,
+      "expectedBand": "far",
+      "expectedSide": "right"
+    },
+    {
+      "label": "bench",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 40,
+      "y": 800,
+      "w": 300,
+      "h": 750,
+      "expectedBand": "near",
+      "expectedSide": "left"
+    },
+    {
+      "label": "bench",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 500,
+      "y": 60,
+      "w": 200,
+      "h": 100,
+      "expectedBand": "far",
+      "expectedSide": "center"
+    },
+    {
+      "label": "bench",
+      "frameWidth": 1080,
+      "frameHeight": 1920,
+      "x": 820,
+      "y": 400,
+      "w": 200,
+      "h": 350,
+      "expectedBand": "medium",
+      "expectedSide": "right"
+    }
+  ]
+}

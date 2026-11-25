@@ -1,4 +1,58 @@
 {
   "version": 1,
-  "models": []
+  "models": [
+    {
+      "name": "detector",
+      "version": "yolo11m-int8-coco-onnx-8.4.172",
+      "file": "yolo11m_int8_coco_stock.onnx",
+      "url": null,
+      "sha256": "3e27d9cab41ad46437664ccea32eddae290d745c1829505d67e950efe5a6bdcf",
+      "license": "AGPL-3.0",
+      "source": "Ultralytics YOLO11m pretrained on full 80-class COCO (stock, not fine-tuned), dynamically INT8-quantized with onnxruntime.quantization.quantize_dynamic (QUInt8 weights) on 2026-11-14 to recover real-time speed. Progression tried on this repo's dev machine (desktop CPU, onnxruntime, 640x640): yolov8n ~31ms/frame (COCO mAP50-95 37.3) -> yolov8s ~90ms (44.9) -> yolov8m fp32 ~230ms (50.2, rejected: too slow for a real-time hazard alert) -> yolov8l fp32 ~478ms (52.9, clearly unusable) -> yolov8m INT8 ~108ms (kept m's accuracy at near-yolov8s speed, now superseded, see exported_previous/) -> YOLO11m INT8 ~112ms (Ultralytics' newer architecture, published mAP50-95 51.5 -- higher than yolov8m's 50.2 -- at a smaller file size, 20.6MB vs 26.3MB quantized, same speed: a strict improvement on paper over the yolov8m INT8 choice). A single real-image spot check after quantization was mixed per-class vs yolov8m INT8 (expected noise at n=1) -- the published benchmark, not this one image, is the actual basis for preferring YOLO11m. An own-data fine-tune (yolov8s_general.onnx, now at computer_vision/training/exported_previous/yolov8s_general_from_scratch.onnx) was tried first and rejected: its 150-images-per-class COCO subsample starved 'bench'/'chair' (held-out recall 0.05 / 0.18), worse than any stock checkpoint. Vehicle body types (bicycle/car/motorcycle/bus/truck) are merged into one 'transportation' display class entirely in software (DetectorConfig.classMap / YoloDecoder), at zero accuracy cost to the other 75 COCO classes. Note: 'bench' and 'chair' remain structurally low-AP categories across essentially all public object detectors (COCO leaderboards), not specific to this app -- no model swap reaches 80%+ on them. ON-DEVICE (2026-11-15, real ARM64-v8a emulator, not x86_64-translated, onnxruntime-android CPU path): mean combined (both detectors) latency 333.0ms/frame, confirming onnxruntime-android's kernel set covers every op this INT8 quantization uses end-to-end -- see computer_vision/eval/map_eval_report.md. STILL NOT VERIFIED: real NPU/NNAPI delegate acceleration, thermals, or memory bandwidth on physical silicon (no physical Android device available for this round). SELF-COMPUTED mAP (2026-11-15, real COCO-style AP, not the published number above): on all 5000 real COCO val2017 images, scored on this app's actual 7-class classMap-merged output at production thresholds (conf 0.35, NMS IoU 0.5), mAP50=0.7366, mAP50-95=0.6196 (person 0.666, transportation 0.609, bench 0.470, chair 0.465, fire hydrant 0.798, stop sign 0.732, parking meter 0.597) -- see computer_vision/eval/map_eval_report.md for full methodology; this is a different, narrower metric than the published 51.5 full-80-class number and the two should not be compared directly.",
+      "input": "[1,3,640,640] float32 RGB, letterboxed and normalized to [0,1]",
+      "output": "[1,84,8400] float32: xywh plus 80 COCO class scores",
+      "labels": "COCO 80 labels; app filters + remaps (bicycle/car/motorcycle/bus/truck -> transportation) using android/app/src/main/resources/config/detector.json"
+    },
+    {
+      "name": "detector-pothole",
+      "version": "keremberke-yolov8n-pothole-seg",
+      "file": "pothole_keremberke_n.onnx",
+      "url": null,
+      "sha256": "a4a386f43efc553a6cfe60eb7d1480a270ad5a28a8560531b4478b0d17e7549a",
+      "license": "AGPL-3.0 (Ultralytics YOLOv8 derivative; no separate license stated on the model card)",
+      "source": "Pretrained single-class pothole detector from Hugging Face (keremberke/yolov8n-pothole-segmentation), trained by its author on keremberke/pothole-segmentation (CC BY 4.0 -- the same dataset already documented at datasets/data/detection/public_sources/hf_pothole_keremberke/SOURCE.md). `url` is null, not the HF model page, because that repo (confirmed via the HF API `siblings` list, 2026-11-15) hosts only `best.pt`, no ONNX export -- fetch_models.py cannot auto-download this one; see models/README.md for the manual export step. A segmentation checkpoint; exported to ONNX with ultralytics 8.4.172, imgsz=640, opset=12. Added 2026-11-14 to replace the general model's own pothole class, which only ever had 90 generic stock photos to learn from (recall 0.696) -- this dedicated model's own reported box mAP50 is 0.858 on its validation split (third-party listing; not independently re-verified against Egyptian roads, which neither model has seen). SELF-COMPUTED mAP (2026-11-15): on the real held-out validation+test splits combined (n=10 images -- the entire keremberke dataset is only 90 images total, so this is directional, not statistically solid), mAP50=0.8842, mAP50-95=0.4175 using this app's actual production thresholds (conf 0.25, NMS IoU 0.45) and the real production decode path -- see computer_vision/eval/map_eval_report.md. The AP50 figure corroborates the model card's own 0.858, the best available cross-check given no larger labeled pothole set exists here.",
+      "input": "[1,3,640,640] float32 RGB, letterboxed and normalized to [0,1]",
+      "output": "[1,37,8400] float32: xywh plus 1 pothole class score plus 32 mask coefficients (segmentation export) -- the app's decoder only reads rows 4..5 and ignores the 32 mask rows, see YoloDecoder.kt.",
+      "labels": "pothole (1 class); app filters using android/app/src/main/resources/config/detector_pothole.json"
+    },
+    {
+      "name": "detector-general-finetune-superseded",
+      "version": "avn-general-1",
+      "file": "exported_previous/yolov8s_general_from_scratch.onnx",
+      "url": null,
+      "sha256": "3b2d3a641722e6a3e0dc71deb70133c09f22a70d460620efb6123410015e271f",
+      "license": "AGPL-3.0",
+      "source": "Superseded on 2026-11-14 by the stock yolov8n_coco_stock.onnx + classMap approach above (better per-class accuracy, no fine-tuning needed for classes COCO already covers). Kept only as a reference/rollback artifact, not built into the app. Held-out test mAP50-95 was 0.387 (person 0.515 recall, transportation 0.565, bench 0.050, chair 0.180, fire hydrant 0.777, stop sign 0.800, parking meter 0.435) -- see computer_vision/training/train_yolo_colab.ipynb.",
+      "input": "[1,3,640,640] float32 RGB, letterboxed and normalized to [0,1]",
+      "output": "[1,12,8400] float32: xywh plus 8 class scores (person, transportation, pothole, bench, chair, fire hydrant, stop sign, parking meter)",
+      "labels": "GENERAL_CLASSES (8) -- superseded, not shipped",
+      "location": "Lives at computer_vision/training/exported_previous/ in the training workspace; reference/rollback only, not an Android asset.",
+      "required": false,
+      "android_asset": false
+    },
+    {
+      "name": "detector-stock-coco80-backup",
+      "version": "yolov8n-coco-onnx-8.4.172",
+      "file": "stock_coco80_backup/yolov8n_coco_stock.onnx",
+      "url": null,
+      "sha256": "4a7bb96ae6d6975df6399fca72c2e30c8d8eaebbb3d0d7c0e71c5473452e6756",
+      "license": "AGPL-3.0",
+      "source": "Identical bytes to the shipped 'detector' entry above -- kept as a rollback copy outside android/app/src/main/assets/ (see models/stock_coco80_backup/detector.json for its original, pre-classMap config shape).",
+      "input": "[1,3,640,640] float32 RGB, letterboxed and normalized to [0,1]",
+      "output": "[1,84,8400] float32: xywh plus 80 COCO class scores",
+      "labels": "COCO 80 labels (stock order)",
+      "required": false,
+      "android_asset": false
+    }
+  ]
 }

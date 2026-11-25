@@ -1,0 +1,11 @@
+{
+  "highConfidence": 0.45,
+  "lowConfidence": 0.10,
+  "matchIou": 0.30,
+  "maxLostFrames": 8,
+  "historySize": 6,
+  "approachMinObservations": 5,
+  "approachMinSpanMs": 350,
+  "approachGrowthRatio": 1.35,
+  "approachGrowthRatioWhileMoving": 1.65
+}

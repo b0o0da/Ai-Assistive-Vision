@@ -41,7 +41,7 @@ class RuleIntentRouter(
                 localCommands.handle(parsed.command, parsed.arg)
                 return ActionPlan(emptyList(), false)
             }
-            null -> Unit
+            ParsedIntent.NoMatch -> Unit
         }
         if (!isOnline()) return clarification(OFFLINE)
         val cloudPlan = fetchCloudPlan(transcript)

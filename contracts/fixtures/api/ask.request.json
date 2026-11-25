@@ -1,0 +1,8 @@
+{
+  "image": "<base64 jpeg placeholder>",
+  "question": "What colour is this shirt?",
+  "context": {
+    "mode": "idle",
+    "language": "en"
+  }
+}

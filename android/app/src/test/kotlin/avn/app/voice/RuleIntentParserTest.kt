@@ -119,6 +119,8 @@ class RuleIntentParserTest {
             "louder" to LocalCommand.LOUDER,
             "speak slower" to LocalCommand.SLOWER,
             "read this" to LocalCommand.READ_TEXT,
+            "What note is this?" to LocalCommand.READ_CURRENCY,
+            "who is this" to LocalCommand.RECOGNIZE_FACE,
             "What does this say?" to LocalCommand.READ_TEXT
         )
         for ((phrase, command) in expected) {
@@ -133,7 +135,7 @@ class RuleIntentParserTest {
         val question = "Is there a chair in front of me?"
         assertEquals(listOf(PlanStep.ASK to question), stepsOf(question))
         assertEquals(listOf(PlanStep.ASK to "how many people are here"), stepsOf("how many people are here "))
-        assertNull(parser.parse(question, ParseContext(cameraActive = false)))
+        assertEquals(ParsedIntent.NoMatch, parser.parse(question, ParseContext(cameraActive = false)))
     }
 
     @Test
@@ -164,7 +166,7 @@ class RuleIntentParserTest {
             "back to the future|scroll through photos|read this book to me|navigate|please"
         )
         for (phrase in phrases) {
-            assertNull("\"$phrase\" should not match a rule", parser.parse(phrase))
+            assertEquals("\"$phrase\" should not match a rule", ParsedIntent.NoMatch, parser.parse(phrase))
         }
     }
 
@@ -175,5 +177,103 @@ class RuleIntentParserTest {
         assertTrue(RiskyLabels.isRisky("إرسال"))
         assertFalse(RiskyLabels.isRisky("settings"))
         assertFalse(RiskyLabels.isRisky("sender name"))
+    }
+
+    private fun plansOf(table: Iterable<String>, check: (String, ActionPlan) -> Unit) {
+        for (phrase in table) check(phrase, planOf(phrase))
+    }
+
+    @Test
+    fun unknownTextIsAnExplicitNoMatch() {
+        assertEquals(ParsedIntent.NoMatch, parser.parse("tell me a joke"))
+        assertEquals(ParsedIntent.NoMatch, parser.parse(""))
+        assertEquals(ParsedIntent.NoMatch, parser.parse("   "))
+    }
+
+    @Test
+    fun faceCommandsAreLocal() {
+        val phrases = phraseList("Who is this?|who is that|who is in front of me|do you know this person")
+        for (phrase in phrases) {
+            assertEquals(phrase, ParsedIntent.Local(LocalCommand.RECOGNIZE_FACE), parser.parse(phrase))
+        }
+        assertEquals(ParsedIntent.Local(LocalCommand.ENROLL_PERSON, "Sara"), parser.parse("enroll sara"))
+    }
+
+    @Test
+    fun currencyCommandsAreLocal() {
+        val phrases = phraseList("What note is this?|how much is this bill|identify the money|read the currency")
+        for (phrase in phrases) {
+            assertEquals(phrase, ParsedIntent.Local(LocalCommand.READ_CURRENCY), parser.parse(phrase))
+        }
+        assertEquals(ParsedIntent.Local(LocalCommand.READ_TEXT), parser.parse("read this"))
+    }
+
+    @Test
+    fun whoIsThatIsAFaceQuestionNotASceneQuestion() {
+        assertEquals(ParsedIntent.Local(LocalCommand.RECOGNIZE_FACE), parser.parse("who is that"))
+        assertEquals(listOf(PlanStep.ASK to "What is that?"), stepsOf("What is that?"))
+    }
+
+    @Test
+    fun aCompoundOrRiskyOpenRequestIsNotALaunch() {
+        val phrases = phraseList(
+            "open whatsapp and send hi to mom|open whatsapp and reply yes|launch chrome and delete history",
+            "open the pay app|open the app that my friend sent me yesterday"
+        )
+        for (phrase in phrases) {
+            assertEquals("\"$phrase\"", ParsedIntent.NoMatch, parser.parse(phrase))
+        }
+        assertEquals(listOf(PlanStep.LAUNCH_APP to "Google Maps"), stepsOf("open google maps"))
+    }
+
+    @Test
+    fun thereAreNoSendOrReplyIntents() {
+        val phrases = phraseList(
+            "send a message to mom|send hi|reply to john|reply yes|reply to this message|forward this message",
+            "message my brother|text sara I am late|call mom|post this on facebook"
+        )
+        for (phrase in phrases) {
+            val parsed = parser.parse(phrase)
+            assertTrue("\"$phrase\" gave $parsed", parsed == ParsedIntent.NoMatch)
+        }
+    }
+
+    @Test
+    fun everyEmergencyPhraseRoutesToSosInAnyCaseAndWithPunctuation() {
+        for (phrase in EMERGENCY) {
+            for (variant in listOf(phrase, phrase.uppercase(), "$phrase!", "Hey, $phrase please", "  $phrase  ")) {
+                assertTrue("\"$variant\"", isSos(variant))
+            }
+        }
+    }
+
+    @Test
+    fun everyListedPhraseMapsToItsIntent() {
+        plansOf(DESCRIBE) { p, plan -> assertEquals(p, listOf(PlanStep.DESCRIBE), plan.steps.map { it.step }) }
+        plansOf(READ_SCREEN) { p, plan -> assertEquals(p, listOf(PlanStep.READ_SCREEN), plan.steps.map { it.step }) }
+        plansOf(SUMMARIZE) { p, plan -> assertEquals(p, listOf(PlanStep.SUMMARIZE), plan.steps.map { it.step }) }
+        plansOf(BACK) { p, plan -> assertEquals(p, listOf(PlanStep.BACK), plan.steps.map { it.step }) }
+        val readMessages = listOf(PlanStep.LAUNCH_APP, PlanStep.WAIT, PlanStep.READ_SCREEN)
+        plansOf(READ_MESSAGES) { p, plan -> assertEquals(p, readMessages, plan.steps.map { it.step }) }
+        plansOf(SCROLL.keys) { p, plan ->
+            assertEquals(p, listOf(PlanStep.SCROLL to SCROLL[p]), plan.steps.map { it.step to it.arg })
+        }
+        for ((phrase, command) in LOCAL_EXACT) {
+            assertEquals(phrase, ParsedIntent.Local(command), parser.parse(phrase))
+        }
+        for (starter in ASK_STARTERS) {
+            val question = "$starter something here"
+            assertEquals(question, listOf(PlanStep.ASK), planOf(question).steps.map { it.step })
+            assertEquals(question, ParsedIntent.NoMatch, parser.parse(question, ParseContext(cameraActive = false)))
+        }
+    }
+
+    @Test
+    fun noPhraseBelongsToTwoIntents() {
+        val plans = listOf(EMERGENCY, DESCRIBE, READ_SCREEN, SUMMARIZE)
+        val others = listOf(BACK, READ_MESSAGES, SCROLL.keys, LOCAL_EXACT.keys)
+        val tables = plans + others
+        val total = tables.sumOf { it.size }
+        assertEquals(total, tables.flatten().toSet().size)
     }
 }

@@ -6,6 +6,11 @@ services:
   api:
     build: .
     env_file: ../.env
+    environment:
+      MOCK_FIXTURES_DIR: /srv/fixtures
+    volumes:
+      # Canned answers for MOCK_MODE come straight from the frozen contract.
+      - ../contracts/fixtures/api:/srv/fixtures:ro
     ports:
       - "8000:8000"
     depends_on:

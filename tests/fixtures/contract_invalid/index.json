@@ -1,0 +1,45 @@
+{
+  "description": "Payloads that must be REJECTED by the JSON Schemas, the Pydantic models and the Kotlin models. Outside contracts/fixtures on purpose: they are invalid by design.",
+  "fixtures": [
+    {
+      "fixture": "event.missing_id.json",
+      "schema": "event.schema.json",
+      "why": "Event without id"
+    },
+    {
+      "fixture": "event.metres_in_distance_band.json",
+      "schema": "event.schema.json",
+      "why": "distance_band given in metres"
+    },
+    {
+      "fixture": "event.distance_m_field.json",
+      "schema": "event.schema.json",
+      "why": "extra metres field next to the band"
+    },
+    {
+      "fixture": "event.unknown_source.json",
+      "schema": "event.schema.json",
+      "why": "source outside the enum"
+    },
+    {
+      "fixture": "event.side_behind.json",
+      "schema": "event.schema.json",
+      "why": "side outside left/center/right"
+    },
+    {
+      "fixture": "envelope.missing_request_id.json",
+      "schema": "envelope.schema.json",
+      "why": "envelope without request_id"
+    },
+    {
+      "fixture": "envelope.not_ok_without_error.json",
+      "schema": "envelope.schema.json",
+      "why": "ok:false needs an error"
+    },
+    {
+      "fixture": "envelope.fallback_with_data.json",
+      "schema": "envelope.schema.json",
+      "why": "fallback must have data null"
+    }
+  ]
+}

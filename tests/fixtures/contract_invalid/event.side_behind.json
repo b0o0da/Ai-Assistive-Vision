@@ -1,0 +1,11 @@
+{
+  "id": "evt_0002",
+  "source": "camera",
+  "type": "obstacle_ahead",
+  "label": "chair",
+  "side": "behind",
+  "distance_band": "medium",
+  "confidence": 0.74,
+  "risk": 31,
+  "timestamp": 1760000000400
+}

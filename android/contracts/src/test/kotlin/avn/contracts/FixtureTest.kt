@@ -3,6 +3,7 @@ package avn.contracts
 import java.io.File
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -15,11 +16,11 @@ import org.junit.Test
 class FixtureTest {
     private val fixtures = File(System.getProperty("avn.repoRoot"), "contracts/fixtures")
 
-    /** Files in contracts/fixtures/api that are requests, not envelopes. */
-    private val requestFiles = setOf("describe.request.json", "intent.request.json")
+    /** Files in contracts/fixtures/api named `*.request.json` are request bodies, not envelopes. */
+    private fun isRequest(f: File) = f.name.endsWith(".request.json")
 
     private fun envelopeFiles(): List<File> =
-        File(fixtures, "api").listFiles { f -> f.extension == "json" && f.name !in requestFiles }
+        File(fixtures, "api").listFiles { f -> f.extension == "json" && !isRequest(f) }
             .orEmpty()
             .sortedBy { it.name }
 
@@ -67,6 +68,73 @@ class FixtureTest {
         val bands = DistanceBand.entries.map { Json.encodeToString(DistanceBand.serializer(), it).trim('"') }
         assertEquals(listOf("left", "center", "right"), sides)
         assertEquals(listOf("near", "medium", "far"), bands)
+    }
+
+    @Test
+    fun everyEndpointHasRequestOkAndFailureFixtures() {
+        val names = File(fixtures, "api").listFiles().orEmpty().map { it.name }.toSet()
+        val endpoints = listOf(
+            "health",
+            "describe",
+            "ask",
+            "screen_summarize",
+            "intent",
+            "route",
+            "faces_enroll",
+            "faces_match",
+            "sos"
+        )
+        for (ep in endpoints) {
+            val mine = names.filter { it.startsWith("$ep.") }
+            if (ep != "health") assertTrue("$ep: missing request fixture", "$ep.request.json" in mine)
+            assertTrue("$ep: missing ok fixture", mine.any { it == "$ep.ok.json" })
+            val failures = mine.filter { !it.endsWith(".request.json") && it != "$ep.ok.json" }
+            assertTrue("$ep: missing failure fixture", failures.isNotEmpty())
+        }
+    }
+
+    /** WS02-05: shared must-reject payloads, also checked by the JSON Schemas and Pydantic. */
+    private val invalid = File(System.getProperty("avn.repoRoot"), "tests/fixtures/contract_invalid")
+
+    private fun invalidFiles(prefix: String): List<File> =
+        invalid.listFiles { f -> f.name.startsWith(prefix) && f.extension == "json" }
+            .orEmpty()
+            .sortedBy { it.name }
+
+    @Test
+    fun invalidEventsAreRejected() {
+        val files = invalidFiles("event.")
+        assertTrue("expected at least 5 invalid events in $invalid", files.size >= 5)
+        for (file in files) {
+            assertThrows(file.name, SerializationException::class.java) {
+                Json.decodeFromString(Event.serializer(), file.readText())
+            }
+        }
+    }
+
+    @Test
+    fun invalidEnvelopesAreRejectedOrBreakTheRules() {
+        val files = invalidFiles("envelope.")
+        assertTrue("expected at least 3 invalid envelopes in $invalid", files.size >= 3)
+        for (file in files) {
+            val env = runCatching { Json.decodeFromString(ApiEnvelope.serializer(), file.readText()) }
+                .getOrNull() ?: continue
+            val hasData = env.data != null && env.data !is JsonNull
+            val breaksRules =
+                (!env.ok && env.error == null) ||
+                    (env.fallback && hasData) ||
+                    ((!env.ok || env.fallback) && env.message.isBlank())
+            assertTrue("${file.name}: decoded and follows every envelope rule", breaksRules)
+        }
+    }
+
+    /** Phase 2 (see this file's class doc): route.ok.json's `data` now has a matching Kotlin model. */
+    @Test
+    fun routeOkFixtureDataParsesIntoRouteResponse() {
+        val env = Json.decodeFromString(ApiEnvelope.serializer(), File(fixtures, "api/route.ok.json").readText())
+        val route = Json.decodeFromString(RouteResponse.serializer(), Json.encodeToString(env.data))
+        assertTrue("expected at least one step", route.steps.isNotEmpty())
+        assertEquals(Maneuver.ARRIVE, route.steps.last().maneuver)
     }
 
     @Test

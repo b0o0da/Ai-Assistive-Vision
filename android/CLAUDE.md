@@ -15,7 +15,7 @@ The one idea: **the priority engine is the product.** Every producer (camera, vo
 - Gradle Kotlin DSL with a version catalog (`gradle/libs.versions.toml`). Use current stable versions; do not add a dependency that is not in the catalog without asking.
 - minSdk 31, targetSdk and compileSdk = latest stable. Foreground service types must be declared (camera, microphone, location, mediaProjection).
 - CameraX (ImageAnalysis), LiteRT (TFLite) for the detector with GPU → NNAPI/NPU → CPU delegate fallback, ML Kit Text Recognition (Latin) and Barcode, Android SpeechRecognizer, Android TextToSpeech, Fused Location Provider, Room, OkHttp + kotlinx.serialization.
-- Wake word library is undecided (TD-002: openWakeWord vs Porcupine). Detector licence is undecided (TD-001: YOLO nano AGPL vs Apache detector). Build behind interfaces; never commit to one.
+- Wake word library is undecided (TD-002: openWakeWord vs Porcupine). Build behind interfaces; never commit to one. Detector licence is resolved (TD-001: YOLO AGPL-3.0 accepted; see `NOTICE.md` and `docs/decisions/TD-001-yolov8n-reference-model.md`) — a field-test APK must bundle that notice before distribution.
 
 ## Module layout
 - `:contracts` — pure Kotlin/JVM. Data classes for Event, ApiEnvelope, SpeechRequest, SpeechCandidate, ActionPlan, ScreenSnapshot, plus enums. kotlinx.serialization. No Android imports.

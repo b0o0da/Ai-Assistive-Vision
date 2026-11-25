@@ -21,4 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Third-party models and libraries keep their own licenses. In particular, YOLO
-detectors from Ultralytics are AGPL-3.0 (see docs/decisions/, TD-001).
+detectors from Ultralytics are AGPL-3.0 (see docs/decisions/, TD-001). This
+project's source is fully public and model weights are fetched and
+SHA-256-verified rather than committed, which is how distributed copies of
+this app satisfy AGPL-3.0 for those models; see NOTICE.md for the required
+third-party notice text and docs/decisions/TD-001-yolov8n-reference-model.md
+for the full compliance reasoning.

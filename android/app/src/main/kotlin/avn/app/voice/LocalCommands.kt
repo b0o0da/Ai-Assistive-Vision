@@ -14,6 +14,8 @@ enum class LocalCommand {
     SLOWER,
     STOP_NAVIGATION,
     READ_TEXT,
+    READ_CURRENCY,
+    RECOGNIZE_FACE,
     ENROLL_PERSON
 }
 

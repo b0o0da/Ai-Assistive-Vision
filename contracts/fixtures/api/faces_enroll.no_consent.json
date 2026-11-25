@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "ok": false,
+  "fallback": false,
+  "message": "I can't save this face without permission.",
+  "data": null,
+  "request_id": "req_fe_2",
+  "error": {
+    "code": "bad_request",
+    "retryable": false
+  }
+}

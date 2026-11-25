@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "ok": true,
+  "fallback": true,
+  "message": "I couldn't reach the server. Your SMS alert was still sent.",
+  "data": null,
+  "request_id": "req_sos_2",
+  "error": {
+    "code": "provider_error",
+    "retryable": true
+  }
+}

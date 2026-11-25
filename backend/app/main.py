@@ -1,8 +1,9 @@
 """AVN backend app factory.
 
-Foundation only: envelope, request ids, fail-soft error handlers and GET /health.
-The other 8 endpoints, auth, mock scenarios and input caps arrive in phase B1
-(docs/claude-code/backend-prompts.md).
+The 9 contract endpoints with envelope, request ids and fail-soft error handlers.
+MOCK_MODE=true answers from contracts/fixtures/api (X-Mock-Scenario picks ok, timeout, error
+or empty). Auth (WS22-04), real providers (B2 to B4) and deploy (B5) come later:
+docs/claude-code/backend-prompts.md.
 """
 
 import logging
@@ -14,12 +15,13 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from app import __version__
 from app.core.config import get_settings
 from app.core.middleware import (
+    BodySizeLimit,
     http_error_handler,
     request_context,
     unhandled_error_handler,
     validation_error_handler,
 )
-from app.routers import health
+from app.routers import faces, health, intent, route, screen, sos, vision
 
 
 def create_app() -> FastAPI:
@@ -28,10 +30,13 @@ def create_app() -> FastAPI:
 
     app = FastAPI(title="AVN backend", version=__version__)
     app.middleware("http")(request_context)
+    # Added last, so it runs first: oversize bodies are refused before anything else reads them.
+    app.add_middleware(BodySizeLimit, max_bytes=settings.max_body_bytes)
     app.add_exception_handler(RequestValidationError, validation_error_handler)
     app.add_exception_handler(StarletteHTTPException, http_error_handler)
     app.add_exception_handler(Exception, unhandled_error_handler)
-    app.include_router(health.router)
+    for module in (health, vision, screen, intent, route, faces, sos):
+        app.include_router(module.router)
     return app
 
 
