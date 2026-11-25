@@ -1,0 +1,37 @@
+{
+  "name": "banking_blocked",
+  "description": "Deny-listed banking app: nothing is read, whatever the nodes say.",
+  "snapshot": {
+    "package": "com.example.bank",
+    "screen_type": "blocked",
+    "nodes": [
+      {
+        "text": "Balance 12,000 EGP",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Transfer",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      }
+    ],
+    "text": "",
+    "clickable_labels": [],
+    "flags": {
+      "secure": false,
+      "empty": false,
+      "unlabeled": false,
+      "deny_listed": true
+    }
+  },
+  "expected": []
+}
