@@ -1,0 +1,796 @@
+{
+ "name": "chair_jitter",
+ "description": "A chair standing still at the medium/near boundary, 60 frames at 10 fps, with detector box jitter (seed 7, sigma 22 px height, 28 px bottom). The raw band flips between medium and near; smoothing should hold it steady.",
+ "source": "authored",
+ "frameWidth": 1080,
+ "frameHeight": 1920,
+ "expected": [
+  {
+   "label": "chair",
+   "band": "medium",
+   "side": "center"
+  }
+ ],
+ "frames": [
+  {
+   "timestampMs": 0,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 386.2,
+     "y": 739.3,
+     "w": 307.2,
+     "h": 554.4
+    }
+   ]
+  },
+  {
+   "timestampMs": 100,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 395.1,
+     "y": 791.6,
+     "w": 297.0,
+     "h": 539.5
+    }
+   ]
+  },
+  {
+   "timestampMs": 200,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 392.2,
+     "y": 728.2,
+     "w": 303.5,
+     "h": 582.8
+    }
+   ]
+  },
+  {
+   "timestampMs": 300,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 396.0,
+     "y": 790.8,
+     "w": 312.0,
+     "h": 523.3
+    }
+   ]
+  },
+  {
+   "timestampMs": 400,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 384.4,
+     "y": 752.3,
+     "w": 275.6,
+     "h": 522.8
+    }
+   ]
+  },
+  {
+   "timestampMs": 500,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 382.3,
+     "y": 747.9,
+     "w": 299.4,
+     "h": 566.7
+    }
+   ]
+  },
+  {
+   "timestampMs": 600,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 410.6,
+     "y": 714.7,
+     "w": 305.5,
+     "h": 566.8
+    }
+   ]
+  },
+  {
+   "timestampMs": 700,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 381.1,
+     "y": 710.4,
+     "w": 316.8,
+     "h": 572.2
+    }
+   ]
+  },
+  {
+   "timestampMs": 800,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 393.0,
+     "y": 765.3,
+     "w": 298.5,
+     "h": 552.4
+    }
+   ]
+  },
+  {
+   "timestampMs": 900,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 404.7,
+     "y": 735.3,
+     "w": 286.6,
+     "h": 550.2
+    }
+   ]
+  },
+  {
+   "timestampMs": 1000,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 372.1,
+     "y": 769.7,
+     "w": 303.4,
+     "h": 542.2
+    }
+   ]
+  },
+  {
+   "timestampMs": 1100,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 386.1,
+     "y": 682.5,
+     "w": 318.3,
+     "h": 561.1
+    }
+   ]
+  },
+  {
+   "timestampMs": 1200,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 389.3,
+     "y": 756.3,
+     "w": 288.6,
+     "h": 557.7
+    }
+   ]
+  },
+  {
+   "timestampMs": 1300,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 401.4,
+     "y": 791.0,
+     "w": 311.6,
+     "h": 527.8
+    }
+   ]
+  },
+  {
+   "timestampMs": 1400,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 374.4,
+     "y": 711.6,
+     "w": 305.1,
+     "h": 591.7
+    }
+   ]
+  },
+  {
+   "timestampMs": 1500,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 374.8,
+     "y": 713.8,
+     "w": 291.4,
+     "h": 573.5
+    }
+   ]
+  },
+  {
+   "timestampMs": 1600,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 365.6,
+     "y": 797.4,
+     "w": 292.6,
+     "h": 538.7
+    }
+   ]
+  },
+  {
+   "timestampMs": 1700,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 396.9,
+     "y": 812.5,
+     "w": 303.4,
+     "h": 527.9
+    }
+   ]
+  },
+  {
+   "timestampMs": 1800,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 381.2,
+     "y": 791.8,
+     "w": 264.7,
+     "h": 518.2
+    }
+   ]
+  },
+  {
+   "timestampMs": 1900,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 391.9,
+     "y": 795.5,
+     "w": 313.7,
+     "h": 535.4
+    }
+   ]
+  },
+  {
+   "timestampMs": 2000,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 397.4,
+     "y": 779.2,
+     "w": 306.1,
+     "h": 565.4
+    }
+   ]
+  },
+  {
+   "timestampMs": 2100,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 405.4,
+     "y": 684.7,
+     "w": 307.7,
+     "h": 571.4
+    }
+   ]
+  },
+  {
+   "timestampMs": 2200,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 382.4,
+     "y": 663.7,
+     "w": 307.4,
+     "h": 581.0
+    }
+   ]
+  },
+  {
+   "timestampMs": 2300,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 402.2,
+     "y": 716.3,
+     "w": 274.6,
+     "h": 578.5
+    }
+   ]
+  },
+  {
+   "timestampMs": 2400,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 388.2,
+     "y": 784.3,
+     "w": 322.5,
+     "h": 531.2
+    }
+   ]
+  },
+  {
+   "timestampMs": 2500,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 403.7,
+     "y": 736.2,
+     "w": 309.1,
+     "h": 567.1
+    }
+   ]
+  },
+  {
+   "timestampMs": 2600,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 390.3,
+     "y": 783.7,
+     "w": 294.2,
+     "h": 545.4
+    }
+   ]
+  },
+  {
+   "timestampMs": 2700,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 384.7,
+     "y": 800.4,
+     "w": 313.3,
+     "h": 540.6
+    }
+   ]
+  },
+  {
+   "timestampMs": 2800,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 386.4,
+     "y": 766.2,
+     "w": 298.1,
+     "h": 529.6
+    }
+   ]
+  },
+  {
+   "timestampMs": 2900,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 374.8,
+     "y": 744.4,
+     "w": 285.6,
+     "h": 590.9
+    }
+   ]
+  },
+  {
+   "timestampMs": 3000,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 400.3,
+     "y": 788.9,
+     "w": 308.8,
+     "h": 542.7
+    }
+   ]
+  },
+  {
+   "timestampMs": 3100,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 396.9,
+     "y": 736.7,
+     "w": 302.0,
+     "h": 567.6
+    }
+   ]
+  },
+  {
+   "timestampMs": 3200,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 390.0,
+     "y": 759.9,
+     "w": 303.9,
+     "h": 556.1
+    }
+   ]
+  },
+  {
+   "timestampMs": 3300,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 393.9,
+     "y": 779.5,
+     "w": 307.9,
+     "h": 576.8
+    }
+   ]
+  },
+  {
+   "timestampMs": 3400,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 401.1,
+     "y": 749.0,
+     "w": 294.8,
+     "h": 550.6
+    }
+   ]
+  },
+  {
+   "timestampMs": 3500,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 359.2,
+     "y": 798.8,
+     "w": 305.4,
+     "h": 552.6
+    }
+   ]
+  },
+  {
+   "timestampMs": 3600,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 392.9,
+     "y": 775.9,
+     "w": 303.4,
+     "h": 535.3
+    }
+   ]
+  },
+  {
+   "timestampMs": 3700,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 383.7,
+     "y": 757.4,
+     "w": 309.2,
+     "h": 550.5
+    }
+   ]
+  },
+  {
+   "timestampMs": 3800,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 388.8,
+     "y": 671.0,
+     "w": 305.0,
+     "h": 613.5
+    }
+   ]
+  },
+  {
+   "timestampMs": 3900,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 384.2,
+     "y": 668.6,
+     "w": 299.1,
+     "h": 555.0
+    }
+   ]
+  },
+  {
+   "timestampMs": 4000,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 401.4,
+     "y": 715.9,
+     "w": 283.6,
+     "h": 582.2
+    }
+   ]
+  },
+  {
+   "timestampMs": 4100,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 385.8,
+     "y": 673.5,
+     "w": 320.9,
+     "h": 578.8
+    }
+   ]
+  },
+  {
+   "timestampMs": 4200,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 357.8,
+     "y": 778.1,
+     "w": 308.7,
+     "h": 552.5
+    }
+   ]
+  },
+  {
+   "timestampMs": 4300,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 372.1,
+     "y": 735.2,
+     "w": 279.7,
+     "h": 584.0
+    }
+   ]
+  },
+  {
+   "timestampMs": 4400,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 392.3,
+     "y": 732.0,
+     "w": 316.7,
+     "h": 563.9
+    }
+   ]
+  },
+  {
+   "timestampMs": 4500,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 408.4,
+     "y": 720.0,
+     "w": 302.0,
+     "h": 577.5
+    }
+   ]
+  },
+  {
+   "timestampMs": 4600,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 376.2,
+     "y": 793.8,
+     "w": 295.9,
+     "h": 583.1
+    }
+   ]
+  },
+  {
+   "timestampMs": 4700,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 398.5,
+     "y": 723.6,
+     "w": 296.3,
+     "h": 580.1
+    }
+   ]
+  },
+  {
+   "timestampMs": 4800,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 371.9,
+     "y": 692.3,
+     "w": 308.9,
+     "h": 564.9
+    }
+   ]
+  },
+  {
+   "timestampMs": 4900,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 372.4,
+     "y": 697.7,
+     "w": 286.5,
+     "h": 573.5
+    }
+   ]
+  },
+  {
+   "timestampMs": 5000,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 378.7,
+     "y": 753.4,
+     "w": 310.5,
+     "h": 587.9
+    }
+   ]
+  },
+  {
+   "timestampMs": 5100,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 409.1,
+     "y": 761.4,
+     "w": 284.0,
+     "h": 560.0
+    }
+   ]
+  },
+  {
+   "timestampMs": 5200,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 387.9,
+     "y": 787.2,
+     "w": 321.8,
+     "h": 540.4
+    }
+   ]
+  },
+  {
+   "timestampMs": 5300,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 382.8,
+     "y": 780.7,
+     "w": 319.7,
+     "h": 516.6
+    }
+   ]
+  },
+  {
+   "timestampMs": 5400,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 377.8,
+     "y": 773.2,
+     "w": 305.7,
+     "h": 568.8
+    }
+   ]
+  },
+  {
+   "timestampMs": 5500,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 387.8,
+     "y": 755.7,
+     "w": 320.8,
+     "h": 585.0
+    }
+   ]
+  },
+  {
+   "timestampMs": 5600,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 391.5,
+     "y": 759.6,
+     "w": 314.3,
+     "h": 543.6
+    }
+   ]
+  },
+  {
+   "timestampMs": 5700,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 385.4,
+     "y": 644.4,
+     "w": 296.3,
+     "h": 591.3
+    }
+   ]
+  },
+  {
+   "timestampMs": 5800,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 382.7,
+     "y": 789.7,
+     "w": 311.5,
+     "h": 519.2
+    }
+   ]
+  },
+  {
+   "timestampMs": 5900,
+   "detections": [
+    {
+     "label": "chair",
+     "confidence": 0.86,
+     "x": 405.9,
+     "y": 742.4,
+     "w": 311.7,
+     "h": 559.8
+    }
+   ]
+  }
+ ]
+}
