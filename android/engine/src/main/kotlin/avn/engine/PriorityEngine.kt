@@ -125,9 +125,9 @@ data class DecisionRecord(
 ) {
     /** One JSON line, the format the repo logs in. */
     fun toJsonLine(): String = buildString {
-        append(
-            "{\"at_ms\":$atMs,\"id\":\"${id.replace("\\", "/").replace("\"", "'")}\",\"source\":\"${source.name.lowercase()}\",\"type\":\"${type.name.lowercase()}\""
-        )
+        val safeId = id.replace('\\', '/').replace('"', '\'')
+        append("{\"at_ms\":$atMs,\"id\":\"$safeId\"")
+        append(",\"source\":\"${source.name.lowercase()}\",\"type\":\"${type.name.lowercase()}\"")
         label?.let { append(",\"label\":\"${it.replace("\"", "'")}\"") }
         side?.let { append(",\"side\":\"${it.name.lowercase()}\"") }
         band?.let { append(",\"band\":\"${it.name.lowercase()}\"") }
