@@ -1,0 +1,9 @@
+{
+  "status": "PROPOSED",
+  "source": "WS07-03. Starting values; tune on the WS07-02 own-photo set (WS07-06).",
+  "minLineConfidence": 0.5,
+  "blur": {
+    "sampleSize": 256,
+    "minLaplacianVariance": 40.0
+  }
+}

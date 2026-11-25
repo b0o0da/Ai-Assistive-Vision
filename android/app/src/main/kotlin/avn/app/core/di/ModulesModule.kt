@@ -53,6 +53,8 @@ import avn.app.vision.FakeMotionEstimator
 import avn.app.vision.FakeOcrEngine
 import avn.app.vision.FakeTracker
 import avn.app.vision.IouTracker
+import avn.app.vision.MlKitOcrEngine
+import avn.app.vision.MlKitTextRecognizer
 import avn.app.vision.MotionEstimator
 import avn.app.vision.OcrEngine
 import avn.app.vision.Tracker
@@ -94,9 +96,6 @@ abstract class ModulesModule {
 
     @Binds
     abstract fun speechOutput(fake: FakeSpeaker): SpeechOutput
-
-    @Binds
-    abstract fun ocrEngine(fake: FakeOcrEngine): OcrEngine
 
     @Binds
     abstract fun wakeWord(fake: FakeWakeWord): WakeWord
@@ -197,6 +196,16 @@ abstract class ModulesModule {
         @Singleton
         fun motionEstimator(fake: FakeMotionEstimator, real: AccelerometerMotionEstimator): MotionEstimator =
             if ("motion" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) real else fake
+
+        /** WS07-03. Real engine = ML Kit bundled Latin model, on-device and offline. */
+        @Provides
+        @Singleton
+        fun ocrEngine(fake: FakeOcrEngine, log: JsonLinesLogger, perf: PerfLogger): OcrEngine =
+            if ("ocr" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) {
+                MlKitOcrEngine(MlKitTextRecognizer(), log, perf)
+            } else {
+                fake
+            }
 
         /** WS18-02. Real client talks to `/screen/summarize` (mock backend first); fake echoes the tree text. */
         @Provides
