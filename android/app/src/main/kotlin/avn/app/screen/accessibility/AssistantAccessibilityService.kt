@@ -1,7 +1,9 @@
 package avn.app.screen.accessibility
 
 import android.accessibilityservice.AccessibilityService
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import avn.app.BuildConfig
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -16,8 +18,17 @@ class AssistantAccessibilityService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
-        WindowEventRouter.route(event.eventType, event.packageName, event.className, activeWindow)
+        val switched = WindowEventRouter.route(event.eventType, event.packageName, event.className, activeWindow)
+        if (switched && BuildConfig.DEBUG) {
+            // Debug builds only: switch time and package name, never window titles or screen text.
+            val now = activeWindow.foreground.value ?: return
+            Log.i(LOG_TAG, "${now.sinceMs} ${now.packageName}")
+        }
     }
 
     override fun onInterrupt() = Unit
+
+    companion object {
+        const val LOG_TAG = "AVN_WINDOW"
+    }
 }
