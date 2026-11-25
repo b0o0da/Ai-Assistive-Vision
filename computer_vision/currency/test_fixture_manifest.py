@@ -96,12 +96,59 @@ class FixtureManifestTest(unittest.TestCase):
         self.assertEqual({"egp_50": 2, "egp_200": 1, "skipped": 1}, dict(counts))
         self.assertEqual(2, len(list((self.root / "egp_50").iterdir())))
 
-    def test_committed_manifest_if_present_is_valid_json(self):
+    def test_crop_import_and_autotag(self):
+        try:
+            from PIL import Image
+        except ImportError:
+            self.skipTest("Pillow not installed")
+        export = Path(self.tmp.name) / "export"
+        for split in ("train", "valid"):
+            (export / split / "images").mkdir(parents=True)
+            (export / split / "labels").mkdir(parents=True)
+        (export / "data.yaml").write_text("names: ['5Egp', '50Egp']\n", encoding="utf-8")
+        img = Image.new("RGB", (640, 640), (40, 40, 40))
+        img.paste((200, 30, 30), (40, 40, 360, 200))
+        img.save(export / "valid" / "images" / "two.jpg")
+        img.save(export / "train" / "images" / "aug.jpg")
+        # two notes in one image, plus one box too small to keep
+        (export / "valid" / "labels" / "two.txt").write_text(
+            "0 0.31 0.19 0.5 0.25\n1 0.75 0.75 0.3 0.2\n1 0.5 0.5 0.01 0.01\n", encoding="utf-8")
+        (export / "train" / "labels" / "aug.txt").write_text("0 0.5 0.5 0.4 0.3\n", encoding="utf-8")
+        counts = tools.import_roboflow_yolo(export, {"5Egp": "egp_5", "50Egp": "egp_50"}, self.root,
+                                            splits=["valid"], crop=True)
+        self.assertEqual({"egp_5": 1, "egp_50": 1, "skipped": 1}, dict(counts))
+        crop = next((self.root / "egp_5").iterdir())
+        with Image.open(crop) as c:
+            self.assertGreater(c.size[0], c.size[1])  # the wide note, cut out with a margin
+        csv_path = Path(self.tmp.name) / "labels.csv"
+        self.assertEqual(2, tools.autotag(self.root, csv_path))
+        header, *rows = csv_path.read_text(encoding="utf-8").splitlines()
+        self.assertEqual("file,lighting,angle,blur", header)
+        for row in rows:
+            _, lighting, angle, blur = row.split(",")
+            self.assertIn(lighting, tools.LIGHTING)
+            self.assertIn(angle, tools.ANGLE)
+            self.assertIn(blur, tools.BLUR)
+
+    def test_pending_check_and_optional_classes(self):
+        m = make_set(self.root, classes=[c for c in tools.load_classes() if c not in tools.optional_classes()])
+        self.assertEqual([], tools.validate(m))  # optional (polymer) classes may be empty
+        m["images"][0]["checked_by"] = "PENDING second-person check"
+        self.assertTrue(any("still pending" in p for p in tools.validate(m)))
+
+    def test_committed_manifest_meets_counts_and_licence(self):
+        """The committed set (Roboflow 'Egypt banknote' v1 crops, see README) must have at least 20 per
+        required class, known licences, unique images and allowed tag values. The only open items allowed
+        are the second-person check and angle variety, both documented in the README."""
         committed = tools.HERE / "fixtures" / "manifest.json"
         if not committed.exists():
-            self.skipTest("no manifest committed yet: photos not collected (see README)")
+            self.skipTest("no manifest committed yet")
         m = json.loads(committed.read_text(encoding="utf-8"))
-        self.assertEqual([], [p for p in tools.validate(m, min_per_class=0) if "need at least" not in p])
+        known_gaps = ("still pending", "different angle values")
+        self.assertEqual([], [p for p in tools.validate(m) if not any(g in p for g in known_gaps)])
+        counts = {c: sum(1 for e in m["images"] if e["class"] == c) for c in tools.load_classes()}
+        for c in set(tools.load_classes()) - tools.optional_classes():
+            self.assertGreaterEqual(counts[c], 20, c)
 
 
 if __name__ == "__main__":

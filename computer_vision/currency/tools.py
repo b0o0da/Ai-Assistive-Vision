@@ -7,7 +7,8 @@ the manifest that lists them, plus these tools:
         --consent "own notes, photographer" --collected-by NAME --checked-by NAME [--labels labels.csv] -o manifest.json
     python -m computer_vision.currency.tools validate manifest.json [--images IMAGES_DIR] [--min-per-class 20]
     python -m computer_vision.currency.tools sheet    manifest.json --images IMAGES_DIR -o contact_sheet.html
-    python -m computer_vision.currency.tools import-roboflow EXPORT_DIR --map map.json -o IMAGES_DIR
+    python -m computer_vision.currency.tools import-roboflow EXPORT_DIR --map map.json -o IMAGES_DIR [--splits valid test] [--crop]
+    python -m computer_vision.currency.tools autotag  IMAGES_DIR -o labels.csv
 
 IMAGES_DIR layout: one folder per class id from classes.json, e.g. IMAGES_DIR/egp_50/front_01.jpg.
 labels.csv (optional): file,lighting,angle,blur  with file relative to IMAGES_DIR.
@@ -30,7 +31,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 CLASSES_FILE = HERE / "classes.json"
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png"}
-LIGHTING = {"daylight", "indoor", "dim", "flash", "unknown"}
+LIGHTING = {"daylight", "indoor", "dim", "flash", "normal", "bright", "unknown"}
 ANGLE = {"flat", "tilted", "steep", "unknown"}
 BLUR = {"sharp", "slight", "blurry", "unknown"}
 REQUIRED = ("file", "class", "sha256", "source", "licence", "consent", "lighting", "angle", "blur", "collected_by", "checked_by")
@@ -38,6 +39,11 @@ REQUIRED = ("file", "class", "sha256", "source", "licence", "consent", "lighting
 
 def load_classes(path: Path = CLASSES_FILE) -> list[str]:
     return [c["id"] for c in json.loads(Path(path).read_text(encoding="utf-8"))["classes"]]
+
+
+def optional_classes(path: Path = CLASSES_FILE) -> set[str]:
+    """Classes marked optional in classes.json: the per-class minimum does not apply to them."""
+    return {c["id"] for c in json.loads(Path(path).read_text(encoding="utf-8"))["classes"] if c.get("optional")}
 
 
 def sha256(path: Path) -> str:
@@ -106,7 +112,9 @@ def validate(manifest: dict, *, images: Path | None = None, min_per_class: int =
             problems.append(f"{where}: unknown class {e['class']}")
         if "unknown" in e["licence"].lower():
             problems.append(f"{where}: licence must be known, not '{e['licence']}'")
-        if e["checked_by"].strip().lower() == e["collected_by"].strip().lower():
+        if e["checked_by"].strip().upper().startswith("PENDING"):
+            problems.append(f"{where}: label check by a second person still pending")
+        elif e["checked_by"].strip().lower() == e["collected_by"].strip().lower():
             problems.append(f"{where}: label must be checked by a second person")
         if e["lighting"] not in LIGHTING or e["angle"] not in ANGLE or e["blur"] not in BLUR:
             problems.append(f"{where}: lighting/angle/blur value not allowed")
@@ -125,7 +133,10 @@ def validate(manifest: dict, *, images: Path | None = None, min_per_class: int =
         per_class[e["class"]] += 1
         for k in ("lighting", "angle", "blur"):
             variety[e["class"]][k].add(e[k])
+    skip = optional_classes() if set(classes) == set(load_classes()) else set()
     for cls in classes:
+        if cls in skip and per_class[cls] == 0:
+            continue
         if per_class[cls] < min_per_class:
             problems.append(f"{cls}: {per_class[cls]} photos, need at least {min_per_class}")
         elif min_per_class > 0:
@@ -165,25 +176,81 @@ def _yolo_names(export: Path) -> list[str]:
     raise ValueError("data.yaml has no names list")
 
 
-def import_roboflow_yolo(export: Path, class_map: dict[str, str], out: Path) -> Counter:
-    """Copies images of a Roboflow YOLO export into OUT/<class>/ using class_map (dataset name -> class id).
-    An image is copied only when all its boxes map to one class; others are skipped and counted."""
+def import_roboflow_yolo(export: Path, class_map: dict[str, str], out: Path, *, splits: list[str] | None = None,
+                         crop: bool = False, margin: float = 0.04, min_side: int = 32) -> Counter:
+    """Copies a Roboflow YOLO export into OUT/<class>/ using class_map (dataset name -> class id).
+
+    Without crop: an image is copied only when all its boxes map to one class (others skipped).
+    With crop (needs Pillow): every box becomes its own image, cut with a small margin; boxes
+    smaller than min_side pixels are skipped. Use crop when images hold several notes.
+    splits limits which export folders are read (e.g. ["valid", "test"] to leave out augmented train).
+    """
     names = _yolo_names(Path(export))
     copied: Counter[str] = Counter()
+    if crop:
+        from PIL import Image  # optional dependency, only needed for cropping
     for label_file in sorted(Path(export).glob("*/labels/*.txt")):
-        ids = {int(line.split()[0]) for line in label_file.read_text().splitlines() if line.strip()}
-        mapped = {class_map.get(names[i]) for i in ids if i < len(names)}
+        split = label_file.parent.parent.name
+        if splits and split not in splits:
+            continue
+        rows = [line.split() for line in label_file.read_text().splitlines() if line.strip()]
         image = next((p for p in (label_file.parent.parent / "images").glob(label_file.stem + ".*")
                       if p.suffix.lower() in IMAGE_SUFFIXES), None)
-        if len(mapped) != 1 or None in mapped or image is None:
+        if image is None:
             copied["skipped"] += 1
             continue
-        cls = mapped.pop()
-        dest = Path(out) / cls
-        dest.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(image, dest / f"{label_file.parent.parent.name}_{image.name}")
-        copied[cls] += 1
+        if not crop:
+            mapped = {class_map.get(names[int(r[0])]) for r in rows if int(r[0]) < len(names)}
+            if len(mapped) != 1 or None in mapped:
+                copied["skipped"] += 1
+                continue
+            cls = mapped.pop()
+            dest = Path(out) / cls
+            dest.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(image, dest / f"{split}_{image.name}")
+            copied[cls] += 1
+            continue
+        with Image.open(image) as im:
+            w, h = im.size
+            for i, r in enumerate(rows):
+                cls = class_map.get(names[int(r[0])]) if int(r[0]) < len(names) else None
+                cx, cy, bw, bh = (float(v) for v in r[1:5])
+                x0, y0 = max(0, int((cx - bw / 2 - margin) * w)), max(0, int((cy - bh / 2 - margin) * h))
+                x1, y1 = min(w, int((cx + bw / 2 + margin) * w)), min(h, int((cy + bh / 2 + margin) * h))
+                # Size is judged on the box itself, not on the box plus margin.
+                if cls is None or min(bw * w, bh * h) < min_side:
+                    copied["skipped"] += 1
+                    continue
+                dest = Path(out) / cls
+                dest.mkdir(parents=True, exist_ok=True)
+                im.crop((x0, y0, x1, y1)).convert("RGB").save(dest / f"{split}_{image.stem}_{i}.jpg", quality=92)
+                copied[cls] += 1
     return copied
+
+
+def autotag(images: Path, out_csv: Path) -> int:
+    """Measures lighting, angle and blur for every image under IMAGES/<class>/ (needs Pillow) and
+    writes labels.csv. These are estimates from pixels and are documented as such:
+    lighting = mean brightness (dim < 80, normal, bright > 170); blur = variance of the Laplacian on
+    a 256 px gray copy (blurry < 60, slight < 200, sharp); angle = how far the crop's shape is from a
+    flat banknote (long/short side >= 1.8 flat, >= 1.3 tilted, else steep)."""
+    from PIL import Image, ImageFilter, ImageStat
+
+    rows = ["file,lighting,angle,blur"]
+    for img in sorted(p for p in Path(images).glob("*/*") if p.suffix.lower() in IMAGE_SUFFIXES):
+        with Image.open(img) as im:
+            gray = im.convert("L")
+            gray.thumbnail((256, 256))
+            brightness = ImageStat.Stat(gray).mean[0]
+            lap = gray.filter(ImageFilter.Kernel((3, 3), [0, 1, 0, 1, -4, 1, 0, 1, 0], scale=1, offset=128))
+            variance = ImageStat.Stat(lap).var[0]
+            ratio = max(im.size) / max(1, min(im.size))
+        lighting = "dim" if brightness < 80 else "bright" if brightness > 170 else "normal"
+        blur = "blurry" if variance < 60 else "slight" if variance < 200 else "sharp"
+        angle = "flat" if ratio >= 1.8 else "tilted" if ratio >= 1.3 else "steep"
+        rows.append(f"{img.parent.name}/{img.name},{lighting},{angle},{blur}")
+    Path(out_csv).write_text("\n".join(rows) + "\n", encoding="utf-8")
+    return len(rows) - 1
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -207,6 +274,11 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("export", type=Path)
     r.add_argument("--map", type=Path, required=True, help="JSON object: dataset class name -> class id")
     r.add_argument("-o", "--out", type=Path, required=True)
+    r.add_argument("--splits", nargs="*", help="export folders to read, e.g. valid test")
+    r.add_argument("--crop", action="store_true", help="one image per box (needs Pillow)")
+    t = sub.add_parser("autotag")
+    t.add_argument("images", type=Path)
+    t.add_argument("-o", "--out", type=Path, required=True)
     a = p.parse_args(argv)
 
     if a.cmd == "build":
@@ -225,7 +297,11 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "sheet":
         print(contact_sheet(json.loads(a.manifest.read_text(encoding="utf-8")), a.images, a.out))
         return 0
-    counts = import_roboflow_yolo(a.export, json.loads(a.map.read_text(encoding="utf-8")), a.out)
+    if a.cmd == "autotag":
+        print(f"{autotag(a.images, a.out)} images tagged -> {a.out}")
+        return 0
+    counts = import_roboflow_yolo(a.export, json.loads(a.map.read_text(encoding="utf-8")), a.out,
+                                  splits=a.splits, crop=a.crop)
     print(dict(counts))
     return 0
 

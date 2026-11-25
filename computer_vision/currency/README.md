@@ -5,21 +5,48 @@ photos stay on the team drive; Git holds only the manifest that lists them and t
 
 ## Status (25 Nov 2026)
 
-Tools, schema and tests are ready. **No photos yet**, so the acceptance bar (at least 20 photos
-per class, lighting/angle/blur variety, labels checked by a second person, licence and consent
-noted) is not met. Two ways to fill it, both allowed by `datasets/LICENSES.md`:
+`fixtures/manifest.json` lists **578 banknote crops** (egp_5 116, egp_10 106, egp_20 101, egp_50 82,
+egp_100 78, egp_200 95), well over the 20-per-class minimum. Source: Roboflow Universe
+"Egypt banknote" v1 by CustomYolo, **CC BY 4.0**, downloaded 25 Nov 2026 with Marwan's account.
+Only the `valid` and `test` splits are used (300 images, no augmentation); each labelled box is cut
+out as its own image (`import-roboflow --crop`), because most images hold several notes. The
+2,096 augmented `train` images are left for training (WS09-03). Photos are on the team drive /
+`D:\AVN\Data\currency_egypt_banknote_v1`, never in Git.
+
+What this set is, honestly:
+- The images are **synthetic composites**: cut-out banknotes pasted, rotated, onto unrelated scene
+  photos. Good for training and for a first sanity check; **not** a stand-in for real phone photos.
+  Own photos (option 1 below) are still needed before WS07/WS09 accuracy numbers are trusted.
+- Roboflow stretched every image to 640x640, so a note's shape no longer tells its viewing angle:
+  `angle` is `unknown` for all crops and the validator reports missing angle variety.
+- Blur: all crops measured `sharp`; no blur variety in this data.
+- Lighting (measured mean brightness): normal 549, dim 15, bright 14.
+- Labels were spot-checked on 24 random crops (4 per class: colour and design match the class).
+  The full **second-person check is still pending**: `checked_by` is `PENDING ...` until someone
+  goes through `contact_sheet.html` and the manifest is rebuilt with `--checked-by <name>`.
+- No polymer 10/20 notes in this data; those two classes are marked optional in `classes.json`.
+- Roboflow's readme says the images come from a Kaggle dataset (egyptiris/egyptian-currency)
+  whose own licence is not stated: flagged in `datasets/LICENSES.md`.
+
+Ways to complete or improve it, both allowed by `datasets/LICENSES.md`:
 
 1. **Own photos** (preferred, project-owned): printed copies or real notes, phone camera, varied
    lighting (daylight, indoor, dim, flash), angle (flat, tilted, steep) and some blur. Real-note
    photos are never published.
-2. **An open dataset with a CC BY licence**, logged in `datasets/LICENSES.md` before use. Candidates
-   checked on 25 Nov 2026 (not downloaded; Roboflow needs a signed-in account to export):
-   - "Egypt banknote" by CustomYolo, v1 (2,396 images incl. augmentations, CC BY 4.0):
-     https://universe.roboflow.com/customyolo/egypt-banknote-b3jlr/dataset/1
-   - "New Egyptian Currency" by Belal Safy Graduation Project (4,787 images, 17 classes front/back,
-     CC BY 4.0, no exported version yet, needs a fork): https://universe.roboflow.com/belal-safy-graduation-project/new-egyptian-currency-4yuzo
-   CC BY needs attribution in the app's notices. Horizontal-flip augmentations mirror the print;
-   keep them for training only, not for the fixture set.
+2. **Another open dataset with a CC BY licence**, logged in `datasets/LICENSES.md` before use, e.g.
+   "New Egyptian Currency" by Belal Safy Graduation Project (4,787 images, 17 classes front/back,
+   CC BY 4.0, needs a fork before export):
+   https://universe.roboflow.com/belal-safy-graduation-project/new-egyptian-currency-4yuzo
+
+How this set was made (repeatable):
+
+```
+python -m computer_vision.currency.tools import-roboflow EXPORT --map computer_vision/currency/roboflow_egypt_banknote_map.json -o IMAGES --splits valid test --crop
+python -m computer_vision.currency.tools autotag IMAGES -o IMAGES/labels.csv     (angle then set to unknown, see above)
+python -m computer_vision.currency.tools build IMAGES --source "<dataset url>" --licence "CC BY 4.0" --consent "n/a ..." \
+    --collected-by "CustomYolo (Roboflow Universe)" --checked-by "PENDING second-person check (contact sheet)" \
+    --labels IMAGES/labels.csv -o computer_vision/currency/fixtures/manifest.json
+```
 
 ## Classes
 
