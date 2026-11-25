@@ -90,4 +90,32 @@ class RuleIntentRouterTest {
         assertEquals(PlanValidator.NOT_UNDERSTOOD, route("do something odd", silent).clarification)
         assertFalse(route("do something odd", silent).requiresConfirmation)
     }
+
+    @Test
+    fun faceAndCurrencyCommandsAreDispatchedLocally() {
+        route("who is this")
+        route("what note is this")
+        assertEquals(
+            listOf(LocalCommand.RECOGNIZE_FACE to null, LocalCommand.READ_CURRENCY to null),
+            local.commands
+        )
+    }
+
+    @Test
+    fun noMatchGoesToTheCloudOnlyWhenOnline() {
+        val cloud = CountingCloud { ActionPlan(listOf(PlanStepItem(PlanStep.DESCRIBE)), requiresConfirmation = false) }
+        assertEquals(listOf(PlanStep.DESCRIBE), route("what is in this room exactly", cloud).steps.map { it.step })
+        assertEquals(1, cloud.calls)
+        route("what is in this room exactly", cloud, online = false)
+        assertEquals(1, cloud.calls)
+    }
+
+    @Test
+    fun aCompoundOpenRequestGoesToTheCloudInsteadOfLaunchingAMadeUpApp() {
+        val cloud = CountingCloud { null }
+        val plan = route("open whatsapp and send hi to mom", cloud)
+        assertEquals(1, cloud.calls)
+        assertTrue(plan.steps.isEmpty())
+        assertEquals(PlanValidator.NOT_UNDERSTOOD, plan.clarification)
+    }
 }

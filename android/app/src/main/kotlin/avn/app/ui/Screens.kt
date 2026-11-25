@@ -357,6 +357,8 @@ private fun DebugScreen(deps: UiDeps) {
         ) { Text("Inject event") }
         if (eventError) Text("Not a valid Event. Unknown fields and enum values are rejected.")
 
+        TypedRouteDebug()
+
         Button(
             onClick = {
                 forcedOffline = !forcedOffline

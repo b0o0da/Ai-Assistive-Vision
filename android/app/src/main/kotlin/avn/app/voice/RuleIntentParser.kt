@@ -7,6 +7,8 @@ import avn.contracts.PlanStepItem
 data class ParseContext(val cameraActive: Boolean = true)
 
 sealed class ParsedIntent {
+    data object NoMatch : ParsedIntent()
+
     data class Plan(val plan: ActionPlan) : ParsedIntent()
 
     data class Local(val command: LocalCommand, val arg: String? = null) : ParsedIntent()
@@ -53,7 +55,7 @@ internal fun normalizeText(text: String): String {
     return s
 }
 
-private val EMERGENCY = phraseList(
+internal val EMERGENCY = phraseList(
     "sos|s o s|send sos|call sos|help|help me|help now|help me now|i need help|i need help now",
     "emergency|this is an emergency|its an emergency|call for help|send help|i am in danger|im in danger"
 ).toSet()
@@ -61,7 +63,7 @@ private val EMERGENCY = phraseList(
 private fun commands(command: LocalCommand, vararg lines: String): List<Pair<String, LocalCommand>> =
     phraseList(*lines).map { it to command }
 
-private val LOCAL_EXACT: Map<String, LocalCommand> = (
+internal val LOCAL_EXACT: Map<String, LocalCommand> = (
     commands(
         LocalCommand.STOP_NAVIGATION,
         "stop navigation|stop navigating|cancel navigation|end navigation|cancel route|stop directions"
@@ -77,29 +79,40 @@ private val LOCAL_EXACT: Map<String, LocalCommand> = (
             LocalCommand.READ_TEXT,
             "read this|read that|read the text|read text|read the sign|read this sign|read the label",
             "read the menu|what does this say|what does that say|what does it say"
+        ) +
+        commands(
+            LocalCommand.READ_CURRENCY,
+            "what note is this|what bill is this|what money is this|how much is this note|how much is this bill",
+            "how much money is this|identify this note|identify the money|read the currency|read this note",
+            "read the note|what denomination is this"
+        ) +
+        commands(
+            LocalCommand.RECOGNIZE_FACE,
+            "who is this|who is that|who is it|who is in front of me|who is here|who am i looking at",
+            "do i know this person|do you know this person|recognize this person|recognise this person"
         )
     ).toMap()
 
-private val DESCRIBE = phraseList(
+internal val DESCRIBE = phraseList(
     "whats around me|what is around me|whats in front of me|what is in front of me|describe",
     "describe the scene|describe my surroundings|what do you see|whats going on|look around",
     "tell me whats around me"
 ).toSet()
-private val READ_SCREEN = phraseList(
+internal val READ_SCREEN = phraseList(
     "read the screen|read screen|read my screen|whats on the screen|what is on the screen",
     "whats on my screen|what is on my screen"
 ).toSet()
-private val SUMMARIZE = phraseList(
+internal val SUMMARIZE = phraseList(
     "summarize|summarize this|summarize these|summarise|summarise this|summarise these",
     "summarize the screen|summarize this screen"
 ).toSet()
-private val BACK = phraseList("go back|back|previous screen|go to the previous screen").toSet()
-private val READ_MESSAGES = phraseList(
+internal val BACK = phraseList("go back|back|previous screen|go to the previous screen").toSet()
+internal val READ_MESSAGES = phraseList(
     "read my new messages|read new messages|read my messages|read messages|check my messages"
 ).toSet()
-private val SCROLL = phraseMap("scroll down=down|page down=down|scroll up=up|page up=up")
-private val ASK_STARTERS = phraseList(
-    "is there|are there|how many|what color|what colour|what is this|what is that|who is that",
+internal val SCROLL = phraseMap("scroll down=down|page down=down|scroll up=up|page up=up")
+internal val ASK_STARTERS = phraseList(
+    "is there|are there|how many|what color|what colour|what is this|what is that",
     "is this|is that|which one"
 )
 private val KNOWN_APPS = phraseMap(
@@ -118,6 +131,14 @@ private fun titleCase(text: String): String {
     return words.joinToString(" ") { word -> word.replaceFirstChar { it.uppercase() } }
 }
 
+private const val MAX_APP_NAME_WORDS = 3
+
+/** "open whatsapp and send hi" is not an app name. Compound or risky requests go to the cloud path or are refused. */
+private fun looksLikeAppName(raw: String): Boolean {
+    val words = raw.removePrefix("the ").trim().split(" ")
+    return words.size <= MAX_APP_NAME_WORDS && "and" !in words && !RiskyLabels.isRisky(raw)
+}
+
 private fun appName(raw: String): String {
     val name = raw.removePrefix("the ").trim()
     return KNOWN_APPS[name] ?: titleCase(name)
@@ -131,17 +152,18 @@ private fun plan(vararg steps: PlanStepItem, ack: String? = null, confirm: Boole
 private fun clarify(question: String): ParsedIntent = ParsedIntent.Plan(ActionPlan(emptyList(), false, null, question))
 
 class RuleIntentParser {
-    /** Null means no rule matched; the caller decides between the cloud `/intent` path and a spoken fallback. */
-    fun parse(text: String, context: ParseContext = ParseContext()): ParsedIntent? {
+    /** [ParsedIntent.NoMatch] means no rule matched; the caller picks the cloud `/intent` path or a spoken fallback. */
+    fun parse(text: String, context: ParseContext = ParseContext()): ParsedIntent {
         val s = normalizeText(text)
-        if (s.isEmpty()) return null
+        if (s.isEmpty()) return ParsedIntent.NoMatch
         if (s in EMERGENCY) return plan(step(PlanStep.SOS))
         LOCAL_EXACT[s]?.let { return ParsedIntent.Local(it) }
         ENROLL.matchEntire(s)?.let {
             return ParsedIntent.Local(LocalCommand.ENROLL_PERSON, titleCase(it.groupValues[1]))
         }
         if (s == "enroll") return clarify("Who should I enroll?")
-        return matchSimple(s) ?: matchApps(s) ?: matchNavigation(s) ?: matchTap(s) ?: matchAsk(s, text, context)
+        val matched = matchSimple(s) ?: matchApps(s) ?: matchNavigation(s) ?: matchTap(s) ?: matchAsk(s, text, context)
+        return matched ?: ParsedIntent.NoMatch
     }
 
     private fun matchSimple(s: String): ParsedIntent? = when {
@@ -164,10 +186,10 @@ class RuleIntentParser {
     private fun matchApps(s: String): ParsedIntent? {
         if (s == "open" || s == "launch") return clarify("Which app do you want to open?")
         OPEN_AND_READ.matchEntire(s)?.let { return readApp(appName(it.groupValues[1])) }
-        return OPEN.matchEntire(s)?.let {
-            val app = appName(it.groupValues[1])
-            plan(step(PlanStep.LAUNCH_APP, app), ack = "Opening $app.")
-        }
+        val raw = OPEN.matchEntire(s)?.groupValues?.get(1) ?: return null
+        if (!looksLikeAppName(raw)) return null
+        val app = appName(raw)
+        return plan(step(PlanStep.LAUNCH_APP, app), ack = "Opening $app.")
     }
 
     private fun matchNavigation(s: String): ParsedIntent? {
