@@ -1,0 +1,24 @@
+{
+  "status": "PROPOSED",
+  "source": "docs/architecture.md section 5 (lifecycle, levels, current threshold). Starting values, tuned from field-test logs (WS16-15).",
+  "minConfidence": {
+    "default": 0.35,
+    "person": 0.40,
+    "vehicle": 0.40
+  },
+  "levels": {
+    "criticalRisk": 80,
+    "criticalMinConfidence": 0.6,
+    "warningRisk": 45
+  },
+  "persistence": {
+    "minHits": 2,
+    "windowMs": 1500
+  },
+  "crowd": {
+    "windowMs": 3000,
+    "minDistinctKeys": 4,
+    "warningFloorRisk": 60
+  },
+  "decisionLogSize": 500
+}
