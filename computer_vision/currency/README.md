@@ -17,13 +17,17 @@ What this set is, honestly:
 - The images are **synthetic composites**: cut-out banknotes pasted, rotated, onto unrelated scene
   photos. Good for training and for a first sanity check; **not** a stand-in for real phone photos.
   Own photos (option 1 below) are still needed before WS07/WS09 accuracy numbers are trusted.
-- Roboflow stretched every image to 640x640, so a note's shape no longer tells its viewing angle:
-  `angle` is `unknown` for all crops and the validator reports missing angle variety.
+- Roboflow stretched every image to 640x640, so a note's shape no longer tells its viewing angle,
+  and the notes are pasted flat (in-plane rotation only): `angle` is `unknown` for all crops and
+  the validator reports missing angle variety. **This is the one open item**: it needs own photos
+  taken at different angles.
 - Blur: all crops measured `sharp`; no blur variety in this data.
 - Lighting (measured mean brightness): normal 549, dim 15, bright 14.
-- Labels were spot-checked on 24 random crops (4 per class: colour and design match the class).
-  The full **second-person check is still pending**: `checked_by` is `PENDING ...` until someone
-  goes through `contact_sheet.html` and the manifest is rebuilt with `--checked-by <name>`.
+- Labels: all 578 crops were checked visually on one numbered sheet per class (colour and
+  design against the class) by Claude on 25 Nov 2026: no wrong label found; a few crops have a
+  second note partly covering the labelled one (e.g. egp_10 #92). This is recorded as
+  `checked_by: Claude (AI visual check ...; not a human check)`. A human reviewer (PR reviewer)
+  can confirm with `contact_sheet.html` and rebuild with their name.
 - No polymer 10/20 notes in this data; those two classes are marked optional in `classes.json`.
 - Roboflow's readme says the images come from a Kaggle dataset (egyptiris/egyptian-currency)
   whose own licence is not stated: flagged in `datasets/LICENSES.md`.
