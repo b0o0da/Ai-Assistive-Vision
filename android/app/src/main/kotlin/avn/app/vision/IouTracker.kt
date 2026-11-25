@@ -21,7 +21,7 @@ class IouTracker(
 
     private val tracks = linkedMapOf<Int, State>()
     private val approachDetector = ApproachDetector(config)
-    private var nextId = 1
+    private val lifecycle = TrackLifecycle(config.maxLostFrames, config.maxLostMs)
 
     override fun update(detections: List<Detection>, timestampMs: Long): List<Track> =
         perf?.measure("tracker", "update_ms") { updateInternal(detections, timestampMs) }
@@ -29,7 +29,9 @@ class IouTracker(
 
     private fun updateInternal(detections: List<Detection>, timestampMs: Long): List<Track> {
         tracks.values.forEach { it.lostFrames++ }
-        tracks.entries.removeAll { it.value.lostFrames > config.maxLostFrames }
+        tracks.entries.removeAll { (_, s) ->
+            lifecycle.isExpired(s.lostFrames, s.boxes.last().timestampMs, timestampMs)
+        }
 
         val valid = detections.filter {
             it.w > 0f && it.h > 0f && it.confidence.isFinite() && it.confidence >= config.lowConfidence
@@ -47,7 +49,7 @@ class IouTracker(
         high.forEachIndexed { index, detection ->
             if (index !in matchedHighIndices) {
                 val observed = detection.copy(timestampMs = timestampMs)
-                val state = State(nextId++, observed.label, listOf(observed), age = 1, lostFrames = 0)
+                val state = State(lifecycle.newId(), observed.label, listOf(observed), age = 1, lostFrames = 0)
                 tracks[state.id] = state
                 visible += state
             }
