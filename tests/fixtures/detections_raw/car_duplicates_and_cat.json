@@ -1,0 +1,49 @@
+{
+  "name": "car_duplicates_and_cat",
+  "frame": {
+    "width": 1080,
+    "height": 1920
+  },
+  "source": "authored",
+  "description": "A car reported twice (raw label car, then truck for the same box), a cat and a tv (not spec labels): one transportation box survives.",
+  "detections": [
+    {
+      "label": "car",
+      "confidence": 0.77,
+      "x": 100,
+      "y": 900,
+      "w": 500,
+      "h": 350
+    },
+    {
+      "label": "truck",
+      "confidence": 0.71,
+      "x": 110,
+      "y": 905,
+      "w": 490,
+      "h": 340
+    },
+    {
+      "label": "cat",
+      "confidence": 0.95,
+      "x": 700,
+      "y": 1200,
+      "w": 200,
+      "h": 150
+    },
+    {
+      "label": "tv",
+      "confidence": 0.8,
+      "x": 50,
+      "y": 50,
+      "w": 300,
+      "h": 200
+    }
+  ],
+  "expected": [
+    {
+      "label": "transportation",
+      "confidence": 0.77
+    }
+  ]
+}

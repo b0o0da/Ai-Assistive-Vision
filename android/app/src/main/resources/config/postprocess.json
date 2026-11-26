@@ -1,0 +1,21 @@
+{
+  "status": "PROPOSED",
+  "source": "WS05-07. Spec labels = the hazard categories the app speaks (detector.json classes after classMap, plus pothole). Thresholds are starting values; tune on the WS24 eval set.",
+  "specLabels": ["person", "transportation", "bench", "chair", "fire hydrant", "stop sign", "parking meter", "pothole"],
+  "classMap": {
+    "bicycle": "transportation",
+    "car": "transportation",
+    "motorcycle": "transportation",
+    "bus": "transportation",
+    "truck": "transportation",
+    "vehicle": "transportation"
+  },
+  "minConfidence": {
+    "default": 0.35,
+    "person": 0.40,
+    "transportation": 0.40,
+    "pothole": 0.30
+  },
+  "nmsIouThreshold": 0.5,
+  "maxDetections": 50
+}

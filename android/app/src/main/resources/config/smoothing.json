@@ -1,0 +1,7 @@
+{
+  "status": "PROPOSED",
+  "source": "WS06-03. alpha 0.5 = 1 frame lag on constant motion (limit: 2), noise variance down to 1/3. Tune on real walk-through logs.",
+  "alpha": 0.5,
+  "resetIou": 0.3,
+  "forgetAfterCalls": 10
+}
