@@ -1,0 +1,125 @@
+{
+  "name": "crowded_room_engine_v1",
+  "description": "WS16-03: crowded_room (WS16-09) replayed through the production engine. The first three people behave as in crowded_room: one speaks, two queue, the repeat is a duplicate. By the fifth event four distinct hazard keys have been seen within 3 s while moving, so the crowded-scene rule (architecture.md section 5, current threshold) raises the Warning floor to risk 60 and the two later people (risk 55) are suppressed below_threshold instead of queueing or overflowing.",
+  "steps": [
+    {
+      "at_ms": 0,
+      "context": {
+        "moving": true
+      }
+    },
+    {
+      "at_ms": 100,
+      "event": {
+        "id": "evt_p_left",
+        "source": "camera",
+        "type": "person_close",
+        "label": "person",
+        "side": "left",
+        "distance_band": "near",
+        "confidence": 1.0,
+        "risk": 0,
+        "timestamp": 100
+      }
+    },
+    {
+      "at_ms": 150,
+      "event": {
+        "id": "evt_p_center",
+        "source": "camera",
+        "type": "person_close",
+        "label": "person",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 1.0,
+        "risk": 0,
+        "timestamp": 150
+      }
+    },
+    {
+      "at_ms": 200,
+      "event": {
+        "id": "evt_p_right",
+        "source": "camera",
+        "type": "person_close",
+        "label": "person",
+        "side": "right",
+        "distance_band": "near",
+        "confidence": 1.0,
+        "risk": 0,
+        "timestamp": 200
+      }
+    },
+    {
+      "at_ms": 250,
+      "event": {
+        "id": "evt_p_left_dup",
+        "source": "camera",
+        "type": "person_close",
+        "label": "person",
+        "side": "left",
+        "distance_band": "near",
+        "confidence": 1.0,
+        "risk": 0,
+        "timestamp": 250
+      }
+    },
+    {
+      "at_ms": 300,
+      "event": {
+        "id": "evt_p_center_extra",
+        "source": "camera",
+        "type": "person_close",
+        "label": "pedestrian",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 1.0,
+        "risk": 0,
+        "timestamp": 300
+      }
+    },
+    {
+      "at_ms": 350,
+      "event": {
+        "id": "evt_p_overflow",
+        "source": "camera",
+        "type": "person_close",
+        "label": "stranger",
+        "side": "center",
+        "distance_band": "near",
+        "confidence": 1.0,
+        "risk": 0,
+        "timestamp": 350
+      }
+    }
+  ],
+  "expect": [
+    {
+      "event_id": "evt_p_left",
+      "decision": "spoken"
+    },
+    {
+      "event_id": "evt_p_center",
+      "decision": "queued"
+    },
+    {
+      "event_id": "evt_p_right",
+      "decision": "queued"
+    },
+    {
+      "event_id": "evt_p_left_dup",
+      "decision": "suppressed",
+      "reason": "duplicate"
+    },
+    {
+      "event_id": "evt_p_center_extra",
+      "decision": "suppressed",
+      "reason": "below_threshold"
+    },
+    {
+      "event_id": "evt_p_overflow",
+      "decision": "suppressed",
+      "reason": "below_threshold"
+    }
+  ]
+}
