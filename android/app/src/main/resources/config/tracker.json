@@ -3,6 +3,7 @@
   "lowConfidence": 0.10,
   "matchIou": 0.30,
   "maxLostFrames": 8,
+  "maxLostMs": 1500,
   "historySize": 6,
   "approachMinObservations": 5,
   "approachMinSpanMs": 350,
