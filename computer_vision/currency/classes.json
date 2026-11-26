@@ -1,0 +1,42 @@
+{
+  "status": "PROPOSED",
+  "note": "Egyptian banknotes in circulation, front and back count as the same class. To be confirmed by WS09-01 (EGP class list, owner Mahmoud); if WS09-01 changes it, update this file and the manifest.",
+  "classes": [
+    {
+      "id": "egp_5",
+      "spoken": "five pounds"
+    },
+    {
+      "id": "egp_10",
+      "spoken": "ten pounds"
+    },
+    {
+      "id": "egp_10_polymer",
+      "spoken": "ten pounds",
+      "optional": true,
+      "note": "Polymer notes (2022/2023) are not in the current data; the per-class minimum applies once photos exist."
+    },
+    {
+      "id": "egp_20",
+      "spoken": "twenty pounds"
+    },
+    {
+      "id": "egp_20_polymer",
+      "spoken": "twenty pounds",
+      "optional": true,
+      "note": "Polymer notes (2022/2023) are not in the current data; the per-class minimum applies once photos exist."
+    },
+    {
+      "id": "egp_50",
+      "spoken": "fifty pounds"
+    },
+    {
+      "id": "egp_100",
+      "spoken": "one hundred pounds"
+    },
+    {
+      "id": "egp_200",
+      "spoken": "two hundred pounds"
+    }
+  ]
+}

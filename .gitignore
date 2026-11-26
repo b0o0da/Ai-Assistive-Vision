@@ -66,3 +66,9 @@ runs/
 Thumbs.db
 desktop.ini
 .vscode/
+
+# WS09-02: banknote photos stay on the team drive, never in Git (datasets/LICENSES.md rules).
+computer_vision/currency/fixtures/images/
+computer_vision/currency/**/*.jpg
+computer_vision/currency/**/*.jpeg
+computer_vision/currency/**/*.png
