@@ -13,6 +13,7 @@ android {
         applicationId = "avn.app"
         minSdk = 31
         targetSdk = 37
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         versionCode = 1
         versionName = "0.1.0"
         // Make camera + on-device detection usable in the normal debug app. Add `fake` seams only
@@ -70,6 +71,7 @@ dependencies {
     implementation(libs.onnxruntime.android)
     implementation(libs.tensorflow.lite)
     implementation(libs.tensorflow.lite.gpu)
+    implementation(libs.mlkit.text.recognition)
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
@@ -77,6 +79,8 @@ dependencies {
     ksp(libs.room.compiler)
 
     testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
     testImplementation(libs.robolectric)
     testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.hilt.testing)

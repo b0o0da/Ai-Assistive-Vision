@@ -29,8 +29,24 @@ data class OcrBlock(val text: String, val box: TextBox, val confidence: Double) 
     }
 }
 
-/** Everything one OCR pass found. No blocks means no text was found, which is a normal result. */
-data class OcrReading(val blocks: List<OcrBlock>, val language: String, val source: String) {
+/** Why a reading has no text (WS07-03). Each one maps to a short sentence the engine can speak. */
+enum class NoTextReason(val spoken: String) {
+    EMPTY_FRAME("I don't have a picture to read."),
+    BLURRY("The picture is too blurry to read. Hold the phone steady and try again."),
+    NO_TEXT("I can't see any text."),
+    ENGINE_ERROR("I can't read text right now.")
+}
+
+/**
+ * Everything one OCR pass found. No blocks means no text was found, which is a normal result;
+ * [noText] then says why, when the engine knows.
+ */
+data class OcrReading(
+    val blocks: List<OcrBlock>,
+    val language: String,
+    val source: String,
+    val noText: NoTextReason? = null
+) {
     /** Blocks top to bottom, one per line. */
     val text: String get() = blocks.joinToString("\n") { it.text }
 
