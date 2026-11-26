@@ -1,0 +1,188 @@
+{
+  "name": "whatsapp_chat_list",
+  "description": "Chat list: toolbar icons, row containers that repeat their children, an unread badge, emoji and an Arabic row.",
+  "snapshot": {
+    "package": "com.whatsapp",
+    "screen_type": "chat_list",
+    "nodes": [
+      {
+        "text": "WhatsApp",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "",
+        "content_description": "Search",
+        "view_id": null,
+        "class_name": "android.widget.ImageButton",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "",
+        "content_description": "More options",
+        "view_id": null,
+        "class_name": "android.widget.ImageView",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Chats",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "",
+        "content_description": "Ahmed, See you tomorrow at the lecture 👍, 10:42, 2 unread messages",
+        "view_id": null,
+        "class_name": "android.widget.LinearLayout",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Ahmed",
+        "content_description": null,
+        "view_id": "conversations_row_contact_name",
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "See you tomorrow at the lecture 👍",
+        "content_description": null,
+        "view_id": "single_msg_tv",
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "10:42",
+        "content_description": null,
+        "view_id": "conversations_row_date",
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "2",
+        "content_description": null,
+        "view_id": "conversations_row_unread_count",
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "",
+        "content_description": "Family ❤️, Mom: Call me when you are free, Yesterday",
+        "view_id": null,
+        "class_name": "android.widget.LinearLayout",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Family ❤️",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Mom: Call me when you are free",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Yesterday",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "",
+        "content_description": "أحمد, تمام, 09:15",
+        "view_id": null,
+        "class_name": "android.widget.LinearLayout",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "أحمد",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "تمام",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "09:15",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "",
+        "content_description": "New chat",
+        "view_id": null,
+        "class_name": "android.widget.ImageButton",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      }
+    ],
+    "text": "",
+    "clickable_labels": [],
+    "flags": {
+      "secure": false,
+      "empty": false,
+      "unlabeled": false,
+      "deny_listed": false
+    }
+  },
+  "expected": [
+    "WhatsApp",
+    "Chats",
+    "Ahmed, See you tomorrow at the lecture thumbs up, 10:42, 2 unread messages",
+    "Family heart, Mom: Call me when you are free, Yesterday",
+    "أحمد, تمام, 09:15",
+    "New chat"
+  ]
+}

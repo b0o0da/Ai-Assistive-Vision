@@ -1,0 +1,127 @@
+{
+  "name": "facebook_feed_post",
+  "description": "Feed post: relative time, a lone separator, repeated emoji, photo and menu icons dropped.",
+  "snapshot": {
+    "package": "com.facebook.katana",
+    "screen_type": "feed_post",
+    "nodes": [
+      {
+        "text": "Sara Mohamed",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "3h",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": " · ",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Graduation day! 🎉🎉",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "",
+        "content_description": "Photo",
+        "view_id": null,
+        "class_name": "android.widget.ImageView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "1.2K",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "34 comments",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Like",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Comment",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Share",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "",
+        "content_description": "More options",
+        "view_id": null,
+        "class_name": "android.widget.ImageView",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      }
+    ],
+    "text": "",
+    "clickable_labels": [],
+    "flags": {
+      "secure": false,
+      "empty": false,
+      "unlabeled": false,
+      "deny_listed": false
+    }
+  },
+  "expected": [
+    "Sara Mohamed",
+    "3 hours ago",
+    "Graduation day! celebration",
+    "1.2K",
+    "34 comments",
+    "Like",
+    "Comment",
+    "Share"
+  ]
+}

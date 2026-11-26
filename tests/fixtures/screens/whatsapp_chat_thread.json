@@ -1,0 +1,158 @@
+{
+  "name": "whatsapp_chat_thread",
+  "description": "Chat thread: back icon dropped, read ticks kept, the same short reply sent twice at different times is kept twice.",
+  "snapshot": {
+    "package": "com.whatsapp",
+    "screen_type": "chat_thread",
+    "nodes": [
+      {
+        "text": "",
+        "content_description": "Navigate up",
+        "view_id": null,
+        "class_name": "android.widget.ImageButton",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Ahmed",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "online",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "TODAY",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Are you coming today?",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "10:40",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Yes, on my way 🙏",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "10:41",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "",
+        "content_description": "Read",
+        "view_id": null,
+        "class_name": "android.widget.ImageView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "OK",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "10:45",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "OK",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "10:46",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "",
+        "content_description": "Voice message button",
+        "view_id": null,
+        "class_name": "android.widget.ImageButton",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      }
+    ],
+    "text": "",
+    "clickable_labels": [],
+    "flags": {
+      "secure": false,
+      "empty": false,
+      "unlabeled": false,
+      "deny_listed": false
+    }
+  },
+  "expected": [
+    "Ahmed",
+    "online",
+    "TODAY",
+    "Are you coming today?",
+    "10:40",
+    "Yes, on my way thank you",
+    "10:41",
+    "Read",
+    "OK",
+    "10:45",
+    "OK",
+    "10:46"
+  ]
+}
