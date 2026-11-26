@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import avn.app.camera.FrameSource
+import avn.app.core.AppPriorityEngine
 import avn.app.core.connectivity.ConnectivityMonitor
 import avn.app.core.consent.ConsentManager
 import avn.app.core.permissions.PermissionManager
@@ -35,6 +36,7 @@ class UiDeps @Inject constructor(
     val settings: SettingsDao,
     val alertLog: AlertLogDao,
     val engine: EngineInput,
+    val priorityEngine: AppPriorityEngine,
     private val frameSource: FrameSource,
     private val ocrEngine: OcrEngine,
     private val detector: Detector,
