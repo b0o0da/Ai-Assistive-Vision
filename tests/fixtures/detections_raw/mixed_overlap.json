@@ -1,0 +1,61 @@
+{
+  "name": "mixed_overlap",
+  "frame": {
+    "width": 1080,
+    "height": 1920
+  },
+  "source": "authored",
+  "description": "A chair and a person overlap heavily (different classes, both kept); a duplicate chair is removed; a weak bench (0.20) and a degenerate box are dropped.",
+  "detections": [
+    {
+      "label": "chair",
+      "confidence": 0.66,
+      "x": 500,
+      "y": 1100,
+      "w": 250,
+      "h": 300
+    },
+    {
+      "label": "person",
+      "confidence": 0.7,
+      "x": 480,
+      "y": 1000,
+      "w": 300,
+      "h": 700
+    },
+    {
+      "label": "chair",
+      "confidence": 0.58,
+      "x": 505,
+      "y": 1105,
+      "w": 245,
+      "h": 290
+    },
+    {
+      "label": "bench",
+      "confidence": 0.2,
+      "x": 0,
+      "y": 1500,
+      "w": 400,
+      "h": 200
+    },
+    {
+      "label": "chair",
+      "confidence": 0.9,
+      "x": 10,
+      "y": 10,
+      "w": 0,
+      "h": 50
+    }
+  ],
+  "expected": [
+    {
+      "label": "person",
+      "confidence": 0.7
+    },
+    {
+      "label": "chair",
+      "confidence": 0.66
+    }
+  ]
+}

@@ -57,6 +57,7 @@ import avn.app.vision.MlKitOcrEngine
 import avn.app.vision.MlKitTextRecognizer
 import avn.app.vision.MotionEstimator
 import avn.app.vision.OcrEngine
+import avn.app.vision.PostprocessingDetector
 import avn.app.vision.Tracker
 import avn.app.vision.YoloV8OnnxDetector
 import avn.app.voice.ActionRouter
@@ -143,14 +144,17 @@ abstract class ModulesModule {
         ): Detector = if ("detector" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) {
             // Two separate checkpoints, two disjoint class sets -- see CompositeDetector and
             // DetectorConfig.DEFAULT/POTHOLE_DEFAULT's doc comments for why.
-            CompositeDetector(
-                listOf(
-                    YoloV8OnnxDetector(context, log, DetectorConfig.load("/config/detector.json"), perf),
-                    YoloV8OnnxDetector(
-                        context,
-                        log,
-                        DetectorConfig.load("/config/detector_pothole.json", DetectorConfig.POTHOLE_DEFAULT),
-                        perf
+            // WS05-07: spec-label filter, per-class thresholds and NMS on the combined output.
+            PostprocessingDetector(
+                CompositeDetector(
+                    listOf(
+                        YoloV8OnnxDetector(context, log, DetectorConfig.load("/config/detector.json"), perf),
+                        YoloV8OnnxDetector(
+                            context,
+                            log,
+                            DetectorConfig.load("/config/detector_pothole.json", DetectorConfig.POTHOLE_DEFAULT),
+                            perf
+                        )
                     )
                 )
             )
