@@ -1,5 +1,6 @@
 package avn.app.screen.accessibility
 
+import android.app.UiAutomation
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -20,7 +21,9 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class ActiveWindowOnDeviceTest {
-    private val ui = InstrumentationRegistry.getInstrumentation().uiAutomation
+    // By default a connected UiAutomation suppresses every accessibility service, ours included.
+    private val ui = InstrumentationRegistry.getInstrumentation()
+        .getUiAutomation(UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES)
     private val service = "avn.app/avn.app.screen.accessibility.AssistantAccessibilityService"
 
     private fun sh(cmd: String): String =
@@ -30,7 +33,11 @@ class ActiveWindowOnDeviceTest {
     fun enableService() {
         sh("settings put secure enabled_accessibility_services $service")
         sh("settings put secure accessibility_enabled 1")
-        Thread.sleep(3_000)
+        // Wait until the system has actually bound the service, not a fixed time.
+        val deadline = System.currentTimeMillis() + 20_000
+        while (System.currentTimeMillis() < deadline && !sh("dumpsys accessibility").contains("label=AVN Assistant")) {
+            Thread.sleep(500)
+        }
         sh("logcat -c")
     }
 
@@ -49,7 +56,21 @@ class ActiveWindowOnDeviceTest {
 
     @Test
     fun fiveAppSwitchesAreTrackedWithin500Ms() {
-        val apps = launchers().take(4)
+        // Stock apps that open without a first-run dialog or hardware (no camera on a headless emulator).
+        val preferred = listOf(
+            "com.android.settings",
+            "com.google.android.deskclock",
+            "com.google.android.contacts",
+            "com.google.android.calendar",
+            "com.google.android.dialer",
+            "com.google.android.documentsui"
+        )
+        val available = launchers()
+        val apps = (
+            preferred.filter {
+                it in available
+            } + available.filter { it !in preferred && "camera" !in it }
+            ).take(4)
         assertTrue("need 4 launchable apps, found $apps", apps.size == 4)
         val report = StringBuilder("app,launch_ms,tracker_extra_ms\n")
         val starts = mutableListOf<Pair<String, Long>>()
