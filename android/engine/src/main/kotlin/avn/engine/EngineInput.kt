@@ -15,7 +15,7 @@ interface EngineInput {
      * what an implementation does with these flags).
      *
      * Defaults to a no-op so existing implementers that don't act on context -- today's
-     * [avn.app.core.FakeEngineInput] before AVN-55, and any test double written against the
+     * `FakeEngineInput` stand-in before AVN-55, and any test double written against the
      * previous two-method shape of this interface -- keep compiling unchanged.
      */
     fun updateContext(

@@ -7,7 +7,7 @@ import avn.app.BuildConfig
 import avn.app.camera.CameraXFrameSource
 import avn.app.camera.FakeFrameSource
 import avn.app.camera.FrameSource
-import avn.app.core.FakeEngineInput
+import avn.app.core.AppPriorityEngine
 import avn.app.core.consent.ConsentGuard
 import avn.app.core.consent.ConsentManager
 import avn.app.core.logging.JsonLinesLogger
@@ -93,7 +93,7 @@ import kotlinx.coroutines.SupervisorJob
 @InstallIn(SingletonComponent::class)
 abstract class ModulesModule {
     @Binds
-    abstract fun engineInput(fake: FakeEngineInput): EngineInput
+    abstract fun engineInput(real: AppPriorityEngine): EngineInput
 
     @Binds
     abstract fun speechOutput(fake: FakeSpeaker): SpeechOutput
