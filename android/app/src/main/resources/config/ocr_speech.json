@@ -1,0 +1,7 @@
+{
+  "status": "PROPOSED",
+  "source": "WS07-05. Starting values; tune with users and the WS07-02 own-photo set.",
+  "maxChars": 300,
+  "uncertainBelow": 0.7,
+  "spellDigitRunsFrom": 5
+}
