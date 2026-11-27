@@ -60,6 +60,11 @@ class AssistantService : LifecycleService() {
         guarded("connectivity") { connectivity.start() }
         guarded("battery") { battery.start() }
         guarded("headset") { headset.start() }
+        // Bound to this service's own lifecycle, not an activity's, so the camera (and the
+        // detection pipeline below) keep running with the screen off and no activity visible --
+        // the chest-mounted, hands-free use this app is built for (android/CLAUDE.md).
+        guarded("camera") { registry.frameSource.bind(this) }
+        guarded("detection_pipeline") { registry.detectionPipeline.start(lifecycleScope) }
         lifecycleScope.launch {
             store.state.map { it.listening }.distinctUntilChanged().collect(::holdWakeLock)
         }
