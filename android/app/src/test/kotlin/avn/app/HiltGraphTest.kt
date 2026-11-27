@@ -32,7 +32,7 @@ class HiltGraphTest {
     @Test
     fun fakeGraphBuildsAndTheUiSpeaksOnlyThroughTheEngine() {
         hilt.inject()
-        assertEquals(20, registry.modules.size)
+        assertEquals(21, registry.modules.size)
         // The bound SpeechOutput is the same singleton the Debug screen shows.
         assertSame(speaker, registry.speechOutput)
 

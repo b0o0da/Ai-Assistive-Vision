@@ -48,13 +48,16 @@ import avn.app.vision.AccelerometerMotionEstimator
 import avn.app.vision.CompositeDetector
 import avn.app.vision.Detector
 import avn.app.vision.DetectorConfig
+import avn.app.vision.EventBuilder
 import avn.app.vision.FakeDetector
+import avn.app.vision.FakeEventBuilder
 import avn.app.vision.FakeMotionEstimator
 import avn.app.vision.FakeOcrEngine
 import avn.app.vision.FakeTracker
 import avn.app.vision.IouTracker
 import avn.app.vision.MotionEstimator
 import avn.app.vision.OcrEngine
+import avn.app.vision.TrackEventBuilder
 import avn.app.vision.Tracker
 import avn.app.vision.YoloV8OnnxDetector
 import avn.app.voice.ActionRouter
@@ -164,6 +167,16 @@ abstract class ModulesModule {
         fun tracker(perf: PerfLogger, motion: MotionEstimator, fake: FakeTracker): Tracker =
             if ("tracker" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) {
                 IouTracker(isUserMoving = motion::isWalking, perf = perf)
+            } else {
+                fake
+            }
+
+        /** Same seam as [tracker]: WS-06 ships [Track] production and [Event] building together. */
+        @Provides
+        @Singleton
+        fun eventBuilder(fake: FakeEventBuilder): EventBuilder =
+            if ("tracker" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) {
+                TrackEventBuilder()
             } else {
                 fake
             }

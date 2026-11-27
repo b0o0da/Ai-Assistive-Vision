@@ -4,6 +4,7 @@ import avn.app.camera.FrameSource
 import avn.app.navigation.HapticCues
 import avn.app.navigation.LocationSource
 import avn.app.navigation.Navigation
+import avn.app.pipeline.DetectionPipeline
 import avn.app.screen.NotificationSource
 import avn.app.screen.ScreenActions
 import avn.app.screen.ScreenAi
@@ -45,7 +46,8 @@ class ModuleRegistry @Inject constructor(
     val locationSource: LocationSource,
     val navigation: Navigation,
     val hapticCues: HapticCues,
-    val sos: Sos
+    val sos: Sos,
+    val detectionPipeline: DetectionPipeline
 ) {
     val modules: Map<String, Any> = mapOf(
         "engine" to engineInput,
@@ -53,6 +55,7 @@ class ModuleRegistry @Inject constructor(
         "camera" to frameSource,
         "detector" to detector,
         "tracker" to tracker,
+        "detection_pipeline" to detectionPipeline,
         "ocr" to ocrEngine,
         "wakeword" to wakeWord,
         "emergency_keyword" to emergencyKeywordDetector,
