@@ -7,7 +7,7 @@ import avn.app.BuildConfig
 import avn.app.camera.CameraXFrameSource
 import avn.app.camera.FakeFrameSource
 import avn.app.camera.FrameSource
-import avn.app.core.FakeEngineInput
+import avn.app.core.AppPriorityEngine
 import avn.app.core.consent.ConsentGuard
 import avn.app.core.consent.ConsentManager
 import avn.app.core.logging.JsonLinesLogger
@@ -55,8 +55,11 @@ import avn.app.vision.FakeMotionEstimator
 import avn.app.vision.FakeOcrEngine
 import avn.app.vision.FakeTracker
 import avn.app.vision.IouTracker
+import avn.app.vision.MlKitOcrEngine
+import avn.app.vision.MlKitTextRecognizer
 import avn.app.vision.MotionEstimator
 import avn.app.vision.OcrEngine
+import avn.app.vision.PostprocessingDetector
 import avn.app.vision.TrackEventBuilder
 import avn.app.vision.Tracker
 import avn.app.vision.YoloV8OnnxDetector
@@ -93,13 +96,10 @@ import kotlinx.coroutines.SupervisorJob
 @InstallIn(SingletonComponent::class)
 abstract class ModulesModule {
     @Binds
-    abstract fun engineInput(fake: FakeEngineInput): EngineInput
+    abstract fun engineInput(real: AppPriorityEngine): EngineInput
 
     @Binds
     abstract fun speechOutput(fake: FakeSpeaker): SpeechOutput
-
-    @Binds
-    abstract fun ocrEngine(fake: FakeOcrEngine): OcrEngine
 
     @Binds
     abstract fun wakeWord(fake: FakeWakeWord): WakeWord
@@ -147,14 +147,17 @@ abstract class ModulesModule {
         ): Detector = if ("detector" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) {
             // Two separate checkpoints, two disjoint class sets -- see CompositeDetector and
             // DetectorConfig.DEFAULT/POTHOLE_DEFAULT's doc comments for why.
-            CompositeDetector(
-                listOf(
-                    YoloV8OnnxDetector(context, log, DetectorConfig.load("/config/detector.json"), perf),
-                    YoloV8OnnxDetector(
-                        context,
-                        log,
-                        DetectorConfig.load("/config/detector_pothole.json", DetectorConfig.POTHOLE_DEFAULT),
-                        perf
+            // WS05-07: spec-label filter, per-class thresholds and NMS on the combined output.
+            PostprocessingDetector(
+                CompositeDetector(
+                    listOf(
+                        YoloV8OnnxDetector(context, log, DetectorConfig.load("/config/detector.json"), perf),
+                        YoloV8OnnxDetector(
+                            context,
+                            log,
+                            DetectorConfig.load("/config/detector_pothole.json", DetectorConfig.POTHOLE_DEFAULT),
+                            perf
+                        )
                     )
                 )
             )
@@ -210,6 +213,16 @@ abstract class ModulesModule {
         @Singleton
         fun motionEstimator(fake: FakeMotionEstimator, real: AccelerometerMotionEstimator): MotionEstimator =
             if ("motion" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) real else fake
+
+        /** WS07-03. Real engine = ML Kit bundled Latin model, on-device and offline. */
+        @Provides
+        @Singleton
+        fun ocrEngine(fake: FakeOcrEngine, log: JsonLinesLogger, perf: PerfLogger): OcrEngine =
+            if ("ocr" in BuildConfig.REAL_SEAMS.split(',').map(String::trim)) {
+                MlKitOcrEngine(MlKitTextRecognizer(), log, perf)
+            } else {
+                fake
+            }
 
         /** WS18-02. Real client talks to `/screen/summarize` (mock backend first); fake echoes the tree text. */
         @Provides

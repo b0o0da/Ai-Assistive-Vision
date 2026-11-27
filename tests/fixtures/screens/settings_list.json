@@ -1,0 +1,106 @@
+{
+  "name": "settings_list",
+  "description": "Settings: row descriptions repeat their children, a switch repeats its label, bidi marks, a password field never read.",
+  "snapshot": {
+    "package": "com.android.settings",
+    "screen_type": "other",
+    "nodes": [
+      {
+        "text": "Settings",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "",
+        "content_description": "Wi-Fi, Connected",
+        "view_id": null,
+        "class_name": "android.widget.LinearLayout",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Wi-Fi",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Connected",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Bluetooth",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "",
+        "content_description": "Bluetooth",
+        "view_id": null,
+        "class_name": "android.widget.Switch",
+        "clickable": true,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "Off",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "‏Display‎",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.TextView",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": false
+      },
+      {
+        "text": "hunter2",
+        "content_description": null,
+        "view_id": null,
+        "class_name": "android.widget.EditText",
+        "clickable": false,
+        "scrollable": false,
+        "is_password": true
+      }
+    ],
+    "text": "",
+    "clickable_labels": [],
+    "flags": {
+      "secure": false,
+      "empty": false,
+      "unlabeled": false,
+      "deny_listed": false
+    }
+  },
+  "expected": [
+    "Settings",
+    "Wi-Fi, Connected",
+    "Bluetooth",
+    "Off",
+    "Display"
+  ]
+}

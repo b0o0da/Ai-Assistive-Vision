@@ -1,0 +1,53 @@
+{
+  "name": "person_duplicates",
+  "frame": {
+    "width": 1080,
+    "height": 1920
+  },
+  "source": "authored",
+  "description": "One person seen three times by the detector (shifted boxes) plus one separate person: NMS keeps two.",
+  "detections": [
+    {
+      "label": "person",
+      "confidence": 0.91,
+      "x": 400,
+      "y": 600,
+      "w": 200,
+      "h": 700
+    },
+    {
+      "label": "person",
+      "confidence": 0.84,
+      "x": 410,
+      "y": 610,
+      "w": 195,
+      "h": 690
+    },
+    {
+      "label": "person",
+      "confidence": 0.62,
+      "x": 395,
+      "y": 590,
+      "w": 210,
+      "h": 720
+    },
+    {
+      "label": "person",
+      "confidence": 0.88,
+      "x": 900,
+      "y": 650,
+      "w": 150,
+      "h": 500
+    }
+  ],
+  "expected": [
+    {
+      "label": "person",
+      "confidence": 0.91
+    },
+    {
+      "label": "person",
+      "confidence": 0.88
+    }
+  ]
+}

@@ -3,6 +3,7 @@ package avn.app.ui
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,6 +44,7 @@ import avn.app.data.SettingKeys
 import avn.app.vision.OcrCapture
 import avn.contracts.Event
 import avn.contracts.OcrResult
+import avn.engine.DecisionRecord
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
@@ -59,7 +61,8 @@ private val SETTING_FIELDS = listOf(
 fun AvnScreens(deps: UiDeps) {
     var tab by rememberSaveable { mutableIntStateOf(0) }
     Column(Modifier.fillMaxSize().safeDrawingPadding().padding(12.dp)) {
-        Row {
+        // Six tabs do not fit a portrait phone; scroll sideways instead of wrapping or clipping.
+        Row(Modifier.horizontalScroll(rememberScrollState())) {
             TABS.forEachIndexed { index, name ->
                 TextButton(onClick = { tab = index }, enabled = tab != index) { Text(name) }
             }
@@ -305,14 +308,16 @@ private fun SettingsScreen(deps: UiDeps) {
 
 @Composable
 private fun AlertLogScreen(deps: UiDeps) {
+    val decisions by deps.priorityEngine.decisions.collectAsState()
     val rows by deps.alertLog.observeRecent(500).collectAsState(initial = emptyList())
-    if (rows.isEmpty()) {
-        Text("No alerts yet. The engine fills this in Phase 3.")
-    } else {
-        LazyColumn {
-            items(rows, key = { it.id }) { row ->
-                Text("${row.level} ${row.type} ${row.label}: ${row.decision} ${row.reason ?: ""}")
-            }
+    Text("Engine decisions (this session, newest first)", style = MaterialTheme.typography.titleMedium)
+    if (decisions.isEmpty() && rows.isEmpty()) {
+        Text("No decisions yet. Inject an event from the Debug tab, or use Read text / See objects.")
+    }
+    LazyColumn {
+        items(decisions.asReversed()) { record -> Text(alertLine(record)) }
+        items(rows, key = { it.id }) { row ->
+            Text("${row.level} ${row.type} ${row.label}: ${row.decision} ${row.reason ?: ""}")
         }
     }
 }
@@ -380,4 +385,13 @@ private fun DebugScreen(deps: UiDeps) {
         Text("Fake speaker (last ${spoken.size})", style = MaterialTheme.typography.titleMedium)
         spoken.forEach { Text("${it.level}: ${it.text}") }
     }
+}
+
+/** One Alert log line: level, what, where, then what the engine did and why. Never content text. */
+internal fun alertLine(r: DecisionRecord): String {
+    val what = listOfNotNull(r.label ?: r.type.name.lowercase(), r.side?.name?.lowercase(), r.band?.name?.lowercase())
+    val why = r.reason?.name?.lowercase() ?: r.note
+    val level = r.level?.name ?: "-"
+    val risk = r.risk?.let { " risk $it" } ?: ""
+    return "$level ${what.joinToString(" ")}$risk: ${r.decision.name.lowercase()}${why?.let { " ($it)" } ?: ""}"
 }

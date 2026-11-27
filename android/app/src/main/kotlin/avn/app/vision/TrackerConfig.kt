@@ -12,6 +12,8 @@ data class TrackerConfig(
     val lowConfidence: Float,
     val matchIou: Float,
     val maxLostFrames: Int,
+    /** WS06-02: a lost track also expires after this long without a match, whatever the frame rate. */
+    val maxLostMs: Long,
     val historySize: Int,
     val approachMinObservations: Int,
     val approachMinSpanMs: Long,
@@ -24,6 +26,7 @@ data class TrackerConfig(
             lowConfidence = 0.10f,
             matchIou = 0.30f,
             maxLostFrames = 8,
+            maxLostMs = 1_500,
             historySize = 6,
             approachMinObservations = 5,
             approachMinSpanMs = 350,
@@ -43,6 +46,7 @@ data class TrackerConfig(
                     lowConfidence = values.getValue("lowConfidence").jsonPrimitive.float,
                     matchIou = values.getValue("matchIou").jsonPrimitive.float,
                     maxLostFrames = values.getValue("maxLostFrames").jsonPrimitive.int,
+                    maxLostMs = values["maxLostMs"]?.jsonPrimitive?.content?.toLong() ?: DEFAULT.maxLostMs,
                     historySize = values.getValue("historySize").jsonPrimitive.int,
                     approachMinObservations = values.getValue("approachMinObservations").jsonPrimitive.int,
                     approachMinSpanMs = values.getValue("approachMinSpanMs").jsonPrimitive.content.toLong(),
@@ -57,7 +61,7 @@ data class TrackerConfig(
 
     private fun validated(): TrackerConfig {
         require(lowConfidence in 0f..highConfidence && highConfidence <= 1f)
-        require(matchIou in 0f..1f && maxLostFrames >= 0 && historySize >= approachMinObservations)
+        require(matchIou in 0f..1f && maxLostFrames >= 0 && maxLostMs > 0 && historySize >= approachMinObservations)
         require(approachMinObservations >= 3 && approachMinSpanMs > 0)
         require(approachGrowthRatio > 1f && approachGrowthRatioWhileMoving >= approachGrowthRatio)
         return this
