@@ -3,7 +3,6 @@ package avn.app.vision
 import avn.app.camera.Frame
 import avn.app.core.logging.JsonLinesLogger
 import avn.contracts.Event
-import avn.contracts.OcrResult
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,15 +40,6 @@ interface Detector {
 
 interface Tracker {
     fun update(detections: List<Detection>, timestampMs: Long): List<Track>
-}
-
-/** Result of one explicit camera-to-text request; no frame or text is persisted by this workflow. */
-sealed interface OcrCapture {
-    data class Found(val result: OcrResult) : OcrCapture
-    data object Busy : OcrCapture
-    data object CameraUnavailable : OcrCapture
-    data object NoText : OcrCapture
-    data object Failed : OcrCapture
 }
 
 /**

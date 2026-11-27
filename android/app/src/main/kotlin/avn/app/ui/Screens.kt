@@ -41,7 +41,7 @@ import avn.app.core.permissions.Access
 import avn.app.core.service.AssistantService
 import avn.app.data.SettingEntity
 import avn.app.data.SettingKeys
-import avn.app.vision.OcrCapture
+import avn.app.vision.ReadTextPipeline
 import avn.contracts.Event
 import avn.contracts.OcrResult
 import avn.engine.DecisionRecord
@@ -136,57 +136,54 @@ private fun ObjectDetectionScreen(deps: UiDeps) {
 private fun ReadTextScreen(deps: UiDeps) {
     val scope = rememberCoroutineScope()
     var result by remember { mutableStateOf<OcrResult?>(null) }
-    var status by remember { mutableStateOf("Capture a still image when text is in view.") }
+    var spoken by remember { mutableStateOf<String?>(null) }
+    var status by remember { mutableStateOf("Point the camera at text, then press Read text.") }
     var processing by remember { mutableStateOf(false) }
 
     Column(Modifier.verticalScroll(rememberScrollState())) {
         Text("Read text", style = MaterialTheme.typography.titleMedium)
-        Text("OCR runs only when you ask. The captured frame and recognized text are kept in memory only.")
+        Text("OCR runs on the phone only when you ask, and works offline. Nothing is saved.")
         Button(
             enabled = !processing,
             onClick = {
                 scope.launch {
                     processing = true
                     result = null
+                    spoken = null
                     status = "Capturing and reading…"
                     try {
-                        when (val capture = deps.captureText()) {
-                            is OcrCapture.Found -> {
-                                result = capture.result
-                                status = "Text captured. Press Read aloud when ready."
-                                deps.say("Text captured. Press Read aloud to hear it.")
+                        // The pipeline submits what to say to the engine itself, including failures.
+                        when (val outcome = deps.readTextOnce()) {
+                            is ReadTextPipeline.Outcome.Read -> {
+                                result = outcome.reading.toResult()
+                                spoken = outcome.spoken
+                                status = "Read aloud."
                             }
-                            OcrCapture.Busy -> status = "A text reading is already in progress."
-                            OcrCapture.CameraUnavailable -> {
-                                status = "Camera is not connected yet."
-                                deps.say("The camera is not available yet.")
+                            is ReadTextPipeline.Outcome.NoText -> {
+                                spoken = outcome.spoken
+                                status = outcome.spoken
                             }
-                            OcrCapture.NoText -> {
-                                status = "No readable text found. Try moving closer and holding still."
-                                deps.say(status)
-                            }
-                            OcrCapture.Failed -> {
-                                status = "Text reading failed. Please try again."
-                                deps.say(status)
-                            }
+                            ReadTextPipeline.Outcome.Busy -> status = "A text reading is already in progress."
                         }
                     } finally {
                         processing = false
                     }
                 }
             }
-        ) { Text(if (processing) "Reading…" else "Capture text") }
+        ) { Text(if (processing) "Reading…" else "Read text") }
 
         Text(status)
+        spoken?.let { Text("Spoken: $it") }
         result?.let { captured ->
             Text("Recognized text", style = MaterialTheme.typography.titleSmall)
             Text(captured.text)
             Text("Language: ${captured.language} · Confidence: ${"%.2f".format(captured.confidence)}")
             Row {
-                Button(onClick = { deps.readText(captured.text) }) { Text("Read aloud") }
+                Button(onClick = { spoken?.let(deps::readText) }) { Text("Read again") }
                 TextButton(
                     onClick = {
                         result = null
+                        spoken = null
                         status = "Captured text cleared from this screen."
                     }
                 ) { Text("Clear") }

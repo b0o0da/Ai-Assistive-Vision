@@ -14,8 +14,7 @@ import avn.app.data.AlertLogDao
 import avn.app.data.SettingsDao
 import avn.app.vision.Detection
 import avn.app.vision.Detector
-import avn.app.vision.OcrCapture
-import avn.app.vision.OcrEngine
+import avn.app.vision.ReadTextPipeline
 import avn.app.voice.FakeSpeaker
 import avn.app.voice.FakeSttEngine
 import avn.app.voice.FakeWakeWord
@@ -38,14 +37,13 @@ class UiDeps @Inject constructor(
     val engine: EngineInput,
     val priorityEngine: AppPriorityEngine,
     private val frameSource: FrameSource,
-    private val ocrEngine: OcrEngine,
+    private val textReader: ReadTextPipeline,
     private val detector: Detector,
     val connectivity: ConnectivityMonitor,
     val wakeWord: FakeWakeWord,
     val stt: FakeSttEngine,
     val speaker: FakeSpeaker
 ) {
-    private val ocrMutex = Mutex()
     private val detectionMutex = Mutex()
 
     fun bindCamera(owner: androidx.lifecycle.LifecycleOwner) = frameSource.bind(owner)
@@ -62,24 +60,8 @@ class UiDeps @Inject constructor(
     fun say(text: String) =
         engine.submit(SpeechCandidate(text, Source.SYSTEM, EventType.SYSTEM_NOTICE, userRequested = true))
 
-    /** A user-triggered, single-frame OCR action. Frames and recognized text stay in memory only. */
-    suspend fun captureText(): OcrCapture {
-        if (!ocrMutex.tryLock()) return OcrCapture.Busy
-        var frame: avn.app.camera.Frame? = null
-        return try {
-            val capturedFrame = frameSource.captureStill() ?: return OcrCapture.CameraUnavailable
-            frame = capturedFrame
-            val result = ocrEngine.read(capturedFrame)
-            if (result.text.isBlank()) OcrCapture.NoText else OcrCapture.Found(result.toResult())
-        } catch (cancelled: CancellationException) {
-            throw cancelled
-        } catch (_: Exception) {
-            OcrCapture.Failed
-        } finally {
-            frame?.bitmap?.recycle()
-            ocrMutex.unlock()
-        }
-    }
+    /** WS07-07: one still -> OCR -> one spoken Info item through the engine. Nothing is stored. */
+    suspend fun readTextOnce(): ReadTextPipeline.Outcome = textReader.readOnce()
 
     /** User-triggered YOLO snapshot. No continuous image processing or image storage. */
     suspend fun detectObjects(): ObjectCapture {
@@ -100,7 +82,7 @@ class UiDeps @Inject constructor(
         }
     }
 
-    /** The engine remains the only path from a producer to speech output. */
+    /** "Read again": the same spoken text, again through the engine (the only path to speech). */
     fun readText(text: String) {
         if (text.isBlank()) return
         engine.submit(
